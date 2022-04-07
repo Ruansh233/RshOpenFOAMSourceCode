@@ -1,0 +1,308 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Copyright (C) 2011-2021 OpenFOAM Foundation
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Application
+    transformPoints
+
+Description
+    Transform (translate, rotate, scale) the mesh points, and optionally also
+    any vector and tensor fields.
+
+Usage
+    \b transformPoints "\<transformations\>" [OPTION]
+
+    Supported transformations:
+      - \par translate=<translation vector>
+        Translational transformation by given vector
+      - \par rotate=(\<n1 vector\> \<n2 vector\>)
+        Rotational transformation from unit vector n1 to n2
+      - \par Rx=\<angle [deg] about x-axis\>
+        Rotational transformation by given angle about x-axis
+      - \par Ry=\<angle [deg] about y-axis\>
+        Rotational transformation by given angle about y-axis
+      - \par Rz=\<angle [deg] about z-axis\>
+        Rotational transformation by given angle about z-axis
+      - \par Ra=\<axis vector\> \<angle [deg] about axis\>
+        Rotational transformation by given angle about given axis
+      - \par scale=\<x-y-z scaling vector\>
+        Anisotropic scaling by the given vector in the x, y, z
+        coordinate directions
+
+    Options:
+      - \par -rotateFields \n
+        Additionally transform vector and tensor fields.
+
+    Example usage:
+        transformPoints \
+            "translate=(-0.05 -0.05 0), \
+            Rz=45, \
+            translate=(0.05 0.05 0)"
+
+See also
+    Foam::transformer
+    surfaceTransformPoints
+
+\*---------------------------------------------------------------------------*/
+
+#include "argList.H"
+#include "fvMesh.H"
+#include "regionProperties.H"
+#include "volFields.H"
+#include "surfaceFields.H"
+#include "ReadFields.H"
+#include "pointFields.H"
+#include "transformField.H"
+#include "transformGeometricField.H"
+#include "unitConversion.H"
+
+#include "plane.H"
+// #include "systemDict.H"
+// #include "setRootCase.H"
+
+using namespace Foam;
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+template<class GeoField>
+void readAndRotateFields
+(
+    PtrList<GeoField>& flds,
+    const fvMesh& mesh,
+    const tensor& T,
+    const IOobjectList& objects
+)
+{
+    ReadFields(mesh, objects, flds);
+    forAll(flds, i)
+    {
+        Info<< "Transforming " << flds[i].name() << endl;
+        dimensionedTensor dimT("t", flds[i].dimensions(), T);
+        transform(flds[i], dimT, flds[i]);
+    }
+}
+
+
+void rotateFields(const argList& args, const Time& runTime, const tensor& T)
+{
+    #include "createNamedMesh.H"
+
+    // Read objects in time directory
+    IOobjectList objects(mesh, runTime.timeName());
+
+    // Read vol fields.
+    PtrList<volScalarField> vsFlds;
+    readAndRotateFields(vsFlds, mesh, T, objects);
+    PtrList<volVectorField> vvFlds;
+    readAndRotateFields(vvFlds, mesh, T, objects);
+    PtrList<volSphericalTensorField> vstFlds;
+    readAndRotateFields(vstFlds, mesh, T, objects);
+    PtrList<volSymmTensorField> vsymtFlds;
+    readAndRotateFields(vsymtFlds, mesh, T, objects);
+    PtrList<volTensorField> vtFlds;
+    readAndRotateFields(vtFlds, mesh, T, objects);
+
+    // Read surface fields.
+    PtrList<surfaceScalarField> ssFlds;
+    readAndRotateFields(ssFlds, mesh, T, objects);
+    PtrList<surfaceVectorField> svFlds;
+    readAndRotateFields(svFlds, mesh, T, objects);
+    PtrList<surfaceSphericalTensorField> sstFlds;
+    readAndRotateFields(sstFlds, mesh, T, objects);
+    PtrList<surfaceSymmTensorField> ssymtFlds;
+    readAndRotateFields(ssymtFlds, mesh, T, objects);
+    PtrList<surfaceTensorField> stFlds;
+    readAndRotateFields(stFlds, mesh, T, objects);
+
+    mesh.write();
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+int main(int argc, char *argv[])
+{
+    argList::addNote
+    (
+        "Transforms a mesh by translation, rotation and/or scaling.\n"
+        "The <transformations> are listed comma-separated in a string "
+        "and executed in sequence.\n\n"
+        "transformations:\n"
+        "  translate=<vector>        "
+        "translation by vector, e.g. (1 2 3)\n"
+        "  rotate=(<n1> <n2>)        "
+        "rotation from unit vector n1 to n2\n"
+        "  Rx=<angle>                "
+        "rotation by given angle [deg], e.g. 90, about x-axis\n"
+        "  Ry=<angle>                "
+        "rotation by given angle [deg] about y-axis\n"
+        "  Rz=<angle>                "
+        "rotation by given angle [deg] about z-axis\n"
+        "  Ra=<axis vector> <angle>  "
+        "rotation by given angle [deg] about specified axis\n"
+        "  mirror=(<point> <normal>) "
+        "mirror by given plane\n"
+        "  scale=<vector>            "
+        "scale by factors from vector in x, y, z directions,\n"
+        "                            "
+        "e.g. (0.001 0.001 0.001) to scale from mm to m\n\n"
+        "example:\n"
+        "  transformPoints "
+        "\"translate=(1.2 0 0), Rx=90, translate=(-1.2 0 0)\""
+    );
+
+
+    argList::validArgs.append("transformations");
+
+    argList::addBoolOption
+    (
+        "rotateFields",
+        "transform vector and tensor fields"
+    );
+
+    #include "addRegionOption.H"
+    #include "addAllRegionsOption.H"
+    #include "setRootCase.H"
+    #include "createTime.H"
+
+    const string transformationString(args[1]);
+
+    // Info<< " test: " << transformationString << endl
+    //     << transformationString.find("mirror") << endl;
+    
+    // const string teststring("mirror=test");
+    // if (teststring.find("mirror"))
+    // {
+    //     Info<< endl << "Yes " << endl
+    //         << "mirror " << teststring.find("mirror") << endl;
+    // }
+
+    #include "createTransforms.H"
+
+    // Info<< endl << " mirrorPlane " << mirrorPlane << endl;
+
+    const wordList regionNames(selectRegionNames(args, runTime));
+
+    const bool doRotateFields = args.optionFound("rotateFields");
+
+    forAll(regionNames, regioni)
+    {
+        const word& regionName = regionNames[regioni];
+        const word& regionDir = Foam::regionDir(regionName);
+
+        fileName meshDir(regionDir/polyMesh::meshSubDir);
+
+        pointIOField points
+        (
+            IOobject
+            (
+                "points",
+                runTime.findInstance(meshDir, "points"),
+                meshDir,
+                runTime,
+                IOobject::MUST_READ,
+                IOobject::NO_WRITE,
+                false
+            )
+        );
+
+        // Info<< endl << " pointNormal[0] " << pointNormal[0] << endl
+        //     << " pointNormal[1] " << pointNormal[1] << endl;
+        
+        // const pointField& allPoints = points();
+
+        // Info<< endl << "points: " << points << endl;
+
+        if (transformationString.find("mirror") != string::npos)
+        {
+            wordReList simpleTransformationsTest;
+            List<Tuple2<word, string>> transformationsTest;
+            dictArgList(transformationString, simpleTransformationsTest, transformationsTest);
+
+            pointField& oldPoints = points;
+
+            // scalar alpha = 0;
+            // vector normaltest(1, 0, 0);
+            // // Info<< endl << " normaltest " << normaltest << endl;
+            // plane mirrorPlane();
+            // // plane& mirrorPlane =  testPlane;
+            // Info<< endl << " mirrorPlane " << mirrorPlane << endl;
+
+            Pair<vector> pointNormal(IStringStream(transformationsTest[0].second())());
+
+            plane mirrorPlane(pointNormal[0], pointNormal[1]);
+
+            Info<< endl << " mirrorPlane " << mirrorPlane << endl;
+
+            // // Info<< endl << "alpha " << alpha << endl;
+
+            // // Info<< endl << "points: " << oldPoints << endl;
+            // // Info<< endl << "Yes " << endl;
+
+            forAll(oldPoints, pointi)
+            {
+                scalar alpha =
+                    mirrorPlane.normalIntersect
+                    (
+                        oldPoints[pointi],
+                        mirrorPlane.normal()
+                    );
+                
+                // Info<< endl << "alpha " << alpha << endl;
+
+                // The point gets mirrored
+                oldPoints[pointi] =
+                    oldPoints[pointi] + 2.0*alpha*mirrorPlane.normal();
+                
+                // Info<< " point" << pointi << " " << oldPoints[pointi] << endl;
+            }
+
+            // Info<< endl << "points: " << points << endl;
+        }
+
+        else
+        {
+            transforms.transformPosition(points, points);
+            Info<< endl << " transform finished " << endl;
+        }
+
+        // transforms.transformPosition(points, points);
+
+        if (doRotateFields)
+        {
+            rotateFields(args, runTime, transforms.T());
+        }
+
+        // Set the precision of the points data to 10
+        IOstream::defaultPrecision(max(10u, IOstream::defaultPrecision()));
+
+        Info<< "Writing points into directory " << points.path() << nl << endl;
+        points.write();
+    }
+
+    Info<< "End\n" << endl;
+
+    return 0;
+}
+
+
+// ************************************************************************* //

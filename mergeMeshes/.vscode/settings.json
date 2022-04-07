@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "*Dict": "OpenFOAM",
+        "*Properties": "OpenFOAM",
+        "fvSchemes": "OpenFOAM",
+        "fvSolution": "OpenFOAM",
+        "**/constant/*": "OpenFOAM",
+        "**/0/*": "OpenFOAM",
+        "**.H": "cpp",
+        "**.C": "cpp",
+        "mergePolyMesh.H": "cpp",
+        "createTimes.H": "cpp"
+    }
+}

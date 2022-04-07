@@ -1,0 +1,106 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      topoSetDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+actions
+(
+    {
+        // Mandatory (inherited) entries
+        name        cellSetTest1;
+        type        cellSet;
+        action      new;
+        source      boxToCell;
+        box         (0 0 0.1) (0.1 0.1 0.2);
+    }
+
+    // {
+    //     name         block1_cell;
+    //     type         cellSet;
+    //     action       new;
+    //     source       searchableSurfaceToCell; 
+    //     surfaceType  triSurfaceMesh;
+    //     surfaceName  block1.stl;
+    // }
+
+    {
+        // Mandatory (inherited) entries
+        name        cellZoneTest1;
+        type        cellZoneSet;
+        action      new;
+    
+        // Mandatory entries
+        source      setToCellZone;
+        set         cellSetTest1;
+    }
+
+    {
+        // Mandatory (inherited) entries
+        name        cellSetTest2;
+        type        cellSet;
+        action      new;
+        source      boxToCell;
+        box         (0 0 0) (0.1 0.1 0.05);
+    }
+
+    // {
+    //     name         block1_cell;
+    //     type         cellSet;
+    //     action       new;
+    //     source       searchableSurfaceToCell; 
+    //     surfaceType  triSurfaceMesh;
+    //     surfaceName  block1.stl;
+    // }
+
+    {
+        // Mandatory (inherited) entries
+        name        cellZoneTest2;
+        type        cellZoneSet;
+        action      new;
+    
+        // Mandatory entries
+        source      setToCellZone;
+        set         cellSetTest2;
+    }
+
+    {
+        // Mandatory (inherited) entries
+        name        cellSetTest3;
+        type        cellSet;
+        action      new;
+        source      boxToCell;
+        box         (0 0 0) (0.1 0.1 0.2);
+    }
+
+    // {
+    //     name         block1_cell;
+    //     type         cellSet;
+    //     action       new;
+    //     source       searchableSurfaceToCell; 
+    //     surfaceType  triSurfaceMesh;
+    //     surfaceName  block1.stl;
+    // }
+
+    {
+        // Mandatory (inherited) entries
+        name        cellZoneTest3;
+        type        cellZoneSet;
+        action      new;
+    
+        // Mandatory entries
+        source      setToCellZone;
+        set         cellSetTest3;
+    }
+
+);
+ // ************************************************************************* //
