@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "wordRe.H"
 
 int main(int argc, char *argv[])
 {
@@ -48,6 +49,9 @@ int main(int argc, char *argv[])
             IOobject::MUST_READ // indicate that reading this dictionary is compulsory
         )
     );
+
+    // Info << "mesh.time(): " << mesh.time().name() << endl;
+    // Info << "runTime.timeName(): " << runTime.timeName() << endl;
 
     // read variable from list
     word runTimeName_ (customDict.lookup("readTime"));
