@@ -181,6 +181,8 @@ int main(int argc, char *argv[])
     //     inletUorig[faceI] = uValue;
     // }
 
+    Info << "max(wallDistance_).value(): " << max(wallDistance_).value() << endl;
+
     forAll(matchPatchID, matchI)
     {
         label patchI_ (matchPatchID[matchI]);
@@ -194,10 +196,26 @@ int main(int argc, char *argv[])
         forAll(inletUorig, faceI)
         {
             label adjcellID = mesh.boundary()[patchI_].patch().faceCells()[faceI];
-            vector uValue(0, 0, 1.0*(pow(wallDistance_[adjcellID]/max(wallDistance_).value(), 2)));
-            inletUorig[faceI] = uValue;
+            // if (wallDistance_[adjcellID] > 5.0e-4)
+            // {
+            //     vector uValue(0, 0, 0.841*(pow(wallDistance_[adjcellID]/max(wallDistance_).value(), 2)));
+            //     inletUorig[faceI] = uValue;
+            // }            
+
+            if (0.841*(pow(wallDistance_[adjcellID]/max(wallDistance_).value(), 2)) > 0.1)
+            {
+                vector uValue(0, 0, 0.841*(pow(wallDistance_[adjcellID]/max(wallDistance_).value(), 2)));
+                inletUorig[faceI] = uValue;
+            }
+            else
+            {
+                vector uValue(0, 0, 0.1);
+                inletUorig[faceI] = uValue;
+            }
         }
     }
+
+    
 
     // label inletPatchID = mesh.boundaryMesh().findPatchID("inlet.*");
 
