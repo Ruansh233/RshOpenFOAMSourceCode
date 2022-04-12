@@ -51,8 +51,13 @@ int main(int argc, char *argv[])
 
         forAll(modeNumber, No_)
         {
+            // Info << "test1 " << endl;
+
             fileName dataFile (dataPath/fieldName[nameNo] + "_mode" + modeNumber[No_]);
             fileName modeFieldName(fieldName[nameNo] + "_mode" + modeNumber[No_]);
+
+            // Info << "dataFile: " << dataFile << endl
+            //      << "modeFieldName: " << modeFieldName << endl;
 
             if(isFile(dataFile))
             {
@@ -69,14 +74,23 @@ int main(int argc, char *argv[])
                     mesh,
                     dimVelocity
                 );
+
+                // Info << "test2 " << endl;
                 
                 IFstream dataStream(dataFile);
+                // Info << "test3 " << endl;
+
                 forAll(mesh.cellZones()[0], cellI)
                 {
                     forAll(mesh.cellZones(), zoneI)
                     {
-                        label cell = mesh.cellZones()[zoneI][cellI];
-                        dataStream.read(fieldValueMode[cell]);
+                        // Info << "Zone Name: " << mesh.cellZones()[zoneI].name() << endl;
+                        if (mesh.cellZones()[zoneI].size() == mesh.cellZones()[0].size())
+                        {
+                            label cell = mesh.cellZones()[zoneI][cellI];
+                            // Info << "cell " << cell << endl;
+                            dataStream.read(fieldValueMode[cell]);
+                        }                        
                     }
                 }
 
