@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 
     fileName dataPath (mesh.time().path()/"postProcessing");
 
-    // List<word> modeNumber ({"0", "1", "2", "3", "4"});
-    List<word> modeNumber ({"0", "1", "2"});
+    List<word> modeNumber ({"0", "1", "2", "3", "4"});
+    // List<word> modeNumber ({"0", "1", "2"});
     List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradp0", "gradp1", "gradp2"});
 
     forAll(fieldName, nameNo)
@@ -54,32 +54,35 @@ int main(int argc, char *argv[])
             fileName dataFile (dataPath/fieldName[nameNo] + "_mode" + modeNumber[No_]);
             fileName modeFieldName(fieldName[nameNo] + "_mode" + modeNumber[No_]);
 
-            volScalarField Uz_mode
-            (
-                IOobject
-                (
-                    modeFieldName,
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::AUTO_WRITE
-                ),
-                mesh,
-                dimVelocity
-            );
-
-            IFstream dataStream(dataFile);
-
-            forAll(mesh.cellZones()[0], cellI)
+            if(isFile(dataFile))
             {
-                forAll(mesh.cellZones(), zoneI)
+                volScalarField fieldValueMode
+                (
+                    IOobject
+                    (
+                        modeFieldName,
+                        mesh.time().timeName(),
+                        mesh,
+                        IOobject::NO_READ,
+                        IOobject::AUTO_WRITE
+                    ),
+                    mesh,
+                    dimVelocity
+                );
+                
+                IFstream dataStream(dataFile);
+                forAll(mesh.cellZones()[0], cellI)
                 {
-                    label cell = mesh.cellZones()[zoneI][cellI];
-                    dataStream.read(Uz_mode[cell]);
+                    forAll(mesh.cellZones(), zoneI)
+                    {
+                        label cell = mesh.cellZones()[zoneI][cellI];
+                        dataStream.read(fieldValueMode[cell]);
+                    }
                 }
-            }
 
-            Uz_mode.write();
+                fieldValueMode.write();
+            }     
+            
         }
 
     }
