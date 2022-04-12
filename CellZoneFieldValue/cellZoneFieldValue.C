@@ -55,8 +55,10 @@ int main(int argc, char *argv[])
 
     // read variable from list
     word runTimeName_ (customDict.lookup("readTime"));
-    word fieldName_ (customDict.lookup("fieldName"));
+    // word fieldName_ (customDict.lookup("fieldName"));
     List<word> cellZonesName_ (customDict.lookup("cellZoneName"));
+    List<word> fieldsName_ (customDict.lookup("fieldName"));
+
 
     Info << "cellZonesName: " << cellZonesName_ << endl;
 
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
 
     fileName outputDir = mesh.time().path()/"postProcessing";
     mkDir(outputDir);
-    word fileName_(fieldName_);
+    // word fileName_(fieldsName_[0]);
 
     #include "createField.H"
 
