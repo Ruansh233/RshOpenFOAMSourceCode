@@ -20,11 +20,10 @@ fieldName       Uy;
 cellZoneName     
 (
     // allZone
-    cellZoneTest1                  
+    // "cellZ.*"
+    cellZoneTest1
     cellZoneTest2
     cellZoneTest3
-    // cellSetTest1
-    // cellSetTest2
 );
 
 // hello
