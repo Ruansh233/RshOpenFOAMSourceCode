@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
     List<word> modeNumber ({"0", "1", "2", "3", "4"});
     // List<word> modeNumber ({"0", "1", "2"});
-    List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradp0", "gradp1", "gradp2"});
+    List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradpx", "gradpy", "gradpz"});
 
     forAll(fieldName, nameNo)
     {
