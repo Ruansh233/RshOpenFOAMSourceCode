@@ -30,6 +30,8 @@ License
 
 int main(int argc, char *argv[])
 {
+    // timeSelector::addOptions();
+    
     #include "setRootCase.H"
 
 	// These two create the time system (instance called runTime) and fvMesh (instance called mesh).
