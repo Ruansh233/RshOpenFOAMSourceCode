@@ -1,10 +1,9 @@
 #!/bin/bash
 
-wclean
 wmake
 
 cd testCase/
 
-ofTutorial2 -someInt 1 aaa 0
+interfaceFindAndTopoSet
 
 cd ../
