@@ -100,34 +100,36 @@ Foam::mirrorFvMesh::mirrorFvMesh
                 mirrorPlane.normal()
             );
         
-        // The point gets mirrored
-        newPoints[nNewPoints] =
-            oldPoints[pointi] + 2.0*alpha*mirrorPlane.normal();
+        // // The point gets mirrored
+        // newPoints[nNewPoints] =
+        //     oldPoints[pointi] + 2.0*alpha*mirrorPlane.normal();
 
-        // remember the point correspondence
-        mirrorPointLookup[pointi] = nNewPoints;
-        nNewPoints++;
+        // // remember the point correspondence
+        // mirrorPointLookup[pointi] = nNewPoints;
+        // nNewPoints++;
 
-        // // Check plane on tolerance
-        // if (mag(alpha) > planeTolerance)
-        // {
-        //     // The point gets mirrored
-        //     newPoints[nNewPoints] =
-        //         oldPoints[pointi] + 2.0*alpha*mirrorPlane.normal();
+        // Check plane on tolerance
+        if (mag(alpha) > planeTolerance)
+        {
+            // The point gets mirrored
+            newPoints[nNewPoints] =
+                oldPoints[pointi] + 2.0*alpha*mirrorPlane.normal();
 
-        //     // remember the point correspondence
-        //     mirrorPointLookup[pointi] = nNewPoints;
-        //     nNewPoints++;
-        // }
-        // else
-        // {
-        //     // The point is on the plane and does not get mirrored
-        //     // Adjust plane location
-        //     newPoints[nNewPoints] =
-        //         oldPoints[pointi] + alpha*mirrorPlane.normal();
+            // // remember the point correspondence
+            mirrorPointLookup[pointi] = nNewPoints;
+            nNewPoints++;
+        }
+        else
+        {
+            // The point is on the plane and does not get mirrored
+            // Adjust plane location
+            // newPoints[nNewPoints] =
+            //     oldPoints[pointi] + alpha*mirrorPlane.normal();
 
-        //     mirrorPointLookup[pointi] = pointi;
-        // }
+            newPoints[nNewPoints] = oldPoints[pointi];
+            mirrorPointLookup[pointi] = nNewPoints;
+            nNewPoints++;
+        }
     }
 
     // Reset the size of the point list
