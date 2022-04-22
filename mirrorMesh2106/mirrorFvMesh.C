@@ -123,10 +123,10 @@ Foam::mirrorFvMesh::mirrorFvMesh
         {
             // The point is on the plane and does not get mirrored
             // Adjust plane location
-            // newPoints[nNewPoints] =
-            //     oldPoints[pointi] + alpha*mirrorPlane.normal();
+            newPoints[nNewPoints] =
+                oldPoints[pointi] + alpha*mirrorPlane.normal();
 
-            newPoints[nNewPoints] = oldPoints[pointi];
+            // newPoints[nNewPoints] = oldPoints[pointi];
             mirrorPointLookup[pointi] = nNewPoints;
             nNewPoints++;
         }
