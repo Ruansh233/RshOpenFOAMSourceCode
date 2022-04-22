@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
             //      << ": " << mesh.boundary()[patchI].name() 
             //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
             //      << endl;
-            patchCenterSum = patchCenterSum + mesh.boundary()[patchI].Cf()[patchFaceI];
+            patchCenterSum += mesh.boundary()[patchI].Cf()[patchFaceI];
             // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
         }
         patchCenterCoordinate = patchCenterSum / mesh.boundary()[patchI].Cf().size(); 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
     label interfacePairNumber(0);
 
-    scalar toleranceOfDistance(1.0e-8);
+    scalar toleranceOfDistance(1.0e-10);
     scalar distanceOfPatchCenter(0.0);
     List<label> patchCenterChoosed;
     bool choosedFlag;
@@ -128,9 +128,9 @@ int main(int argc, char *argv[])
                 // Info << "distanceOfPatchCenter " << mag(firstPatchCenter - secondPatchCenter) << endl;
                 // Info << "distanceOfPatchCenter " << distanceOfPatchCenter << endl;
 
-                // Info << "patch " << mesh.boundary()[patchCenterFirstI].name() 
-                //      << " and " << mesh.boundary()[patchCenterSecondI].name() 
-                //      << " have center: " << distanceOfPatchCenter << " m "
+                // Info << "patch " << mesh.boundary()[patchCenterFirstI].name() << ": " << firstPatchCenter
+                //      << " and " << mesh.boundary()[patchCenterSecondI].name() << ": " << secondPatchCenter
+                //      << " have center distance: " << distanceOfPatchCenter << " m "
                 //      << endl;
 
                 if (distanceOfPatchCenter<toleranceOfDistance)
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                     interfacePatchListA[interfacePairNumber] = mesh.boundary()[patchCenterFirstI].name();
                     interfacePatchListB[interfacePairNumber] = mesh.boundary()[patchCenterSecondI].name();
 
-                    interfacePairNumber = interfacePairNumber + 1;
+                    interfacePairNumber += 1;
                     // patchCenterLast = patchCenterSecondI;
                     
                     continue;
@@ -162,6 +162,46 @@ int main(int argc, char *argv[])
     }
 
     // Info << patchCenterChoosed;
+
+    // label block6I (mesh.boundary().findPatchID("block6_west"));
+    // label block12I (mesh.boundary().findPatchID("block12_west"));
+    // vector patchCenterSum6 (vector::zero);
+    // vector patchCenterSum12 (vector::zero);
+
+    // forAll(mesh.boundaryMesh()[block6I], patchFaceI)
+    // {
+    //     // Info << "The center of Face " << patchFaceI << " in patch " << patchI << ": "
+    //     //      << ": " << mesh.boundary()[patchI].name() 
+    //     //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
+    //     //      << endl;
+    //     patchCenterSum6 += mesh.boundary()[block6I].Cf()[patchFaceI];
+    //     // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
+    // }
+    // vector patchCenterCoordinate6 = patchCenterSum6 / mesh.boundary()[block6I].Cf().size(); 
+
+    // forAll(mesh.boundaryMesh()[block12I], patchFaceI)
+    // {
+    //     // Info << "The center of Face " << patchFaceI << " in patch " << patchI << ": "
+    //     //      << ": " << mesh.boundary()[patchI].name() 
+    //     //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
+    //     //      << endl;
+    //     patchCenterSum12 += mesh.boundary()[block12I].Cf()[patchFaceI];
+    //     // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
+    // }
+    // vector patchCenterCoordinate12 = patchCenterSum12 / mesh.boundary()[block12I].Cf().size(); 
+
+    // scalar distanceofTest (mag(patchCenterCoordinate6 - patchCenterCoordinate12));
+    // scalar distancex = patchCenterCoordinate6.x() - patchCenterCoordinate12.x();
+    // scalar distancey = patchCenterCoordinate6.y() - patchCenterCoordinate12.y();
+    // scalar distancez = patchCenterCoordinate6.z() - patchCenterCoordinate12.z();
+
+    // Info << "distanceofTest: " << distanceofTest << endl
+    //      << "distancex: " << distancex << endl
+    //      << "distancey: " << distancey << endl
+    //      << "distancez: " << distancez << endl;
+
+    // Info << "patchCenterCoordinate6: " << patchCenterCoordinate6 << endl
+    //      << "patchCenterCoordinate12: " << patchCenterCoordinate12 << endl; 
 
     interfacePatchListA.setSize(interfacePairNumber);
     interfacePatchListB.setSize(interfacePairNumber);
