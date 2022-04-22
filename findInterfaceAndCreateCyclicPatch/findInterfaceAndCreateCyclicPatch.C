@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
     label interfacePairNumber(0);
 
-    scalar toleranceOfDistance(1.0e-10);
+    scalar toleranceOfDistance(1.0e-8);
     scalar distanceOfPatchCenter(0.0);
     List<label> patchCenterChoosed;
     bool choosedFlag;
@@ -169,12 +169,12 @@ int main(int argc, char *argv[])
     // Info << "interfacePatchListA" << interfacePatchListA << endl
     //      << "interfacePatchListB" << interfacePatchListB << endl;
 
-    // fileName outputFile("patchPair");
-    // std::ofstream writeFile(runTime.path()/runTime.system()/outputFile);
-    // forAll(interfacePatchListA, patchListI)
-    // {
-    //     writeFile << interfacePatchListA[patchListI] << "    " << interfacePatchListB[patchListI] << nl;
-    // }
+    fileName outputPairFile("patchPair");
+    std::ofstream writePairFile(runTime.path()/runTime.system()/outputPairFile);
+    forAll(interfacePatchListA, patchListI)
+    {
+        writePairFile << interfacePatchListA[patchListI] << "    " << interfacePatchListB[patchListI] << nl;
+    }
     
     
     fileName outputFile("createPatchDict_interfaces");

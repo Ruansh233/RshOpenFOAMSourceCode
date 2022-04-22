@@ -352,7 +352,7 @@ Foam::mirrorFvMesh::mirrorFvMesh
         << " New patches: " << boundary().size() << endl;
 
     Info<< "Mirroring cells. Old cells: " << oldCells.size()
-        << " New cells: " << 2*oldCells.size() << endl;
+        << " New cells: " << oldCells.size() << endl;
 
     cellList newCells(2*oldCells.size());
     label nNewCells = 0;
@@ -396,6 +396,8 @@ Foam::mirrorFvMesh::mirrorFvMesh
 
         nNewCells++;
     }
+
+    newCells.setSize(nNewCells);
 
     // Mirror the cell shapes
     Info<< "Mirroring cell shapes." << endl;
