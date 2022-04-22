@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include <iomanip>
 
 word replaceStringPart(word& str, const word& sub, const word& mod) 
 {
@@ -83,7 +84,7 @@ int main(int argc, char *argv[])
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
     label interfacePairNumber(0);
 
-    scalar toleranceOfDistance(1.0e-10);
+    scalar toleranceOfDistance(1.0e-8);
     scalar distanceOfPatchCenter(0.0);
     List<label> patchCenterChoosed;
     bool choosedFlag;
@@ -213,7 +214,15 @@ int main(int argc, char *argv[])
     std::ofstream writePairFile(runTime.path()/runTime.system()/outputPairFile);
     forAll(interfacePatchListA, patchListI)
     {
-        writePairFile << interfacePatchListA[patchListI] << "    " << interfacePatchListB[patchListI] << nl;
+        writePairFile << std::setw(16) << interfacePatchListA[patchListI]
+                      << std::setw(16) << interfacePatchListB[patchListI]
+                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].x()
+                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].x())
+                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].y()
+                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].y())
+                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].z()
+                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].z())
+                      << nl;
     }
     
     
