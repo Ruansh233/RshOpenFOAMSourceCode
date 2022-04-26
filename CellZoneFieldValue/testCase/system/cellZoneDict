@@ -15,7 +15,10 @@ FoamFile
 
 readTime        "20";
 
-fieldName       Uy;
+fieldName       
+(
+    Uy
+);
 
 cellZoneName     
 (

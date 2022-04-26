@@ -53,6 +53,14 @@ int main(int argc, char *argv[])
     // Info << "mesh.time(): " << mesh.time().name() << endl;
     // Info << "runTime.timeName(): " << runTime.timeName() << endl;
 
+    if (mesh.cellZones().size() == 0)
+    {
+        FatalErrorIn("cellZoneFieldValue")
+            << "There is no cellZone in this mesh"
+            << exit(FatalError);
+
+    }
+
     // read variable from list
     word runTimeName_ (customDict.lookup("readTime"));
     // word fieldName_ (customDict.lookup("fieldName"));
