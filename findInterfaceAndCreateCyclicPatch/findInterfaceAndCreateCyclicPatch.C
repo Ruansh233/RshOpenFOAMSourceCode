@@ -128,8 +128,8 @@ int main(int argc, char *argv[])
     std::ofstream writePairFile(runTime.path()/runTime.system()/outputPairFile);
     forAll(interfacePatchListA, patchListI)
     {
-        writePairFile << std::setw(20) << interfacePatchListA[patchListI]
-                      << std::setw(20) << interfacePatchListB[patchListI]
+        writePairFile << std::setw(40) << interfacePatchListA[patchListI]
+                      << std::setw(40) << interfacePatchListB[patchListI]
                       << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].x()
                            - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].x())
                       << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].y()
