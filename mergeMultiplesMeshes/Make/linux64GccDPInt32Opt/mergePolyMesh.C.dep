@@ -71,6 +71,8 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/errorManip.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/HashTableIterI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/HashTable.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/List.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/autoPtr.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/autoPtrI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/UList.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/one.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/oneI.H \
@@ -89,8 +91,6 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/token.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/refCount.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/typeInfo.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/runTimeSelectionTables.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/autoPtr.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/autoPtrI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/tokenI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Istream.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SLList.H \
@@ -163,6 +163,7 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DLListBaseI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DLList.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/ITstream.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/tokenList.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionaryI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionaryTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/primitiveEntry.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/primitiveEntryTemplates.C \
@@ -181,6 +182,7 @@ $(WM_PROJECT_DIR)/src/OSspecific/POSIX/lnInclude/fileMonitor.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DynamicList.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DynamicListI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DynamicList.C \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/DynamicListIO.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Tuple2.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pair.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/PairI.H \
@@ -204,7 +206,7 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/bitSetI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/bitSetTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/ops.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/ListOpsTemplates.C \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/LIFOStack.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/UPstreamTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/gatherScatter.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/UOPstream.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/PstreamBuffers.H \
@@ -359,11 +361,11 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/boundBoxTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/pointZoneMesh.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/ZoneMesh.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/ZoneMesh.C \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/demandDrivenData.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/PtrListOps.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/PtrListOpsTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/pointZone.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/zone.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/zoneIdentifier.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/pointZoneMeshFwd.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/faceZoneMesh.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/faceZone.H \
@@ -373,6 +375,10 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/cellZoneMesh.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/cellZone.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/cellZoneMeshFwd.H \
 $(WM_PROJECT_DIR)/src/meshTools/lnInclude/polyTopoChange.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/CompactListList.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/CompactListListI.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/CompactListList.C \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/CompactListListIO.C \
 $(WM_PROJECT_DIR)/src/meshTools/lnInclude/polyTopoChangeI.H \
 $(WM_PROJECT_DIR)/src/meshTools/lnInclude/polyTopoChangeTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/HashOps.H \
@@ -424,6 +430,8 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/functionObjectList.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/functionObject.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SHA1Digest.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/IOdictionary.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/functionObjectProperties.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/functionObjectPropertiesTemplates.C \
 $(WM_PROJECT_DIR)/src/OSspecific/POSIX/lnInclude/sigWriteNow.H \
 $(WM_PROJECT_DIR)/src/OSspecific/POSIX/lnInclude/sigStopAtWriteNow.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/TimeI.H \
