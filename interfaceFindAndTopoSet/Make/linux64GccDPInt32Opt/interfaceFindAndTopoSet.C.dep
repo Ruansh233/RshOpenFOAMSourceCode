@@ -815,9 +815,6 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRanges.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRange.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangeI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangesI.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/namedDictionary.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionaryEntry.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/dictionaryListEntry.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/IFstream.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCase.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/foamDlOpenLibs.H \
