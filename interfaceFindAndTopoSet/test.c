@@ -24,11 +24,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "namedDictionary.H"
-#include "dictionaryEntry.H"
-#include "dictionaryListEntry.H"
+// #include "namedDictionary.H"
+// #include "dictionaryEntry.H"
+// #include "dictionaryListEntry.H"
 #include "IFstream.H"
-#include "keyType.H"
+// #include "keyType.H"
 
 
 int main(int argc, char *argv[])
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     
 
     vectorDict.subDictOrAdd("test3");
+    vectorDict.subDictOrAdd("test2");
     // vectorDict.subDict("actions").add("name1", "Ruan");
 
     // List<namedDictionary> actionEntries(topoSetDict.lookup("actions"));

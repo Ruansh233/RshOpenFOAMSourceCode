@@ -1,5 +1,5 @@
-$(OBJECTS_DIR)/findInterfaceAndCreateCyclicPatch.C.dep: \
-findInterfaceAndCreateCyclicPatch.C \
+$(OBJECTS_DIR)/test.c.dep: \
+test.c \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvCFD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pstream.H \
@@ -815,6 +815,7 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRanges.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRange.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangeI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangesI.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/IFstream.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCase.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/foamDlOpenLibs.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createTime.H \
