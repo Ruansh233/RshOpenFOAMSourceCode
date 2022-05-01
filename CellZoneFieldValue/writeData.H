@@ -27,7 +27,7 @@ if (cellZonesName_[0] == "allZone")
     outputData_.resize(mesh.cellZones().size());
     forAll(mesh.cellZones(), zoneI)
     {
-        Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
+        // Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
 
         outputFile_.width(16);
         outputFile_ << mesh.cellZones()[zoneI].name();
@@ -76,7 +76,7 @@ else if (cellZonesName_[0].find(".*") != string::npos)
     {
         label zoneI (matchZoneID[i]);
 
-        Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
+        // Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
 
         outputFile_.width(16);
         outputFile_ << mesh.cellZones()[zoneI].name();
@@ -108,7 +108,7 @@ else
     forAll(cellZonesName_, zoneI)
     {
         
-        Info << endl << "cellZone name: " << cellZonesName_[zoneI] << endl;
+        // Info << endl << "cellZone name: " << cellZonesName_[zoneI] << endl;
 
         outputFile_.width(16);
         outputFile_ << cellZonesName_[zoneI];

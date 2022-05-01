@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     // create dictionary
     IOdictionary customDict(dictIO);
 
-    Info << customDict;
+    // Info << customDict;
 
     // // Get access to a custom dictionary
     // // dictionary customDict;
@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     // word runTimeName_ (customDict.lookup("readTime"));
     // word fieldName_ (customDict.lookup("fieldName"));
     List<word> cellZonesName_ (customDict.lookup("cellZoneName"));
-    Info << "cellZonesName: " << cellZonesName_ << endl;
+    // Info << "cellZonesName: " << cellZonesName_ << endl;
     List<word> fieldsName_ (customDict.lookup("fieldName"));
 
     // timeSelector 
