@@ -28,27 +28,47 @@ License
 
 int main(int argc, char *argv[])
 {
+    // add timeSelector
+    timeSelector::addOptions();
+
+    // Rsh, add dict select function
+    argList::addOption // string variable
+    (
+        "dict",
+        "name",
+        "alternative cellZoneDict"
+    );
     #include "setRootCase.H"
 
 	// These two create the time system (instance called runTime) and fvMesh (instance called mesh).
     #include "createTime.H"
     #include "createMesh.H"
 
-    // Get access to a custom dictionary
-    // dictionary customDict;
+    // dict Selector
     const word dictName("cellZoneDict");
+    #include "setSystemMeshDictionaryIO.H"
+    Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
 
-    // Create and input-output object - this holds the path to the dict and its name
-    IOdictionary customDict
-    (
-        IOobject
-        (
-            dictName, // name of the file
-            mesh.time().system(), // path to where the file is
-            mesh, // reference to the mesh needed by the constructor
-            IOobject::MUST_READ // indicate that reading this dictionary is compulsory
-        )
-    );
+    // create dictionary
+    IOdictionary customDict(dictIO);
+
+    Info << customDict;
+
+    // // Get access to a custom dictionary
+    // // dictionary customDict;
+    // const word dictName("cellZoneDict");
+
+    // // Create and input-output object - this holds the path to the dict and its name
+    // IOdictionary customDict
+    // (
+    //     IOobject
+    //     (
+    //         dictName, // name of the file
+    //         mesh.time().system(), // path to where the file is
+    //         mesh, // reference to the mesh needed by the constructor
+    //         IOobject::MUST_READ // indicate that reading this dictionary is compulsory
+    //     )
+    // );
 
     // Info << "mesh.time(): " << mesh.time().name() << endl;
     // Info << "runTime.timeName(): " << runTime.timeName() << endl;
@@ -61,23 +81,31 @@ int main(int argc, char *argv[])
 
     }
 
-    // read variable from list
-    word runTimeName_ (customDict.lookup("readTime"));
+    // // read variable from list
+    // word runTimeName_ (customDict.lookup("readTime"));
     // word fieldName_ (customDict.lookup("fieldName"));
     List<word> cellZonesName_ (customDict.lookup("cellZoneName"));
+    Info << "cellZonesName: " << cellZonesName_ << endl;
     List<word> fieldsName_ (customDict.lookup("fieldName"));
 
+    // timeSelector 
+    instantList timeDirs = timeSelector::select0(runTime, args);
+    forAll(timeDirs, timei)
+    {
+        word runTimeName_ (timeDirs[timei].name());
+        Info << "run time processed: " << runTimeName_ << endl;
 
-    Info << "cellZonesName: " << cellZonesName_ << endl;
+        // read different field values depend on fieldName 
+        // List<scalar> field_;
 
-    // read different field values depend on fieldName 
-    // List<scalar> field_;
+        fileName outputDir = mesh.time().path()/"postProcessing";
+        mkDir(outputDir);
+        // word fileName_(fieldsName_[0]);
 
-    fileName outputDir = mesh.time().path()/"postProcessing";
-    mkDir(outputDir);
-    // word fileName_(fieldsName_[0]);
+        #include "createField.H"
+    }
 
-    #include "createField.H"
+
 
     // volVectorField U // note that velocity is a vector field
     // (
