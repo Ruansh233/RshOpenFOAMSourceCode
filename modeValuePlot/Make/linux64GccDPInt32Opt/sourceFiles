@@ -1,4 +1,4 @@
 SOURCE = \
-OFtutorial1.C \
+modeValuePlot.C \
 
 # sources

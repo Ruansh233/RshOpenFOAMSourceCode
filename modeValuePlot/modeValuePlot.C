@@ -41,9 +41,26 @@ int main(int argc, char *argv[])
 
     fileName dataPath (mesh.time().path()/"postProcessing");
 
-    List<word> modeNumber ({"0", "1", "2", "3", "4"});
-    // List<word> modeNumber ({"0", "1", "2"});
-    List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradpx", "gradpy", "gradpz"});
+    // List<word> modeNumber ({"0", "1", "2", "3", "4"});
+    // // List<word> modeNumber ({"0", "1", "2"});
+    // List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradpx", "gradpy", "gradpz"});
+
+    const word dictName("modePlotDict");
+
+    // Create and input-output object - this holds the path to the dict and its name
+    IOdictionary customDict
+    (
+        IOobject
+        (
+            dictName, // name of the file
+            mesh.time().system(), // path to where the file is
+            mesh, // reference to the mesh needed by the constructor
+            IOobject::MUST_READ // indicate that reading this dictionary is compulsory
+        )
+    );
+
+    List<label> modeNumber (customDict.lookup("modeNumber"));
+    List<word> fieldName (customDict.lookup("fieldName"));
 
     forAll(fieldName, nameNo)
     {
@@ -53,8 +70,8 @@ int main(int argc, char *argv[])
         {
             // Info << "test1 " << endl;
 
-            fileName dataFile (dataPath/fieldName[nameNo] + "_mode" + modeNumber[No_]);
-            fileName modeFieldName(fieldName[nameNo] + "_mode" + modeNumber[No_]);
+            fileName dataFile (dataPath/fieldName[nameNo] + "_mode" + name(modeNumber[No_]));
+            fileName modeFieldName(fieldName[nameNo] + "_mode" + name(modeNumber[No_]));
 
             // Info << "dataFile: " << dataFile << endl
             //      << "modeFieldName: " << modeFieldName << endl;
