@@ -59,12 +59,31 @@ int main(int argc, char *argv[])
         )
     );
 
+    // read data from dictionary
     List<label> modeNumber (customDict.lookup("modeNumber"));
     List<word> fieldName (customDict.lookup("fieldName"));
 
     forAll(fieldName, nameNo)
     {
         Info << "FieldName: " << fieldName[nameNo] << endl;
+
+        // read zone name of the field field value
+        IFstream zoneNameStream(dataPath/fieldName[nameNo]);
+        List<word> zoneName (mesh.cellZones().size());
+
+        // use IStringStream to read zoneName and put them into a List
+        label zoneNumber (0);
+        word zoneNameLine;
+        zoneNameStream.getLine(zoneNameLine);
+        IStringStream zoneNameString (zoneNameLine);
+
+        while (! zoneNameString.eof())
+        {
+            zoneNameString >> zoneName[zoneNumber];
+            // Info << "zoneName: " << zoneName[zoneNumber] << endl;
+            zoneNumber += 1;
+        }
+        zoneName.resize(zoneNumber);
 
         forAll(modeNumber, No_)
         {
@@ -75,6 +94,8 @@ int main(int argc, char *argv[])
 
             // Info << "dataFile: " << dataFile << endl
             //      << "modeFieldName: " << modeFieldName << endl;
+
+            Field<scalar> zeroScalarField (mesh.C().size(), Foam::zero());
 
             if(isFile(dataFile))
             {
@@ -89,25 +110,23 @@ int main(int argc, char *argv[])
                         IOobject::AUTO_WRITE
                     ),
                     mesh,
-                    dimVelocity
+                    dimVelocity,
+                    zeroScalarField
                 );
-
-                // Info << "test2 " << endl;
                 
                 IFstream dataStream(dataFile);
-                // Info << "test3 " << endl;
 
-                forAll(mesh.cellZones()[0], cellI)
+                label firstZoneI = mesh.cellZones().findZoneID(zoneName[0]);
+
+                // Info << "firstZoneI: " << firstZoneI << endl;
+
+                forAll(mesh.cellZones()[firstZoneI], cellI)
                 {
-                    forAll(mesh.cellZones(), zoneI)
+                    forAll(zoneName, zoneNameI)
                     {
-                        // Info << "Zone Name: " << mesh.cellZones()[zoneI].name() << endl;
-                        if (mesh.cellZones()[zoneI].size() == mesh.cellZones()[0].size())
-                        {
-                            label cell = mesh.cellZones()[zoneI][cellI];
-                            // Info << "cell " << cell << endl;
-                            dataStream.read(fieldValueMode[cell]);
-                        }                        
+                        label zoneI = mesh.cellZones().findZoneID(zoneName[zoneNameI]);
+                        label cell = mesh.cellZones()[zoneI][cellI];
+                        dataStream.read(fieldValueMode[cell]);            
                     }
                 }
 
