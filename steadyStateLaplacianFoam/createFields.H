@@ -24,7 +24,7 @@ volScalarField DT
         runTime.timeName(),
         mesh,
         IOobject::READ_IF_PRESENT,
-        IOobject::AUTO_WRITE
+        IOobject::NO_WRITE
     ),
     mesh,
     dimensionedScalar(dimViscosity, Zero)
@@ -46,4 +46,4 @@ if (!DT.headerOk())
     DT = dimensionedScalar("DT", dimViscosity, transportProperties);
 }
 
-#include "createFvOptions.H"
+// #include "createFvOptions.H"

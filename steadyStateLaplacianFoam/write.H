@@ -1,5 +1,5 @@
-    if (runTime.writeTime())
-    {
+    // if (runTime.writeTime())
+    // {
         volVectorField gradT(fvc::grad(T));
 
         volScalarField gradTx
@@ -55,4 +55,4 @@
         );
 
         runTime.write();
-    }
+    // }

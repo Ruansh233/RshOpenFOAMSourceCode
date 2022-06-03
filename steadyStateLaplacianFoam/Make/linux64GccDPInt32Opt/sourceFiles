@@ -1,0 +1,4 @@
+SOURCE = \
+steadyStateLaplacianFoam.C \
+
+# sources

@@ -41,18 +41,6 @@
             gradT.component(vector::Z)
         );
 
-        volVectorField DTgradT
-        (
-            IOobject
-            (
-                "flux",
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            DT*gradT
-        );
 
         runTime.write();
     }

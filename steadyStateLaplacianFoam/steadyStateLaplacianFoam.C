@@ -55,7 +55,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "fvOptions.H"
+// #include "fvOptions.H"
 #include "simpleControl.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -90,14 +90,15 @@ int main(int argc, char *argv[])
         {
             fvScalarMatrix TEqn
             (
-                fvm::ddt(T) - fvm::laplacian(DT, T)
-             ==
-                fvOptions(T)
+            //     fvm::ddt(T) - fvm::laplacian(DT, T)
+            //  ==
+            //     fvOptions(T)
+                fvm::laplacian(DT, T)
             );
 
-            fvOptions.constrain(TEqn);
+            // fvOptions.constrain(TEqn);
             TEqn.solve();
-            fvOptions.correct(T);
+            // fvOptions.correct(T);
         }
 
         #include "write.H"
