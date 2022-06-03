@@ -1,4 +1,4 @@
-// Info << "hello";
+// Info << "hello" << nl;
 
 // List<scalarList> outputData_(cellZonesName_.size());    
 
@@ -20,13 +20,14 @@ OFstream outputFile_(outputDir/fileName_);
 
 if (cellZonesName_[0] == "allZone")
 {
+    
     // outputFile_.width(10);
     // outputFile_ << "cell ID";   
 
     outputData_.resize(mesh.cellZones().size());
     forAll(mesh.cellZones(), zoneI)
     {
-        Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
+        // Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
 
         outputFile_.width(16);
         outputFile_ << mesh.cellZones()[zoneI].name();
@@ -75,7 +76,7 @@ else if (cellZonesName_[0].find(".*") != string::npos)
     {
         label zoneI (matchZoneID[i]);
 
-        Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
+        // Info << endl << "cellZone name: " << mesh.cellZones()[zoneI].name() << endl;
 
         outputFile_.width(16);
         outputFile_ << mesh.cellZones()[zoneI].name();
@@ -107,12 +108,21 @@ else
     forAll(cellZonesName_, zoneI)
     {
         
-        Info << endl << "cellZone name: " << cellZonesName_[zoneI] << endl;
+        // Info << endl << "cellZone name: " << cellZonesName_[zoneI] << endl;
 
         outputFile_.width(16);
         outputFile_ << cellZonesName_[zoneI];
         
         label zoneID = mesh.cellZones().findZoneID(cellZonesName_[zoneI]);
+
+        if (zoneID == -1)
+        {
+            FatalErrorIn("cellZoneFieldValue")
+                << "Cannot find cellZone " << cellZonesName_[zoneI] << endl
+                << "Valid cellZones are " << mesh.cellZones().names()
+                << exit(FatalError);
+        }
+
         outputData_[zoneI].resize(mesh.cellZones()[zoneID].size());
 
         // if (zoneID == -1)

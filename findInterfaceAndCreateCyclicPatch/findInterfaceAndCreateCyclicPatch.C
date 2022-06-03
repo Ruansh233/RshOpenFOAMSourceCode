@@ -48,9 +48,6 @@ int main(int argc, char *argv[])
     // Rsh, test code to find the center of boundary faces
     // label patchI(0);
     List<vector> patchCenterList(mesh.boundaryMesh().size());
-
-    // Info << mesh.boundaryMesh().size();
-    // label numberOfPatch(0);
     
     forAll(mesh.boundaryMesh(), patchI)
     {
@@ -58,28 +55,15 @@ int main(int argc, char *argv[])
         vector patchCenterCoordinate = vector::zero;
         forAll(mesh.boundaryMesh()[patchI], patchFaceI)
         {
-            // Info << "The center of Face " << patchFaceI << " in patch " << patchI << ": "
-            //      << ": " << mesh.boundary()[patchI].name() 
-            //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
-            //      << endl;
             patchCenterSum += mesh.boundary()[patchI].Cf()[patchFaceI];
-            // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
         }
         patchCenterCoordinate = patchCenterSum / mesh.boundary()[patchI].Cf().size(); 
-        // Info << "patchCenterCoordinate.y() " << patchCenterCoordinate.y() << endl;
-        // Info << endl << "The center of patch " << mesh.boundary()[patchI].name() << " is "  
-        //      << "boundaryFacesCenterList[patchFaceI]: " 
-        //      << patchCenterCoordinate
-        //      << endl;
         patchCenterList[patchI] = patchCenterCoordinate;
-        // numberOfPatch = numberOfPatch + 1;
     }
-    // Info << "mesh.boundaryMesh().size() " << mesh.boundaryMesh().size() << endl;
-    // Info << patchCenterList;
-    // Info << "numberOfPatch " << numberOfPatch;
     Info << endl;
 
     
+    // Rsh, compare the center distance
     List<word> interfacePatchListA(mesh.boundaryMesh().size());
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
     label interfacePairNumber(0);
@@ -88,7 +72,6 @@ int main(int argc, char *argv[])
     scalar distanceOfPatchCenter(0.0);
     List<label> patchCenterChoosed;
     bool choosedFlag;
-    // label patchCenterLast(-1);
 
     vector firstPatchCenter = vector::zero;
     vector secondPatchCenter = vector::zero;
@@ -97,6 +80,7 @@ int main(int argc, char *argv[])
     {
         firstPatchCenter = patchCenterList[patchCenterFirstI];
       
+        // Rsh, check whether the patch has been selected
         choosedFlag = false;
         forAll(patchCenterChoosed, choosedI)
         {
@@ -106,51 +90,25 @@ int main(int argc, char *argv[])
 
         if (choosedFlag)
             continue;
-        
-        // if (patchCenterFirstI > 7)
-        //     break;
 
-        // Info << "firstPatchCenter " << firstPatchCenter << endl;
         forAll(patchCenterList, patchCenterSecondI)
         {
-            // if (patchCenterSecondI > 10)
-            // break;
-            
+           
             if (patchCenterSecondI == patchCenterFirstI)
                 continue;
             else
             {
-                // patchCenterSecondI = patchCenterSecondI + 1;
                 secondPatchCenter = patchCenterList[patchCenterSecondI];
-                // Info << "secondPatchCenter " << secondPatchCenter << endl;
-                // Info << firstPatchCenter - secondPatchCenter << endl;
-                // Info << mag(firstPatchCenter - secondPatchCenter) << endl;
                 distanceOfPatchCenter = mag(firstPatchCenter - secondPatchCenter);
-                // Info << "distanceOfPatchCenter " << mag(firstPatchCenter - secondPatchCenter) << endl;
-                // Info << "distanceOfPatchCenter " << distanceOfPatchCenter << endl;
-
-                // Info << "patch " << mesh.boundary()[patchCenterFirstI].name() << ": " << firstPatchCenter
-                //      << " and " << mesh.boundary()[patchCenterSecondI].name() << ": " << secondPatchCenter
-                //      << " have center distance: " << distanceOfPatchCenter << " m "
-                //      << endl;
 
                 if (distanceOfPatchCenter<toleranceOfDistance)
                 {
-                    // Info << "patch " << patchCenterFirstI << ": " << mesh.boundary()[patchCenterFirstI].name() 
-                    //      << " and " << patchCenterSecondI << ": " << mesh.boundary()[patchCenterSecondI].name() 
-                    //      << " have same center. "
-                    //      << endl;
-
                     patchCenterChoosed.append(patchCenterSecondI);
-                    // writeFile << mesh.boundary()[patchCenterFirstI].name()
-                    //           << "     "
-                    //           << mesh.boundary()[patchCenterSecondI].name()
-                    //           << endl;
+
                     interfacePatchListA[interfacePairNumber] = mesh.boundary()[patchCenterFirstI].name();
                     interfacePatchListB[interfacePairNumber] = mesh.boundary()[patchCenterSecondI].name();
 
                     interfacePairNumber += 1;
-                    // patchCenterLast = patchCenterSecondI;
                     
                     continue;
                     
@@ -162,60 +120,16 @@ int main(int argc, char *argv[])
         
     }
 
-    // Info << patchCenterChoosed;
-
-    // label block6I (mesh.boundary().findPatchID("block6_west"));
-    // label block12I (mesh.boundary().findPatchID("block12_west"));
-    // vector patchCenterSum6 (vector::zero);
-    // vector patchCenterSum12 (vector::zero);
-
-    // forAll(mesh.boundaryMesh()[block6I], patchFaceI)
-    // {
-    //     // Info << "The center of Face " << patchFaceI << " in patch " << patchI << ": "
-    //     //      << ": " << mesh.boundary()[patchI].name() 
-    //     //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
-    //     //      << endl;
-    //     patchCenterSum6 += mesh.boundary()[block6I].Cf()[patchFaceI];
-    //     // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
-    // }
-    // vector patchCenterCoordinate6 = patchCenterSum6 / mesh.boundary()[block6I].Cf().size(); 
-
-    // forAll(mesh.boundaryMesh()[block12I], patchFaceI)
-    // {
-    //     // Info << "The center of Face " << patchFaceI << " in patch " << patchI << ": "
-    //     //      << ": " << mesh.boundary()[patchI].name() 
-    //     //      << " is " << mesh.boundary()[patchI].Cf()[patchFaceI]
-    //     //      << endl;
-    //     patchCenterSum12 += mesh.boundary()[block12I].Cf()[patchFaceI];
-    //     // boundaryFacesCenterList[patchFaceI] = mesh.boundary()[patchI].Cf()[patchFaceI];
-    // }
-    // vector patchCenterCoordinate12 = patchCenterSum12 / mesh.boundary()[block12I].Cf().size(); 
-
-    // scalar distanceofTest (mag(patchCenterCoordinate6 - patchCenterCoordinate12));
-    // scalar distancex = patchCenterCoordinate6.x() - patchCenterCoordinate12.x();
-    // scalar distancey = patchCenterCoordinate6.y() - patchCenterCoordinate12.y();
-    // scalar distancez = patchCenterCoordinate6.z() - patchCenterCoordinate12.z();
-
-    // Info << "distanceofTest: " << distanceofTest << endl
-    //      << "distancex: " << distancex << endl
-    //      << "distancey: " << distancey << endl
-    //      << "distancez: " << distancez << endl;
-
-    // Info << "patchCenterCoordinate6: " << patchCenterCoordinate6 << endl
-    //      << "patchCenterCoordinate12: " << patchCenterCoordinate12 << endl; 
-
+    // Rsh, write interface pair file
     interfacePatchListA.setSize(interfacePairNumber);
     interfacePatchListB.setSize(interfacePairNumber);
-
-    // Info << "interfacePatchListA" << interfacePatchListA << endl
-    //      << "interfacePatchListB" << interfacePatchListB << endl;
 
     fileName outputPairFile("patchPair");
     std::ofstream writePairFile(runTime.path()/runTime.system()/outputPairFile);
     forAll(interfacePatchListA, patchListI)
     {
-        writePairFile << std::setw(16) << interfacePatchListA[patchListI]
-                      << std::setw(16) << interfacePatchListB[patchListI]
+        writePairFile << std::setw(30) << interfacePatchListA[patchListI]
+                      << std::setw(30) << interfacePatchListB[patchListI]
                       << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].x()
                            - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].x())
                       << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].y()
@@ -223,37 +137,27 @@ int main(int argc, char *argv[])
                       << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].z()
                            - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].z())
                       << nl;
+
     }
     
+    // Rsh, write file head
+    IOdictionary createPatchDict
+    (
+        IOobject
+        (
+            "createPatchDict_interfaces",
+            runTime.system(),
+            runTime,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        )
+    );
+    createPatchDict.regIOobject::write();
     
     fileName outputFile("createPatchDict_interfaces");
-    std::ofstream writeFile(runTime.path()/runTime.system()/outputFile);
+    OFstream writeFile(runTime.path()/runTime.system()/outputFile, IOstreamOption(), true);
 
-    // Rsh, file head
-    const word fileHead = R"deli(
-/*--------------------------------*- C++ -*----------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  dev
-     \\/     M anipulation  |
-\*---------------------------------------------------------------------------*/
-FoamFile
-{
-    format      ascii;
-    class       dictionary;
-    object      createPatchDict;
-}
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-pointSync false;
-
-patches
-(
-    )deli";
-
-    writeFile << fileHead;
+    writeFile << "\npointSync false;\npatches\n(";
 
     // Rsh, interface pair
     const word emptyDict = R"deli(
@@ -296,8 +200,9 @@ patches
 // ************************************************************************* //
     )deli";
 
-    writeFile << endOfFile;
-    writeFile.close();
+    writeFile << "\n);"
+              << "\n// ************************************************************************* //"; 
+    // writeFile.close();
 
 //     // system("cat system/createPatchDict");
 //     // system("createPatch");

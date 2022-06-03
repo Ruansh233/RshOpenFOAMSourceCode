@@ -819,6 +819,7 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCase.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/foamDlOpenLibs.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createTime.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createMesh.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setSystemMeshDictionaryIO.H \
 createField.H \
 writeData.H \
 
