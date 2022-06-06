@@ -10,35 +10,21 @@ FoamFile
     version     2.0;
     format      ascii;
     arch        "LSB;label=32;scalar=64";
-    class       polyBoundaryMesh;
-    location    "constant/polyMesh";
-    object      boundary;
+    class       dictionary;
+    location    "0.5/uniform";
+    object      time;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-3
-(
-    movingWall
-    {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          5;
-        startFace       40;
-    }
-    fixedWalls
-    {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          15;
-        startFace       45;
-    }
-    frontAndBack
-    {
-        type            empty;
-        inGroups        1(empty);
-        nFaces          50;
-        startFace       60;
-    }
-)
+value           0.500000000000000222;
+
+name            "0.5";
+
+index           50;
+
+deltaT          0.01;
+
+deltaT0         0.01;
+
 
 // ************************************************************************* //

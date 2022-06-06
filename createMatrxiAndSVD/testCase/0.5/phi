@@ -10,35 +10,80 @@ FoamFile
     version     2.0;
     format      ascii;
     arch        "LSB;label=32;scalar=64";
-    class       polyBoundaryMesh;
-    location    "constant/polyMesh";
-    object      boundary;
+    class       surfaceScalarField;
+    location    "0.5";
+    object      phi;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-3
+dimensions      [0 3 -1 0 0 0 0];
+
+oriented        oriented;
+
+internalField   nonuniform List<scalar> 
+40
 (
+-5.89352e-06
+5.89348e-06
+-1.26593e-05
+6.76579e-06
+-1.31725e-05
+5.13182e-07
+-6.5991e-06
+-6.5734e-06
+-6.5991e-06
+-1.30652e-05
+1.89587e-05
+-2.49184e-05
+1.8619e-05
+-2.55694e-05
+1.16418e-06
+-1.41941e-05
+-1.79487e-05
+-2.07932e-05
+-1.76716e-05
+3.66303e-05
+-2.95356e-05
+3.0483e-05
+-3.0023e-05
+1.65151e-06
+-1.8974e-05
+-2.89977e-05
+-3.97672e-05
+-1.26122e-05
+4.92425e-05
+-1.17619e-05
+2.96327e-05
+-1.11753e-05
+1.06492e-06
+-1.09216e-05
+-2.92513e-05
+-5.06887e-05
+4.92425e-05
+7.88752e-05
+7.99401e-05
+5.06887e-05
+)
+;
+
+boundaryField
+{
     movingWall
     {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          5;
-        startFace       40;
+        type            calculated;
+        value           uniform 0;
     }
     fixedWalls
     {
-        type            wall;
-        inGroups        1(wall);
-        nFaces          15;
-        startFace       45;
+        type            calculated;
+        value           uniform 0;
     }
     frontAndBack
     {
         type            empty;
-        inGroups        1(empty);
-        nFaces          50;
-        startFace       60;
+        value           nonuniform List<scalar> 0();
     }
-)
+}
+
 
 // ************************************************************************* //

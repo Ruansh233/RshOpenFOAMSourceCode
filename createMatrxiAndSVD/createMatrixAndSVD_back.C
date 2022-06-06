@@ -28,7 +28,6 @@ License
 #include "IFstream.H"
 // #include "stringOps.H"
 #include "SVD.H"
-// #include "writeMatrix.H"
 
 int main(int argc, char *argv[])
 {
@@ -43,7 +42,8 @@ int main(int argc, char *argv[])
 
     fileName dataPath (mesh.time().path()/"0.5");
 
-    fileName fieldName("p");    
+    fileName fieldName("p");
+    fileName dataFile (dataPath/fieldName);
 
     volScalarField p
     (
@@ -58,90 +58,25 @@ int main(int argc, char *argv[])
         mesh
     );
 
-    // fileName dataFile (dataPath/"pMatrix");
-    // OFstream outputFile_(dataFile);
+    IFstream dataStream(dataFile);
 
-    RectangularMatrix<scalar> testM(mesh.C().size(), 2);
+    RectangularMatrix<scalar> testM(mesh.cellZones()[0].size(), mesh.cellZones().size());
 
-    forAll(mesh.C(), cellI)
+    forAll(mesh.cellZones()[0], cellI)
     {
-        testM[cellI][0] = p[cellI];
-        testM[cellI][1] = p[cellI];
+        forAll(mesh.cellZones(), zoneI)
+        {
+            label cell = mesh.cellZones()[zoneI][cellI];
+            testM[cellI][zoneI] = p[cell];
+        }
     }
-
-    // for (label row = 0; row < testM.m(); ++row)
-    // {
-    //     for (label column = 0; column < testM.n(); ++column)
-    //     {
-    //         outputFile_.width(16);
-    //         outputFile_ << testM[row][column];
-    //     }
-    //     outputFile_ << endl;
-    // }
-    
-    // forAll(testM.subColumn(0), rows)
-    // {        
-    //     forAll(testM.subRow(0), columns)
-    //     {
-    //         outputFile_.width(16);
-    //         outputFile_ << testM[rows][columns];
-    //     }
-    //     outputFile_ << endl;
-    // }
 
     SVD UField(testM);
-    // Info << "UField.U().m() " << UField.U().m() << endl
-    //      << "UField.U().n() " << UField.U().n() << endl
-    //      << "UField.V().m() " << UField.V().m() << endl
-    //      << "UField.V().n() " << UField.V().n() << endl
-    //      << "UField.S().size() " << UField.S().size() << endl;
-
-    // Info << "UField.U() " << endl << UField.U() << endl
-    //      << "UField.V() " << endl << UField.V() << endl;
-    // Info << "UField.S() " << endl << UField.S() << endl; 
-    // Info << "inv(UField.S()) " << endl << inv(UField.S()) << endl;
-
-    // for (label row = 0; row < UField.S().size(); ++row)
-    // {
-    //     outputFile_ << UField.S()[row];
-    //     outputFile_ << endl;
-    // }
-
-	autoPtr<OFstream> outputFilePtr;
-    // // Write stuff
-    // outputFilePtr() << "# This is a header" << endl;
-    // outputFilePtr() << "0 1 2 3 4 5" << endl;
-
-    fileName dataFile (dataPath/"diagS");
-    outputFilePtr.reset(new OFstream(dataFile));
-    for (label row = 0; row < UField.S().size(); ++row)
-    {
-        outputFilePtr() << UField.S()[row];
-        outputFilePtr() << endl;
-    }
-
-    dataFile = dataPath/"UMatrix";
-    outputFilePtr.reset(new OFstream(dataFile));
-    for (label row = 0; row < UField.U().m(); ++row)
-    {
-        for (label column = 0; column < UField.U().n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << UField.U()[row][column];
-        }
-        outputFilePtr() << endl;
-    }
-
-
-    // RectangularMatrix<scalar> testM2;
-    // multiply(testM2, UField.U(), UField.S(), UField.V().T());
-    // multiply(testM2, UField.U(), UField.S(), UField.V());
-    // testM2 = UField.U() * inv(UField.S()) * UField.V().T();
-    // testM2 = testM * testM;
-
-    // Info << "testM " << endl << testM <<endl;
-    // Info << "testM2 " << endl << testM2 <<endl;
-
+    Info << "UField.U().m()" << UField.U().m() << endl
+         << "UField.U().n()" << UField.U().n() << endl
+         << "UField.V().m()" << UField.V().m() << endl
+         << "UField.V().n()" << UField.V().n() << endl
+         << "UField.S().size()" << UField.S().size() << endl;
 
     // RectangularMatrix<scalar> U()
 
@@ -201,25 +136,6 @@ int main(int argc, char *argv[])
     //     }
 
     // }
-
-    // test Matrix multiplication 
-    RectangularMatrix<scalar> testM1(2, 2);
-    RectangularMatrix<scalar> testM2(2, 2);
-
-    testM1[0][0] = 1;
-    testM1[1][0] = 1;
-    testM1[0][1] = 0;
-    testM1[1][1] = 1;
-
-    testM2[0][0] = 1;
-    testM2[1][0] = 2;
-    testM2[0][1] = 1;
-    testM2[1][1] = 2;
-
-    RectangularMatrix<scalar> testM3(testM1 * testM2);
-    Info << "testM3: " << testM3 << endl;
-
-
 
     Info<< "End\n" << endl;
 
