@@ -843,6 +843,8 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 readSVDDict.H \
 write.H \
 snapshotsMatrix.H \
+writeModesField.H \
+calculateDiffuCoeff.H \
 writeprocessedMatrix.H \
 
 #END

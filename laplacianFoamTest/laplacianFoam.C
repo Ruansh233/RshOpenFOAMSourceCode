@@ -107,34 +107,27 @@ int main(int argc, char *argv[])
 
         runTime.printExecutionTime(Info);
 
+        // add snapshots in specific time interval
         #include "snapshotsMatrix.H"
-
-        // // add snapshots in specific time interval
-        // if (runTime.value() >= snapshotsTime)
-        // {
-        //     forAll(mesh.C(), cellI)
-        //     {
-        //         snapshotsM[cellI][snapshotsNo] = T[cellI];
-        //     }
-        //     snapshotsTime += timeInterval;
-        //     ++ snapshotsNo;
-        // }    
     }
 
     Info<< "End\n" << endl;
 
-    // write snapshots matrix to a file
-    // #include "writeSnapshots.H"
-
     // svd of the snapshots matrix
     SVD fieldValue(snapshotsM);
 
-    RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());
-    coeff = snapshotsM.T() * fieldValue.U();
+    // write data of modes
+    #include "writeModesField.H"
+
+    // file location and OF pointer of the file
+    fileName dataFile;
+    autoPtr<OFstream> outputFilePtr;
+
+    // write diffusion terms coefficient
+    #include "calculateDiffuCoeff.H"
 
     // wirte snapshots matrix, modes, eigenvalues and coefficient
     #include "writeprocessedMatrix.H"   
-
 
     return 0;
 }
