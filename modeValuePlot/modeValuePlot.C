@@ -62,6 +62,7 @@ int main(int argc, char *argv[])
     // read data from dictionary
     List<label> modeNumber (customDict.lookup("modeNumber"));
     List<word> fieldName (customDict.lookup("fieldName"));
+    // blockType is different cases, case name is insert after fieldName and before modeNumber
     List<label> blockType (customDict.lookup("blockType"));
 
     forAll(fieldName, nameNo)
@@ -106,82 +107,144 @@ int main(int argc, char *argv[])
                 zeroScalarField
             );
 
-            forAll(blockType, blockTypeNo)
+            // read zone name of the field field value
+            IFstream zoneNameStream(dataPath/fieldName[nameNo]);
+            List<word> zoneName (mesh.cellZones().size());
+
+            // use IStringStream to read zoneName and put them into a List
+            label zoneNumber (0);
+            word zoneNameLine;
+            zoneNameStream.getLine(zoneNameLine);
+            // Info << "zoneNameLine: " << zoneNameLine << endl;
+            IStringStream zoneNameString (zoneNameLine);
+
+            while (! zoneNameString.eof())
             {
-                // read zone name of the field field value
-                word blockFieldName = fieldName[nameNo] + "_" + name(blockType[blockTypeNo]);
-                Info << "blockFieldName: " << blockFieldName << endl;
-                IFstream zoneNameStream(dataPath/blockFieldName);
-                List<word> zoneName (mesh.cellZones().size());
-
-                // use IStringStream to read zoneName and put them into a List
-                label zoneNumber (0);
-                word zoneNameLine;
-                zoneNameStream.getLine(zoneNameLine);
-                // Info << "zoneNameLine: " << zoneNameLine << endl;
-                IStringStream zoneNameString (zoneNameLine);
-
-                while (! zoneNameString.eof())
-                {
-                    zoneNameString >> zoneName[zoneNumber];
-                    // Info << "zoneName: " << zoneName[zoneNumber] << endl;
-                    zoneNumber += 1;
-                }
-                zoneName.resize(zoneNumber);
-                
-                // Info << "test1 " << endl;
-
-                fileName dataFile (dataPath/fieldName[nameNo]+ 
-                                    "_" + name(blockType[blockTypeNo]) + 
-                                    "_mode" + name(modeNumber[No_]));                
-
-                // Info << "dataFile: " << dataFile << endl
-                //      << "modeFieldName: " << modeFieldName << endl;
-
-                // Field<scalar> zeroScalarField (mesh.C().size(), Foam::zero());
-
-                if(isFile(dataFile))
-                {
-                    // volScalarField fieldValueMode
-                    // (
-                    //     IOobject
-                    //     (
-                    //         modeFieldName,
-                    //         mesh.time().timeName(),
-                    //         mesh,
-                    //         IOobject::READ_IF_PRESENT,
-                    //         IOobject::AUTO_WRITE
-                    //     ),
-                    //     mesh,
-                    //     dimVelocity,
-                    //     zeroScalarField
-                    // );
-                    
-                    IFstream dataStream(dataFile);
-
-                    label firstZoneI = mesh.cellZones().findZoneID(zoneName[0]);
-
-                    // Info << "firstZoneI: " << firstZoneI << endl;
-
-                    forAll(mesh.cellZones()[firstZoneI], cellI)
-                    {
-                        forAll(zoneName, zoneNameI)
-                        {
-                            label zoneI = mesh.cellZones().findZoneID(zoneName[zoneNameI]);
-                            label cell = mesh.cellZones()[zoneI][cellI];
-                            dataStream.read(fieldValueMode[cell]);            
-                        }
-                    }
-
-                    fieldValueMode.write();
-                }  
-            }   
+                zoneNameString >> zoneName[zoneNumber];
+                // Info << "zoneName: " << zoneName[zoneNumber] << endl;
+                zoneNumber += 1;
+            }
+            zoneName.resize(zoneNumber);
             
-        }
+            // Info << "test1 " << endl;
 
-        
+            fileName dataFile (dataPath/fieldName[nameNo] + 
+                                "_mode" + name(modeNumber[No_]));                
 
-        
+            // Info << "dataFile: " << dataFile << endl
+            //      << "modeFieldName: " << modeFieldName << endl;
+
+            // Field<scalar> zeroScalarField (mesh.C().size(), Foam::zero());
+
+            if(isFile(dataFile))
+            {
+                // volScalarField fieldValueMode
+                // (
+                //     IOobject
+                //     (
+                //         modeFieldName,
+                //         mesh.time().timeName(),
+                //         mesh,
+                //         IOobject::READ_IF_PRESENT,
+                //         IOobject::AUTO_WRITE
+                //     ),
+                //     mesh,
+                //     dimVelocity,
+                //     zeroScalarField
+                // );
+                
+                IFstream dataStream(dataFile);
+
+                label firstZoneI = mesh.cellZones().findZoneID(zoneName[0]);
+
+                // Info << "firstZoneI: " << firstZoneI << endl;
+
+                forAll(mesh.cellZones()[firstZoneI], cellI)
+                {
+                    forAll(zoneName, zoneNameI)
+                    {
+                        label zoneI = mesh.cellZones().findZoneID(zoneName[zoneNameI]);
+                        label cell = mesh.cellZones()[zoneI][cellI];
+                        dataStream.read(fieldValueMode[cell]);            
+                    }
+                }
+
+                fieldValueMode.write();
+            }  
+            
+
+            // forAll(blockType, blockTypeNo)
+            // {
+            //     // read zone name of the field field value
+            //     word blockFieldName = fieldName[nameNo] + "_" + name(blockType[blockTypeNo]);
+            //     Info << "blockFieldName: " << blockFieldName << endl;
+            //     IFstream zoneNameStream(dataPath/blockFieldName);
+            //     List<word> zoneName (mesh.cellZones().size());
+
+            //     // use IStringStream to read zoneName and put them into a List
+            //     label zoneNumber (0);
+            //     word zoneNameLine;
+            //     zoneNameStream.getLine(zoneNameLine);
+            //     // Info << "zoneNameLine: " << zoneNameLine << endl;
+            //     IStringStream zoneNameString (zoneNameLine);
+
+            //     while (! zoneNameString.eof())
+            //     {
+            //         zoneNameString >> zoneName[zoneNumber];
+            //         // Info << "zoneName: " << zoneName[zoneNumber] << endl;
+            //         zoneNumber += 1;
+            //     }
+            //     zoneName.resize(zoneNumber);
+                
+            //     // Info << "test1 " << endl;
+
+            //     fileName dataFile (dataPath/fieldName[nameNo]+ 
+            //                         "_" + name(blockType[blockTypeNo]) + 
+            //                         "_mode" + name(modeNumber[No_]));                
+
+            //     // Info << "dataFile: " << dataFile << endl
+            //     //      << "modeFieldName: " << modeFieldName << endl;
+
+            //     // Field<scalar> zeroScalarField (mesh.C().size(), Foam::zero());
+
+            //     if(isFile(dataFile))
+            //     {
+            //         // volScalarField fieldValueMode
+            //         // (
+            //         //     IOobject
+            //         //     (
+            //         //         modeFieldName,
+            //         //         mesh.time().timeName(),
+            //         //         mesh,
+            //         //         IOobject::READ_IF_PRESENT,
+            //         //         IOobject::AUTO_WRITE
+            //         //     ),
+            //         //     mesh,
+            //         //     dimVelocity,
+            //         //     zeroScalarField
+            //         // );
+                    
+            //         IFstream dataStream(dataFile);
+
+            //         label firstZoneI = mesh.cellZones().findZoneID(zoneName[0]);
+
+            //         // Info << "firstZoneI: " << firstZoneI << endl;
+
+            //         forAll(mesh.cellZones()[firstZoneI], cellI)
+            //         {
+            //             forAll(zoneName, zoneNameI)
+            //             {
+            //                 label zoneI = mesh.cellZones().findZoneID(zoneName[zoneNameI]);
+            //                 label cell = mesh.cellZones()[zoneI][cellI];
+            //                 dataStream.read(fieldValueMode[cell]);            
+            //             }
+            //         }
+
+            //         fieldValueMode.write();
+            //     }  
+            // }   
+            
+        }        
 
     }
 
