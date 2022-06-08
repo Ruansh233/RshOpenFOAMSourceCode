@@ -5,6 +5,8 @@
     dataFile = mesh.time().path()/"SVD"/"diffuTermCoeffMatrix";
     outputFilePtr.reset(new OFstream(dataFile));
 
+    scalar domainVolume (gSum(mesh.V()));
+
     for (label row = 0; row < diffuTermCoeffMatrix.m(); ++row)
     {
         for (label column = 0; column < diffuTermCoeffMatrix.n(); ++column)
@@ -12,7 +14,10 @@
             diffuTermCoeffij = 0;
             forAll(mesh.C(), cellI)
             {
-                diffuTermCoeffij += fieldValue.U()[cellI][row] * laplacianModesMatrix[cellI][column] * mesh.V()[cellI];
+                diffuTermCoeffij += 
+                fieldValue.U()[cellI][row] * laplacianModesMatrix[cellI][column] * 
+                mesh.V()[cellI] / domainVolume;
+                // diffuTermCoeffij += fieldValue.U()[cellI][row] * laplacianModesMatrix[cellI][column];
             }
 
             diffuTermCoeffMatrix[row][column] = diffuTermCoeffij;    

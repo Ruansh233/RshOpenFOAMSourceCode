@@ -12,6 +12,8 @@
         }
         outputFilePtr() << endl;
     }
+    Info << "write SnapshotMatrix: " << snapshotsM.sizes() << endl;
+
     
     // write spatial modeMatrix
     dataFile = mesh.time().path()/"SVD"/"modeMatrix";
@@ -25,23 +27,24 @@
         }
         outputFilePtr() << endl;
     }
+    Info << "write spatial modeMatrix: " << fieldValue.U().sizes() << endl;
 
-    RectangularMatrix<scalar> testM(fieldValue.U().n(), fieldValue.U().m());
-    dataFile = mesh.time().path()/"SVD"/"testM";
-    outputFilePtr.reset(new OFstream(dataFile));
-    testM = fieldValue.U().T();
-    // testM = multiply(fieldValue.U(), fieldValue.U().T());
-    // Info << testM;
-    for (label row = 0; row < testM.m(); ++row)
-    {
-        for (label column = 0; column < testM.n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << testM[row][column];
-        }
-        outputFilePtr() << endl;
-    }
-    // Info << "test: \n" << fieldValue.V() * fieldValue.V().T() << endl;
+    // RectangularMatrix<scalar> testM(fieldValue.U().n(), fieldValue.U().m());
+    // dataFile = mesh.time().path()/"SVD"/"testM";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // testM = fieldValue.U().T();
+    // // testM = multiply(fieldValue.U(), fieldValue.U().T());
+    // // Info << testM;
+    // for (label row = 0; row < testM.m(); ++row)
+    // {
+    //     for (label column = 0; column < testM.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << testM[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+    // // Info << "test: \n" << fieldValue.V() * fieldValue.V().T() << endl;
 
     // write temporal coefficient Matrix
     RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());
@@ -75,6 +78,7 @@
         outputFilePtr() << pow(fieldValue.S()[row], 2)/sumofEigenV;
         outputFilePtr() << endl;
     }
+    Info << "write eigenvalue: " << fieldValue.S().size() << endl;
 
     // write laplacian of modes Matrix
     dataFile = mesh.time().path()/"SVD"/"laplacianModesMatrix";
@@ -89,3 +93,5 @@
         }
         outputFilePtr() << endl;
     }
+    Info << "laplacian of modes Matrix: " << laplacianModesMatrix.sizes() << endl;
+

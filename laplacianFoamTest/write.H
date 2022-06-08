@@ -52,7 +52,21 @@
                 IOobject::AUTO_WRITE
             ),
             DT*gradT
+        );        
+
+        volScalarField laplacianT
+        (
+            IOobject
+            (
+                "laplacianT",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::laplacian(T)
         );
 
         runTime.write();
+
     // }
