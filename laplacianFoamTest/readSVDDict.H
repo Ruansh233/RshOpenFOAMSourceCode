@@ -24,15 +24,44 @@
     // how many mode needed
     label modesNum (svdDict.lookupOrDefault<label>("modeExtract", 5));
 
-    RectangularMatrix<scalar> snapshotsM(mesh.C().size(), snapshotsNum);
+    
+    // total number of boundary faces
+    label boundaryFacesNum(0);
+    forAll(mesh.boundary(), patchI)
+    {
+        boundaryFacesNum += mesh.boundary()[patchI].size();
+    }
+    // total number of snapshots rows
+    label snapshotsRows (boundaryFacesNum + mesh.C().size());
+    RectangularMatrix<scalar> snapshotsM(snapshotsRows, snapshotsNum);
 
     Info << "snapshots extract\n" << "time Interval of snapshots is: " << timeInterval << endl
          << "snapshots number is: " << snapshotsNum << endl;
 
 
-    forAll(mesh.C(), cellI)
+    for(label row = 0; row < snapshotsRows; ++row)
     {
-        snapshotsM[cellI][snapshotsNo] = T[cellI];
+        if(row < mesh.C().size())
+        {
+            snapshotsM[row][snapshotsNo] = T[row];
+        }
+        else
+        {
+            forAll(T.boundaryField(), patchI)
+            {
+                forAll(T.boundaryField()[patchI], faceI)
+                {
+                    snapshotsM[row][snapshotsNo] = T.boundaryField()[patchI][faceI];
+                    ++row;
+                }
+            }     
+        }
     }
+
+    // forAll(mesh.C(), cellI)
+    // {
+    //     snapshotsM[cellI][snapshotsNo] = T[cellI];
+    // }
+
     snapshotsTime += timeInterval;
     ++ snapshotsNo;

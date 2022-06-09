@@ -1,10 +1,33 @@
-        // add snapshots in specific time interval
-        if (runTime.value() >= snapshotsTime)
+
+
+    // add snapshots in specific time interval
+    if (runTime.value() >= snapshotsTime)
+    {
+        // forAll(mesh.C(), cellI)
+        // {
+        //     snapshotsM[cellI][snapshotsNo] = T[cellI];
+        // }
+        
+
+        for(label row = 0; row < snapshotsRows; ++row)
         {
-            forAll(mesh.C(), cellI)
+            if(row < mesh.C().size())
             {
-                snapshotsM[cellI][snapshotsNo] = T[cellI];
+                snapshotsM[row][snapshotsNo] = T[row];
             }
-            snapshotsTime += timeInterval;
-            ++ snapshotsNo;
-        }    
+            else
+            {
+                forAll(T.boundaryField(), patchI)
+                {
+                    forAll(T.boundaryField()[patchI], faceI)
+                    {
+                        snapshotsM[row][snapshotsNo] = T.boundaryField()[patchI][faceI];
+                        ++row;
+                    }
+                }     
+            }
+        }
+
+        snapshotsTime += timeInterval;
+        ++ snapshotsNo;
+    }    

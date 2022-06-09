@@ -9,9 +9,9 @@
     }
 
     // matrix of gradient of mode 
-    RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
-    wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
-                            "extrapolatedCalculated", "extrapolatedCalculated"});
+    RectangularMatrix<scalar> laplacianModesMatrix(snapshotsRows, modesNum);
+    // wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
+    //                         "extrapolatedCalculated", "extrapolatedCalculated"});
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -28,8 +28,7 @@
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimless,
-            patchTypes_
+            dimless
         );
 
         forAll(mesh.C(), cellI)
@@ -37,16 +36,17 @@
             fieldValueMode[cellI] = fieldValue.U()[cellI][No_];
         }
 
-        // // set the face value in boundary equal to the neibouring cell
-        // forAll(fieldValueMode.boundaryField(), patchI)
-        // {
-        //     forAll(fieldValueMode.boundaryField()[patchI], faceI)
-        //     {
-        //         label adjcellID = mesh.boundary()[patchI].patch().faceCells()[faceI];
-
-        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[adjcellID];
-        //     }
-        // }
+        // use to set boundary value of mdoes
+        label rows(mesh.C().size());
+        // set the face value in boundary equal to the neibouring cell
+        forAll(fieldValueMode.boundaryField(), patchI)
+        {
+            forAll(fieldValueMode.boundaryField()[patchI], faceI)
+            {
+                fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+                ++rows;
+            }
+        }
 
         // // fieldValueMode.boundaryFieldRef().set() is
         // forAll(fieldValueMode.boundaryField(), patchI)
