@@ -1,11 +1,14 @@
 
     List<fileName> modeNames (modesNum);
     List<fileName> laplacianModeNames (modesNum);
+    List<fileName> gradModeNames (modesNum);
+
 
     for (label iname = 0; iname < modesNum; ++iname)
     {
         modeNames[iname] = "Tmode" + name(iname);
         laplacianModeNames[iname] = "Tmode_lapla" + name(iname);
+        gradModeNames[iname] = "Tmode_grad" + name(iname);
     }
 
     // matrix of gradient of mode 
@@ -73,6 +76,7 @@
             fvc::laplacian(fieldValueMode)
             // "zeroGradient"
         );
+        lapFieldValueMode.write();   
 
         // forAll(mesh.C(), cellI)
         // {
@@ -85,21 +89,21 @@
         //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], lapFieldValueMode));
         // }
 
-        // // gradient of mode
-        // volVectorField lapFieldValueMode
-        // (
-        //     IOobject
-        //     (
-        //         laplacianModeNames[No_],
-        //         mesh.time().timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::AUTO_WRITE
-        //     ),
-        //     mesh,
-        //     dimless,
-        //     fvc::grad(fieldValueMode)
-        // );
+        // gradient of mode
+        volVectorField gradFieldValueMode
+        (
+            IOobject
+            (
+                gradModeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh,
+            dimless,
+            fvc::grad(fieldValueMode)
+        );
 
-        lapFieldValueMode.write();   
+        gradFieldValueMode.write();   
     }
