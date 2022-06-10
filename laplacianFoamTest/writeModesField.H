@@ -14,7 +14,7 @@
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(snapshotsRows, modesNum);
     // wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
-    //                         "extrapolatedCalculated", "extrapolatedCalculated"});
+    //                         "fixedValue", "fixedValue"});
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -32,6 +32,7 @@
             ),
             mesh,
             dimless
+            // patchTypes_
         );
 
         forAll(mesh.C(), cellI)
@@ -41,7 +42,25 @@
 
         // use to set boundary value of mdoes
         label rows(mesh.C().size());
-        // set the face value in boundary equal to the neibouring cell
+
+        // // set the face value in boundary to fixedvalue
+        // forAll(fieldValueMode.boundaryField(), patchI)
+        // {
+        //     if(fieldValueMode.boundaryField()[patchI].type() == "fixedValue")
+        //     {
+        //         forAll(fieldValueMode.boundaryField()[patchI], faceI)
+        //         {
+        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+        //             ++rows;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         rows += fieldValueMode.boundaryField()[patchI].size();
+        //     }
+        // }
+
+        // set the face value in boundary to the value in snapshots
         forAll(fieldValueMode.boundaryField(), patchI)
         {
             forAll(fieldValueMode.boundaryField()[patchI], faceI)
@@ -51,7 +70,8 @@
             }
         }
 
-        // // fieldValueMode.boundaryFieldRef().set() is
+        // // fieldValueMode.boundaryFieldRef().set() is a function of Ptrlist 
+        // // because boundaryFieldRef() is a pointer
         // forAll(fieldValueMode.boundaryField(), patchI)
         // {
         //     fieldValueMode.boundaryFieldRef().set(patchI, 
