@@ -126,4 +126,19 @@
         );
 
         gradFieldValueMode.write();   
+
+        // surfaceScalarField snGradMode (fvc::interpolate(fieldValueMode));
+        // snGradMode.write();
+
+        // surfaceScalarField snPhiMode (fvc::interpolate(fieldValueMode) * mesh.Sf().component(0)
+        //                             + fvc::interpolate(fieldValueMode) * mesh.Sf().component(1)
+        //                             + fvc::interpolate(fieldValueMode) * mesh.Sf().component(2));
+        // snPhiMode.write();
+
+        surfaceVectorField snPhiMode (fvc::interpolate(fieldValueMode) * mesh.Sf());
+        snPhiMode.write();
+
+        const labelListList & cellFaces = mesh.cellFaces();
+
+        
     }
