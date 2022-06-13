@@ -33,6 +33,7 @@
     }
     // total number of snapshots rows
     label snapshotsRows (boundaryFacesNum + mesh.C().size());
+    // label snapshotsRows (mesh.C().size());
     RectangularMatrix<scalar> snapshotsM(snapshotsRows, snapshotsNum);
 
     Info << "snapshots extract\n" << "time Interval of snapshots is: " << timeInterval << endl

@@ -1,7 +1,20 @@
     // if (runTime.writeTime())
     // {
-        volVectorField gradT(fvc::grad(T));
+        // volVectorField gradT(fvc::grad(T));
 
+        volVectorField gradT
+        (
+            IOobject
+            (
+                "gradT",
+                runTime.timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::grad(T)
+        );
+        
         volScalarField gradTx
         (
             IOobject

@@ -14,7 +14,6 @@
     }
     Info << "write SnapshotMatrix: " << snapshotsM.sizes() << endl;
 
-    
     // write spatial modeMatrix
     dataFile = mesh.time().path()/"SVD"/"modeMatrix";
     outputFilePtr.reset(new OFstream(dataFile));
@@ -55,13 +54,34 @@
     for (label row = 0; row < coeff.m(); ++row)
     {
         // for (label column = 0; column < coeff.n(); ++column)
-        for (label column = 0; column < modesNum; ++column)
+        for (label column = 0; column < coeff.n(); ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << coeff[row][column];
         }
         outputFilePtr() << endl;
     }
+
+    RectangularMatrix<scalar> testT(snapshotsM.m(), snapshotsM.n());
+    RectangularMatrix<scalar> testphi(fieldValue.U().subMatrix(0, 0, -1, 3));
+    RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 3));
+    testT = testphi * testcoeff.T();
+
+    dataFile = mesh.time().path()/"SVD"/"testTMatrix";
+    outputFilePtr.reset(new OFstream(dataFile));
+    for (label row = 0; row < testT.m(); ++row)
+    {
+        // for (label column = 0; column < coeff.n(); ++column)
+        for (label column = 0; column < testT.n(); ++column)
+        {
+            outputFilePtr().width(16);
+            outputFilePtr() << testT[row][column];
+        }
+        outputFilePtr() << endl;
+    }
+
+    // Info << "testphi: " << testphi.sizes() << endl
+    //      << "testcoeff: " << testcoeff.sizes() << endl;
 
     // write eigenvalue of covariance Matrix
     // eigenvalue is squre of the diagnoal Matrix in SVD
