@@ -16,8 +16,7 @@
             {
                 diffuTermCoeffij += 
                 fieldValue.U()[cellI][row] * laplacianModesMatrix[cellI][column] * 
-                mesh.V()[cellI] / domainVolume;
-                // diffuTermCoeffij += fieldValue.U()[cellI][row] * laplacianModesMatrix[cellI][column];
+                mesh.V()[cellI];
             }
 
             diffuTermCoeffMatrix[row][column] = diffuTermCoeffij;    

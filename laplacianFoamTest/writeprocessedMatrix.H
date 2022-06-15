@@ -12,7 +12,7 @@
         }
         outputFilePtr() << endl;
     }
-    Info << "write SnapshotMatrix: " << snapshotsM.sizes() << endl;
+    Info << "write Snapshot Matrix: " << snapshotsM.sizes() << endl;
 
     // write spatial modeMatrix
     dataFile = mesh.time().path()/"SVD"/"modeMatrix";
@@ -26,7 +26,7 @@
         }
         outputFilePtr() << endl;
     }
-    Info << "write spatial modeMatrix: " << fieldValue.U().sizes() << endl;
+    Info << "write spatial mode Matrix: " << fieldValue.U().sizes() << endl;
 
     // RectangularMatrix<scalar> testM(fieldValue.U().n(), fieldValue.U().m());
     // dataFile = mesh.time().path()/"SVD"/"testM";
@@ -61,24 +61,25 @@
         }
         outputFilePtr() << endl;
     }
+    Info << "write temporal coefficient Matrix: " << coeff.sizes() << endl;
 
-    RectangularMatrix<scalar> testT(snapshotsM.m(), snapshotsM.n());
-    RectangularMatrix<scalar> testphi(fieldValue.U().subMatrix(0, 0, -1, 6));
-    RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 6));
-    testT = testphi * testcoeff.T();
+    // RectangularMatrix<scalar> testT(snapshotsM.m(), snapshotsM.n());
+    // RectangularMatrix<scalar> testphi(fieldValue.U().subMatrix(0, 0, -1, 6));
+    // RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 6));
+    // testT = testphi * testcoeff.T();
 
-    dataFile = mesh.time().path()/"SVD"/"testTMatrix";
-    outputFilePtr.reset(new OFstream(dataFile));
-    for (label row = 0; row < testT.m(); ++row)
-    {
-        // for (label column = 0; column < coeff.n(); ++column)
-        for (label column = 0; column < testT.n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << testT[row][column];
-        }
-        outputFilePtr() << endl;
-    }
+    // dataFile = mesh.time().path()/"SVD"/"testTMatrix";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // for (label row = 0; row < testT.m(); ++row)
+    // {
+    //     // for (label column = 0; column < coeff.n(); ++column)
+    //     for (label column = 0; column < testT.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << testT[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
 
     // Info << "testphi: " << testphi.sizes() << endl
     //      << "testcoeff: " << testcoeff.sizes() << endl;
