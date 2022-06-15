@@ -8,12 +8,12 @@
 Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
-Date   : Jun 12 2022
-Time   : 19:31:03
+Date   : Jun 14 2022
+Time   : 15:18:34
 Host   : Sh-Ruan-matebook
-PID    : 10925
+PID    : 17318
 I/O    : uncollated
-Case   : /home/shenhui_ruan/gitFolder/test_cases/svdtest
+Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/laplacianFoamTest/svdtest
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)

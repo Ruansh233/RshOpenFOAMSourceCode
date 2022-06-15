@@ -63,8 +63,8 @@
     }
 
     RectangularMatrix<scalar> testT(snapshotsM.m(), snapshotsM.n());
-    RectangularMatrix<scalar> testphi(fieldValue.U().subMatrix(0, 0, -1, 3));
-    RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 3));
+    RectangularMatrix<scalar> testphi(fieldValue.U().subMatrix(0, 0, -1, 6));
+    RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 6));
     testT = testphi * testcoeff.T();
 
     dataFile = mesh.time().path()/"SVD"/"testTMatrix";
@@ -87,15 +87,20 @@
     // eigenvalue is squre of the diagnoal Matrix in SVD
     dataFile = mesh.time().path()/"SVD"/"eigenVMatrix";
     outputFilePtr.reset(new OFstream(dataFile));
-    scalar sumofEigenV (0.0);
-    for (label row = 0; row < fieldValue.S().size(); ++row)
-    {
-        sumofEigenV += pow(fieldValue.S()[row], 2);
-    }
+    // scalar sumofEigenV (0.0);
+    // for (label row = 0; row < fieldValue.S().size(); ++row)
+    // {
+    //     sumofEigenV += pow(fieldValue.S()[row], 2);
+    // }
 
+    // for (label row = 0; row < fieldValue.S().size(); ++row)
+    // {
+    //     outputFilePtr() << pow(fieldValue.S()[row], 2)/sumofEigenV;
+    //     outputFilePtr() << endl;
+    // }
     for (label row = 0; row < fieldValue.S().size(); ++row)
     {
-        outputFilePtr() << pow(fieldValue.S()[row], 2)/sumofEigenV;
+        outputFilePtr() << fieldValue.S()[row];
         outputFilePtr() << endl;
     }
     Info << "write eigenvalue: " << fieldValue.S().size() << endl;
