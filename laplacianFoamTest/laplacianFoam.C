@@ -113,6 +113,11 @@ int main(int argc, char *argv[])
 
     Info<< "End\n" << endl;
 
+    Info<< "snapshots number is: " << snapshotsNo << endl
+        << "snapshotsTime is: " << snapshotsTime << endl;
+
+    snapshotsM.resize(snapshotsRows, snapshotsNo);
+
     // svd of the snapshots matrix
     SVD fieldValue(snapshotsM);
 
