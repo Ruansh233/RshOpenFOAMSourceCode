@@ -83,8 +83,8 @@ int main(int argc, char *argv[])
 
     Info<< "\nCalculating temperature distribution\n" << endl;
 
-    #include "readSVDDict.H"
     #include "liftingFunctionField.H"
+    #include "readSVDDict.H"
 
     while (simple.loop())
     {

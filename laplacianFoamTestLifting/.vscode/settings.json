@@ -1,0 +1,14 @@
+{
+    "files.associations": {
+        "*Dict": "OpenFOAM",
+        "*Properties": "OpenFOAM",
+        "fvSchemes": "OpenFOAM",
+        "fvSolution": "OpenFOAM",
+        "**/system/*": "OpenFOAM",
+        "**/constant/*": "OpenFOAM",
+        "**/0/*": "OpenFOAM",
+        "readSVDDict.H": "OpenFOAM",
+        "snapshotsMatrix.H": "OpenFOAM",
+        "writeModesField.H": "cpp"
+    }
+}

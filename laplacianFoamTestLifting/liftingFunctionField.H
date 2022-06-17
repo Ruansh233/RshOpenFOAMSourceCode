@@ -28,6 +28,4 @@ forAll(liftingFunction.boundaryField(), patchI)
     }
 }
 
-liftingFunction.write();
-                    
-    
+// liftingFunction.write();

@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "*Dict": "OpenFOAM",
+        "*Properties": "OpenFOAM",
+        "fvSchemes": "OpenFOAM",
+        "fvSolution": "OpenFOAM",
+        "**/system/*": "OpenFOAM",
+        "**/constant/*": "OpenFOAM",
+        "**/0/*": "OpenFOAM",
+        "writeModesField.H": "cpp"
+    }
+}

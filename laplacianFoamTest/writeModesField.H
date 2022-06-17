@@ -113,25 +113,25 @@
         //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], lapFieldValueMode));
         // }
 
-        // Rsh, I don't know what the difference betwween geoField<IO, Field> and 
-        // geoField<IO, mesh, dim,Field>? confused
-        // gradient of mode
-        volVectorField gradFieldValueMode
-        (
-            IOobject
-            (
-                gradModeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            // mesh,
-            // dimless,
-            fvc::grad(fieldValueMode)
-        );
+        // // Rsh, I don't know what the difference betwween geoField<IO, Field> and 
+        // // geoField<IO, mesh, dim,Field>? confused
+        // // gradient of mode
+        // volVectorField gradFieldValueMode
+        // (
+        //     IOobject
+        //     (
+        //         gradModeNames[No_],
+        //         mesh.time().timeName(),
+        //         mesh,
+        //         IOobject::NO_READ,
+        //         IOobject::AUTO_WRITE
+        //     ),
+        //     // mesh,
+        //     // dimless,
+        //     fvc::grad(fieldValueMode)
+        // );
 
-        gradFieldValueMode.write();   
+        // gradFieldValueMode.write();   
 
         // // surfaceScalarField snGradMode (fvc::interpolate(fieldValueMode));
         // // snGradMode.write();
