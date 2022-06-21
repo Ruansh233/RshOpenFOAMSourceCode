@@ -13,37 +13,16 @@ FoamFile
 }
 /*---------------------------------------------------------------------------*/
 
-readTime        "113.5";
+// readTime        "0";
 
 modeNumber       
 (
     0
-    1
-    2
-    3
-    4
 );
 
 fieldName     
 (
-    gradpx_1
-    gradpy_1
-    gradpz_1
-    gradpx_2
-    gradpy_2
-    gradpz_2
-    gradpx_3
-    gradpy_3
-    gradpz_3
-    Ux_1
-    Uy_1
-    Uz_1
-    Ux_2
-    Uy_2
-    Uz_2
-    Ux_3
-    Uy_3
-    Uz_3
+    Uz_phi
 );
 
 

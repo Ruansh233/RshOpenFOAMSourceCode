@@ -63,7 +63,7 @@ int main(int argc, char *argv[])
     List<label> modeNumber (customDict.lookup("modeNumber"));
     List<word> fieldName (customDict.lookup("fieldName"));
     // blockType is different cases, case name is insert after fieldName and before modeNumber
-    List<label> blockType (customDict.lookup("blockType"));
+    // List<label> blockType (customDict.lookup("blockType"));
 
     forAll(fieldName, nameNo)
     {
@@ -111,11 +111,11 @@ int main(int argc, char *argv[])
             IFstream zoneNameStream(dataPath/fieldName[nameNo]);
             List<word> zoneName (mesh.cellZones().size());
 
-            // use IStringStream to read zoneName and put them into a List
+            // use IStringStream to read zoneName in the first line and put them into a List
             label zoneNumber (0);
             word zoneNameLine;
             zoneNameStream.getLine(zoneNameLine);
-            // Info << "zoneNameLine: " << zoneNameLine << endl;
+            Info << "zoneNameLine: " << zoneNameLine << endl;
             IStringStream zoneNameString (zoneNameLine);
 
             while (! zoneNameString.eof())

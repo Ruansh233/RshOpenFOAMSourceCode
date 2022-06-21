@@ -8,12 +8,12 @@
 Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
-Date   : Feb 22 2022
-Time   : 16:24:04
+Date   : Jun 19 2022
+Time   : 17:57:56
 Host   : Sh-Ruan-matebook
-PID    : 5376
+PID    : 2274
 I/O    : uncollated
-Case   : /mnt/d/Learning/OpenFOAMsourcecode/BasicOpenFOAMProgrammingTutorials/OFtutorial01_inputOutput/testCase
+Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/modeValuePlot/testCase
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
