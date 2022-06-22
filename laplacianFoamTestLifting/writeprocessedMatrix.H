@@ -7,7 +7,7 @@
     {
         for (label column = 0; column < snapshotsM.n(); ++column)
         {
-            outputFilePtr().width(12);
+            outputFilePtr().width(16);
             outputFilePtr() << snapshotsM[row][column];
         }
         outputFilePtr() << endl;

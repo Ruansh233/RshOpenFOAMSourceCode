@@ -840,8 +840,8 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createTime.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createMesh.H \
 createFields.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
-readSVDDict.H \
 liftingFunctionField.H \
+readSVDDict.H \
 write.H \
 snapshotsMatrix.H \
 writeModesField.H \

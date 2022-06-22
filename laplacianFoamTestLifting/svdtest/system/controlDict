@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     laplacianFoamTest;
+application     laplacianFoamTestLifting;
 
 // startFrom       latestTime;
 startFrom       startTime;
@@ -35,7 +35,7 @@ purgeWrite      0;
 
 writeFormat     ascii;
 
-writePrecision  8;
+writePrecision  6;
 
 writeCompression off;
 

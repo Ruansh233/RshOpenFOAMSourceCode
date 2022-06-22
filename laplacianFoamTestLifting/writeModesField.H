@@ -2,8 +2,8 @@
     List<fileName> modeNames (modesNum);
     List<fileName> laplacianModeNames (modesNum);
     List<fileName> gradModeNames (modesNum);
-    List<fileName> gaussGradModeNames (modesNum);
-    List<fileName> sfVectorNames (modesNum);
+    // List<fileName> gaussGradModeNames (modesNum);
+    // List<fileName> sfVectorNames (modesNum);
 
 
     for (label iname = 0; iname < modesNum; ++iname)
@@ -11,14 +11,14 @@
         modeNames[iname] = "Tmode" + name(iname);
         laplacianModeNames[iname] = "Tmode_lapla" + name(iname);
         gradModeNames[iname] = "Tmode_grad" + name(iname);
-        gaussGradModeNames[iname] = "Tmode_gaussGrad" + name(iname);
-        sfVectorNames[iname] = "mesh_sf" + name(iname);
+        // gaussGradModeNames[iname] = "Tmode_gaussGrad" + name(iname);
+        // sfVectorNames[iname] = "mesh_sf" + name(iname);
     }
 
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
-    // wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
-    //                         "fixedValue", "fixedValue"});
+    wordList modePatchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
+                            "fixedValue", "fixedValue"});
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -35,8 +35,8 @@
                 IOobject::AUTO_WRITE
             ),
             mesh,
-            dimless
-            // patchTypes_
+            dimless,
+            modePatchTypes_
         );
 
         forAll(mesh.C(), cellI)
@@ -69,7 +69,7 @@
         {
             forAll(fieldValueMode.boundaryField()[patchI], faceI)
             {
-                fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+                fieldValueMode.boundaryFieldRef()[patchI][faceI] = 0;
                 ++rows;
             }
         }
@@ -118,14 +118,14 @@
         // gradient of mode
         volVectorField gradFieldValueMode
         (
-            IOobject
-            (
-                gradModeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
+            // IOobject
+            // (
+            //     gradModeNames[No_],
+            //     mesh.time().timeName(),
+            //     mesh,
+            //     IOobject::NO_READ,
+            //     IOobject::AUTO_WRITE
+            // ),
             // mesh,
             // dimless,
             fvc::grad(fieldValueMode)
@@ -203,8 +203,5 @@
         // }      
 
         // GuassGradFieldValueMode.write();  
-
-
-
 
     }

@@ -19,6 +19,8 @@
         outputFilePtr() << endl;
     }
 
+    Info<< "test2" << endl;
+
     //     outputFilePtr() << endl;
     // }
 

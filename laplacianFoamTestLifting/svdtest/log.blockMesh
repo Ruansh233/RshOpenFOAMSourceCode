@@ -8,10 +8,10 @@
 Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
-Date   : Jun 16 2022
-Time   : 22:51:46
+Date   : Jun 22 2022
+Time   : 00:59:00
 Host   : Sh-Ruan-matebook
-PID    : 7145
+PID    : 2584
 I/O    : uncollated
 Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/laplacianFoamTestLifting/svdtest
 nProcs : 1

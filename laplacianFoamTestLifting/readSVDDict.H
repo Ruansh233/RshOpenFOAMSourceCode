@@ -32,30 +32,10 @@
         boundaryFacesNum += mesh.boundary()[patchI].size();
     }
     // total number of snapshots rows
-    // label snapshotsRows (boundaryFacesNum + mesh.C().size());
     label snapshotsRows (mesh.C().size());
     RectangularMatrix<scalar> snapshotsM(snapshotsRows, snapshotsNum);
 
     Info << "snapshots extract\n" << "time Interval of snapshots is: " << timeInterval << endl << endl;
-
-    // for(label row = 0; row < snapshotsRows; ++row)
-    // {
-    //     if(row < mesh.C().size())
-    //     {
-    //         snapshotsM[row][snapshotsNo] = T[row];
-    //     }
-    //     else
-    //     {
-    //         forAll(T.boundaryField(), patchI)
-    //         {
-    //             forAll(T.boundaryField()[patchI], faceI)
-    //             {
-    //                 snapshotsM[row][snapshotsNo] = T.boundaryField()[patchI][faceI];
-    //                 ++row;
-    //             }
-    //         }     
-    //     }
-    // }
 
     forAll(mesh.C(), cellI)
     {

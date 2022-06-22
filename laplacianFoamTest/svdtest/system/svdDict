@@ -19,4 +19,16 @@ CellNo          500;
 modeExtract     3; 
 // snapshots       50;
 
+timeValueNum    250;
+reconstructTime
+(
+    0
+    10
+    20
+    50
+    100
+    200
+);
+// writeTime       50;
+
 // ************************************************************************* //
