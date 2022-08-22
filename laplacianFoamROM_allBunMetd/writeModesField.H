@@ -41,7 +41,7 @@
 
         forAll(mesh.C(), cellI)
         {
-            fieldValueMode[cellI] = fieldValue.U()[cellI][No_];
+            fieldValueMode[cellI] = fieldValueSVD.U()[cellI][No_];
         }
 
         // use to set boundary value of mdoes
@@ -54,7 +54,7 @@
         //     {
         //         forAll(fieldValueMode.boundaryField()[patchI], faceI)
         //         {
-        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
         //             ++rows;
         //         }
         //     }
@@ -69,7 +69,7 @@
         {
             forAll(fieldValueMode.boundaryField()[patchI], faceI)
             {
-                fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+                fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
                 ++rows;
             }
         }
