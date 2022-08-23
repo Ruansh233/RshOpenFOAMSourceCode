@@ -15,6 +15,9 @@
         sfVectorNames[iname] = "mesh_sf" + name(iname);
     }
 
+    Info << "test3 " << nl;
+
+
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
     // wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
@@ -44,6 +47,9 @@
             fieldValueMode[cellI] = fieldValueSVD.U()[cellI][No_];
         }
 
+        Info << "test3 " << nl;
+
+
         forAll(fieldValueMode.boundaryField(), patchI)
         {
             if(T.boundaryField()[patchI].type() == "fixedValue"){
@@ -51,13 +57,14 @@
                 RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
                                                          modesNum, 
                                                          T.boundaryField()[patchI][0]);
-                RectangularMatrix<scalar> boundaryModeM(boundaryValueM*fieldValueSVD.V());
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * fieldValueSVD.V());
                 
                 for(label i = 0; i < boundaryModeM.m(); i++)
                 {
+                    scalar eigenValueSqrt (Foam::sqrt(fieldValueSVD.S()[i]));
                     for(label j = 0; j < boundaryModeM.n(); j++)
                     {
-                        boundaryValueM(i, j) = boundaryValueM(i, j) / fieldValueSVD.S()[i];
+                        boundaryValueM(i, j) = boundaryValueM(i, j) / eigenValueSqrt;
                     }
                 }
 
@@ -78,6 +85,9 @@
                     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
         }
+
+        Info << "test4 " << nl;
+
 
 
         // forAll(fieldValueMode.boundaryField(), patchI)
@@ -166,25 +176,25 @@
         //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], lapFieldValueMode));
         // }
 
-        // Rsh, I don't know what the difference betwween geoField<IO, Field> and 
-        // geoField<IO, mesh, dim,Field>? confused
-        // gradient of mode
-        volVectorField gradFieldValueMode
-        (
-            IOobject
-            (
-                gradModeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            // mesh,
-            // dimless,
-            fvc::grad(fieldValueMode)
-        );
+        // // Rsh, I don't know what the difference betwween geoField<IO, Field> and 
+        // // geoField<IO, mesh, dim,Field>? confused
+        // // gradient of mode
+        // volVectorField gradFieldValueMode
+        // (
+        //     IOobject
+        //     (
+        //         gradModeNames[No_],
+        //         mesh.time().timeName(),
+        //         mesh,
+        //         IOobject::NO_READ,
+        //         IOobject::AUTO_WRITE
+        //     ),
+        //     // mesh,
+        //     // dimless,
+        //     fvc::grad(fieldValueMode)
+        // );
 
-        gradFieldValueMode.write();   
+        // gradFieldValueMode.write();   
 
         // // surfaceScalarField snGradMode (fvc::interpolate(fieldValueMode));
         // // snGradMode.write();

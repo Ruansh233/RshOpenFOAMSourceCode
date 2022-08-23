@@ -123,8 +123,14 @@ int main(int argc, char *argv[])
         snapshotsM.resize(snapshotsRows, snapshotsNo);        
     }
 
+
+    Info << "test1 " << nl;
+
     // svd of the snapshots matrix
     SVD fieldValueSVD(snapshotsM);
+
+    Info << "test2 " << nl;
+    
 
     // write data of modes
     #include "writeModesField.H"
