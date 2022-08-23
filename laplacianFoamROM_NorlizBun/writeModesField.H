@@ -41,8 +41,44 @@
 
         forAll(mesh.C(), cellI)
         {
-            fieldValueMode[cellI] = fieldValue.U()[cellI][No_];
+            fieldValueMode[cellI] = fieldValueSVD.U()[cellI][No_];
         }
+
+        forAll(fieldValueMode.boundaryField(), patchI)
+        {
+            if(T.boundaryField()[patchI].type() == "fixedValue"){
+                // phibc = Tbc * V * inv(S)
+                RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
+                                                         modesNum, 
+                                                         T.boundaryField()[patchI][0]);
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM*fieldValueSVD.V());
+                
+                for(label i = 0; i < boundaryModeM.m(); i++)
+                {
+                    for(label j = 0; j < boundaryModeM.n(); j++)
+                    {
+                        boundaryValueM(i, j) = boundaryValueM(i, j) / fieldValueSVD.S()[i];
+                    }
+                }
+
+                forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                {
+                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = 
+                        T.boundaryField()[patchI][faceI]*boundaryModeM[faceI][No_];
+                }
+            }
+            else if(T.boundaryField()[patchI].type() == "zeroGradient"){
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+            }
+            else{
+                Info<< "The boundary: " << T.boundaryField()[patchI].type() 
+                    << " doesn't support, and redefine to zeroGradient" << nl;
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+            }
+        }
+
 
         // forAll(fieldValueMode.boundaryField(), patchI)
         // {
@@ -53,13 +89,13 @@
         // label rows(mesh.C().size());
 
         // // set the fixedValue boundary value 
-        // forAll(fieldValueMode.boundaryField(), patchI)
+        // forAll(fieldValueMode.boundaryField(), patchI) 
         // {
-        //     if(fieldValueMode.boundaryField()[patchI].type() == "fixedValue")
+        //     if(fieldValueMode.boundaryField()[patchI].type() == "fixedValue") 
         //     {
         //         forAll(fieldValueMode.boundaryField()[patchI], faceI)
         //         {
-        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
         //             ++rows;
         //         }
         //     }
@@ -74,7 +110,7 @@
         // {
         //     forAll(fieldValueMode.boundaryField()[patchI], faceI)
         //     {
-        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValue.U()[rows][No_];
+        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
         //         ++rows;
         //     }
         // }
@@ -88,15 +124,16 @@
         // }
 
         // set the face value in boundary to the value in the face neighbouring cell
-        forAll(fieldValueMode.boundaryField(), patchI)
-        {
-            forAll(fieldValueMode.boundaryField()[patchI], faceI)
-            {
-                label gFaceI = mesh.boundary()[patchI].start() + faceI;
-                label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
-                fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
-            }
-        }
+
+        // forAll(fieldValueMode.boundaryField(), patchI)
+        // {
+        //     forAll(fieldValueMode.boundaryField()[patchI], faceI)
+        //     {
+        //         label gFaceI = mesh.boundary()[patchI].start() + faceI;
+        //         label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
+        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
+        //     }
+        // }
 
         fieldValueMode.write();
 

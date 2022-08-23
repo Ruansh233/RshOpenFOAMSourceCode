@@ -116,10 +116,15 @@ int main(int argc, char *argv[])
     Info<< "snapshots number is: " << snapshotsNo << endl
         << "snapshotsTime is: " << snapshotsTime << endl;
 
-    snapshotsM.resize(snapshotsRows, snapshotsNo);
+    // check whether the number of snapshots is equal to predefined value,
+    // -- sometimes the snapshotsNo = snapshotsNum-1 due to the double type of runTime at the last step
+    if(snapshotsNo != snapshotsNum)
+    {
+        snapshotsM.resize(snapshotsRows, snapshotsNo);        
+    }
 
     // svd of the snapshots matrix
-    SVD fieldValue(snapshotsM);
+    SVD fieldValueSVD(snapshotsM);
 
     // write data of modes
     #include "writeModesField.H"

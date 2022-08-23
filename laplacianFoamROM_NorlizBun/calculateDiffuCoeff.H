@@ -1,7 +1,7 @@
 
     // calculate and write matrix element value of diffusion term
     RectangularMatrix<scalar> diffuTermCoeffMatrix(modesNum, modesNum);
-    RectangularMatrix<scalar> projModes(fieldValue.U().subMatrix(0, 0, -1, modesNum));
+    RectangularMatrix<scalar> projModes(fieldValueSVD.U().subMatrix(0, 0, -1, modesNum));
     RectangularMatrix<scalar> projLapModes(laplacianModesMatrix.subMatrix(0, 0, -1, modesNum));
 
     diffuTermCoeffMatrix = projModes.T() * projLapModes;
