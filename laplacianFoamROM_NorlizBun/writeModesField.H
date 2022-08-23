@@ -20,8 +20,6 @@
 
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
-    // wordList patchTypes_ ({"zeroGradient", "zeroGradient", "zeroGradient", "zeroGradient", 
-    //                         "fixedValue", "fixedValue"});
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -47,105 +45,64 @@
             fieldValueMode[cellI] = fieldValueSVD.U()[cellI][No_];
         }
 
-        Info << "test3 " << nl;
-
+        scalar eigenValueSqrt (fieldValueSVD.S()[No_]);
 
         forAll(fieldValueMode.boundaryField(), patchI)
         {
-            if(T.boundaryField()[patchI].type() == "fixedValue"){
+            if(T.boundaryField()[patchI].type() == "fixedValue")
+            {
+                // fieldValueMode.boundaryFieldRef().set(patchI, 
+                //     fvPatchField<scalar>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
+
                 // phibc = Tbc * V * inv(S)
                 RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
-                                                         modesNum, 
+                                                         snapshotsNo, 
                                                          T.boundaryField()[patchI][0]);
-                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * fieldValueSVD.V());
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * 
+                                RectangularMatrix<scalar>(fieldValueSVD.V().subColumn(No_, 0, -1)));
                 
                 for(label i = 0; i < boundaryModeM.m(); i++)
                 {
-                    scalar eigenValueSqrt (Foam::sqrt(fieldValueSVD.S()[i]));
                     for(label j = 0; j < boundaryModeM.n(); j++)
                     {
-                        boundaryValueM(i, j) = boundaryValueM(i, j) / eigenValueSqrt;
+                        boundaryModeM(i, j) = boundaryModeM(i, j) / eigenValueSqrt;
                     }
                 }
 
                 forAll(fieldValueMode.boundaryField()[patchI], faceI)
                 {
-                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = 
-                        T.boundaryField()[patchI][faceI]*boundaryModeM[faceI][No_];
+                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = boundaryModeM(faceI, 0);
                 }
             }
-            else if(T.boundaryField()[patchI].type() == "zeroGradient"){
+            else if(T.boundaryField()[patchI].type() == "zeroGradient")
+            {
                 fieldValueMode.boundaryFieldRef().set(patchI, 
                     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
-            else{
+            else
+            {
                 Info<< "The boundary: " << T.boundaryField()[patchI].type() 
                     << " doesn't support, and redefine to zeroGradient" << nl;
                 fieldValueMode.boundaryFieldRef().set(patchI, 
                     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
         }
-
-        Info << "test4 " << nl;
-
-
-
-        // forAll(fieldValueMode.boundaryField(), patchI)
-        // {
-        //     Info << mesh.boundary()[patchI].name() << ": " << fieldValueMode.boundaryField()[patchI][5] << endl;
-        // }
-
-        // // use to set boundary value of mdoes
-        // label rows(mesh.C().size());
-
-        // // set the fixedValue boundary value 
-        // forAll(fieldValueMode.boundaryField(), patchI) 
-        // {
-        //     if(fieldValueMode.boundaryField()[patchI].type() == "fixedValue") 
-        //     {
-        //         forAll(fieldValueMode.boundaryField()[patchI], faceI)
-        //         {
-        //             fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
-        //             ++rows;
-        //         }
-        //     }
-        //     else
-        //     {
-        //         rows += fieldValueMode.boundaryField()[patchI].size();
-        //     }
-        // }
-
-        // // set the face value in boundary to the value in snapshots
-        // forAll(fieldValueMode.boundaryField(), patchI)
-        // {
-        //     forAll(fieldValueMode.boundaryField()[patchI], faceI)
-        //     {
-        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueSVD.U()[rows][No_];
-        //         ++rows;
-        //     }
-        // }
-
-        // // fieldValueMode.boundaryFieldRef().set() is a function of Ptrlist 
-        // // because boundaryFieldRef() is a pointer
-        // forAll(fieldValueMode.boundaryField(), patchI)
-        // {
-        //     fieldValueMode.boundaryFieldRef().set(patchI, 
-        //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
-        // }
-
-        // set the face value in boundary to the value in the face neighbouring cell
-
-        // forAll(fieldValueMode.boundaryField(), patchI)
-        // {
-        //     forAll(fieldValueMode.boundaryField()[patchI], faceI)
-        //     {
-        //         label gFaceI = mesh.boundary()[patchI].start() + faceI;
-        //         label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
-        //         fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
-        //     }
-        // }
-
         fieldValueMode.write();
+
+        // gradient of mode
+        volVectorField gradFieldValueMode
+        (
+            IOobject
+            (
+                gradModeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::grad(fieldValueMode)
+        );
+        gradFieldValueMode.write();   
 
         // laplacian of mode
         volScalarField lapFieldValueMode
@@ -169,105 +126,33 @@
         {
             laplacianModesMatrix[cellI][No_] = lapFieldValueMode[cellI];
         }
-
-        // forAll(lapFieldValueMode.boundaryField(), patchI)
-        // {
-        //     lapFieldValueMode.boundaryFieldRef().set(patchI, 
-        //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], lapFieldValueMode));
-        // }
-
-        // // Rsh, I don't know what the difference betwween geoField<IO, Field> and 
-        // // geoField<IO, mesh, dim,Field>? confused
-        // // gradient of mode
-        // volVectorField gradFieldValueMode
-        // (
-        //     IOobject
-        //     (
-        //         gradModeNames[No_],
-        //         mesh.time().timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::AUTO_WRITE
-        //     ),
-        //     // mesh,
-        //     // dimless,
-        //     fvc::grad(fieldValueMode)
-        // );
-
-        // gradFieldValueMode.write();   
-
-        // // surfaceScalarField snGradMode (fvc::interpolate(fieldValueMode));
-        // // snGradMode.write();
-
-        // // surfaceScalarField snPhiMode (fvc::interpolate(fieldValueMode) * mesh.Sf().component(0)
-        // //                             + fvc::interpolate(fieldValueMode) * mesh.Sf().component(1)
-        // //                             + fvc::interpolate(fieldValueMode) * mesh.Sf().component(2));
-        // // snPhiMode.write();
-
-        // surfaceScalarField facesInterMode (fvc::interpolate(fieldValueMode));
-        // facesInterMode.write();
-
-        // // Info << "mesh.Sf(): \n" << mesh.Sf() << endl;      
-        // // transfer the data as surfaceVectorField will result in wrong boundary value 
-        // // surfaceVectorField facesVectorMode
-        // // (
-        // //     IOobject
-        // //     (
-        // //         sfVectorNames[No_],
-        // //         mesh.time().timeName(),
-        // //         mesh,
-        // //         IOobject::NO_READ,
-        // //         IOobject::AUTO_WRITE
-        // //     ),
-        // //     mesh,
-        // //     dimless,
-        // //     mesh.Sf()
-        // // );
-        // // facesVectorMode.write();
-        // // Info << mesh.Sf() << endl;
-
-        // // gauss gradient of mode with self defined method
-        // volVectorField GuassGradFieldValueMode
-        // (
-        //     IOobject
-        //     (
-        //         gaussGradModeNames[No_],
-        //         mesh.time().timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::AUTO_WRITE
-        //     ),
-        //     mesh,
-        //     dimless
-        // );
-
-        // forAll(mesh.cells(), cellI)
-        // {
-        //     GuassGradFieldValueMode[cellI] = vector::zero;
-        //     List<label> adjFaces = mesh.cells()[cellI];
-        //     forAll(adjFaces, faceI)
-        //     {
-        //         scalar innerProductCf = (mesh.C()[cellI] - mesh.Cf()[adjFaces[faceI]]) & 
-        //                                 mesh.Sf()[adjFaces[faceI]];
-
-        //         if(innerProductCf < scalar(0))
-        //         {
-        //             GuassGradFieldValueMode[cellI] += 
-        //                 facesInterMode[adjFaces[faceI]] * mesh.Sf()[adjFaces[faceI]];
-        //         }
-        //         else
-        //         {
-        //             GuassGradFieldValueMode[cellI] += 
-        //                 facesInterMode[adjFaces[faceI]] * - mesh.Sf()[adjFaces[faceI]];
-        //         }                
-        //     }
-
-        //     GuassGradFieldValueMode[cellI] /= mesh.V()[cellI];
-        // }      
-
-        // GuassGradFieldValueMode.write();  
-
-
-
-
     }
+
+    volScalarField testT
+    (
+        IOobject
+        (
+            "T",
+            runTime.timeName(),
+            mesh,
+            IOobject::MUST_READ,
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    );
+
+    volVectorField testgradT
+    (
+        IOobject
+        (
+            "testgradT",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        fvc::grad(T)
+    );
+
+    testgradT.write();
+    

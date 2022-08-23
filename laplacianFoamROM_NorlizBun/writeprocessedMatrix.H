@@ -28,22 +28,22 @@
     }
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
-    // RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
-    // dataFile = mesh.time().path()/"SVD"/"testM";
-    // outputFilePtr.reset(new OFstream(dataFile));
-    // testM = fieldValueSVD.U().T();
-    // // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
-    // // Info << testM;
-    // for (label row = 0; row < testM.m(); ++row)
-    // {
-    //     for (label column = 0; column < testM.n(); ++column)
-    //     {
-    //         outputFilePtr().width(16);
-    //         outputFilePtr() << testM[row][column];
-    //     }
-    //     outputFilePtr() << endl;
-    // }
-    // // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
+    RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
+    dataFile = mesh.time().path()/"SVD"/"testM";
+    outputFilePtr.reset(new OFstream(dataFile));
+    testM = fieldValueSVD.V();
+    // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
+    // Info << testM;
+    for (label row = 0; row < testM.m(); ++row)
+    {
+        for (label column = 0; column < testM.n(); ++column)
+        {
+            outputFilePtr().width(16);
+            outputFilePtr() << testM[row][column];
+        }
+        outputFilePtr() << endl;
+    }
+    // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
 
     // write temporal coefficient Matrix
     RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());

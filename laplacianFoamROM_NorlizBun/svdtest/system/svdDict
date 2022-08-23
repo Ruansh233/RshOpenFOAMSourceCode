@@ -14,9 +14,9 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-timeInterval    0.2;
+timeInterval    0.1;
 CellNo          500;
-modeExtract     3; 
+modeExtract     5; 
 // snapshots       50;
 
 // ************************************************************************* //
