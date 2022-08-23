@@ -1,0 +1,124 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// General m4 macros
+
+  
+
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// geometric parameters defined by the user
+
+scale   1;
+
+// input parameter
+                
+        
+                
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// parametric description of the geometry
+
+vertices
+(
+    //buttom
+    (-0.05  -0.05  -0.2) // Vertex q01 = 0 
+    ( 0.05  -0.05  -0.2) // Vertex q02 = 1 
+    ( 0.05   0.05  -0.2) // Vertex q03 = 2 
+    (-0.05   0.05  -0.2) // Vertex q04 = 3 
+
+    (-0.05  -0.05   0.2) // Vertex q05 = 4 
+    ( 0.05  -0.05   0.2) // Vertex q06 = 5 
+    ( 0.05   0.05   0.2) // Vertex q07 = 6 
+    (-0.05   0.05   0.2) // Vertex q08 = 7  
+
+);
+
+
+blocks
+( 
+    // x y z of the block must equal to the coordinate of points
+    hex ( 0 1 2 3 4 5 6 7) (10 10 40) simpleGrading (1 1 1) 
+);
+
+
+edges 
+(
+
+);  
+
+boundary
+(
+
+   wall_minX
+   {
+      type patch;
+      faces
+      (
+      (0 3 7 4) 
+      );
+   }
+
+   wall_maxX
+   {
+      type patch;
+      faces
+      (
+      (1 2 6 5) 
+      );
+   }
+
+   wall_minY
+   {
+      type patch;
+      faces
+      (
+      (0 1 5 4) 
+      );
+   }
+
+   wall_maxY
+   {
+      type patch;
+      faces
+      (
+      (3 2 6 7) 
+      );
+   }
+
+   inlet_minZ
+   {
+      type patch;
+      faces    
+      (
+      (0 1 2 3) 
+      );
+   }
+
+   outlet_maxZ
+   {
+      type patch;
+      faces    
+      (
+      (4 5 6 7) 
+      );
+   }
+
+);
+
+// ************************************************************************* //
+
