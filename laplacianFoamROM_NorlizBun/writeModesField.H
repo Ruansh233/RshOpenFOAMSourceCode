@@ -51,8 +51,8 @@
         {
             if(T.boundaryField()[patchI].type() == "fixedValue")
             {
-                // fieldValueMode.boundaryFieldRef().set(patchI, 
-                //     fvPatchField<scalar>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
 
                 // phibc = Tbc * V * inv(S)
                 RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
@@ -76,8 +76,14 @@
             }
             else if(T.boundaryField()[patchI].type() == "zeroGradient")
             {
-                fieldValueMode.boundaryFieldRef().set(patchI, 
-                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                // fieldValueMode.boundaryFieldRef().set(patchI, 
+                //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                {
+                    label gFaceI = mesh.boundary()[patchI].start() + faceI;
+                    label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
+                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
+                }
             }
             else
             {
@@ -128,11 +134,55 @@
         }
     }
 
-    volScalarField testT
+    // // T field test
+    // volScalarField testT
+    // (
+    //     IOobject
+    //     (
+    //         "T",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::MUST_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     mesh
+    // );
+
+    // volVectorField testgradT
+    // (
+    //     IOobject
+    //     (
+    //         "testgradT",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     fvc::grad(T)
+    // );
+    // testgradT.write();
+
+    // volScalarField testlapT
+    // (
+    //     IOobject
+    //     (
+    //         "testlapdT",
+    //         runTime.timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     fvc::laplacian(T)
+    // );
+    // testlapT.write();
+
+
+    // mode field test 
+    volScalarField testMode
     (
         IOobject
         (
-            "T",
+            "Tmode0",
             runTime.timeName(),
             mesh,
             IOobject::MUST_READ,
@@ -141,18 +191,31 @@
         mesh
     );
 
-    volVectorField testgradT
+    volVectorField testgradMode
     (
         IOobject
         (
-            "testgradT",
+            "testgradMode",
             runTime.timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::AUTO_WRITE
         ),
-        fvc::grad(T)
+        fvc::grad(testMode)
     );
+    testgradMode.write();
 
-    testgradT.write();
+    volScalarField testlapMode
+    (
+        IOobject
+        (
+            "testlapMode",
+            runTime.timeName(),
+            mesh,
+            IOobject::NO_READ,
+            IOobject::AUTO_WRITE
+        ),
+        fvc::laplacian(testMode)
+    );
+    testlapMode.write();
     
