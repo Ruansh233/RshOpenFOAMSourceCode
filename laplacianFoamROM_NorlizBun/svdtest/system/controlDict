@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     laplacianFoamTest;
+application     laplacianFoamNorBun;
 
 // startFrom       latestTime;
 startFrom       startTime;

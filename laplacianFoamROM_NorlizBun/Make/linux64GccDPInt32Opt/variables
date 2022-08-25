@@ -1,1 +1,1 @@
-EXE = $(FOAM_APPBIN)/laplacianFoamTest
+EXE = $(FOAM_APPBIN)/laplacianFoamNorBun
