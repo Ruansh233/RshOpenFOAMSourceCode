@@ -16,7 +16,7 @@ FoamFile
 
 timeInterval    0.1;
 CellNo          500;
-modeExtract     4; 
+modeExtract     5; 
 // snapshots       50;
 
 // ************************************************************************* //
