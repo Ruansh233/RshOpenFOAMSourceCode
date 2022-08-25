@@ -9,11 +9,11 @@ Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
 Date   : Aug 25 2022
-Time   : 14:56:23
-Host   : ites-fps-ruanLX
-PID    : 41980
+Time   : 23:47:10
+Host   : Sh-Ruan-matebook
+PID    : 6408
 I/O    : uncollated
-Case   : /home/ruan/Desktop/Shenhui_ruan/OpenFOAM/OpenFOAMsourcecode/laplacianFoamROM_DDGlobalModes/svdtest
+Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/laplacianFoamROM_DDGlobalModes/svdtest
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)

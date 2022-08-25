@@ -58,6 +58,7 @@ Description
 #include "SVD.H"
 #include "fvOptions.H"
 #include "simpleControl.H"
+#include "QRMatrix.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

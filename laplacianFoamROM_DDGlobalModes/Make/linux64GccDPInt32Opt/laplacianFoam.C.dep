@@ -826,6 +826,9 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/simpleControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControl.H \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlTemplates.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlI.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/QRMatrix.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/QRMatrixI.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/QRMatrix.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/postProcess.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addRegionOption.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addFunctionObjectOptions.H \
