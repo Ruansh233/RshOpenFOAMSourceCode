@@ -28,39 +28,40 @@
     }
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
-    RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
-    dataFile = mesh.time().path()/"SVD"/"testM";
-    outputFilePtr.reset(new OFstream(dataFile));
-    testM = fieldValueSVD.V();
-    // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
-    // Info << testM;
-    for (label row = 0; row < testM.m(); ++row)
-    {
-        for (label column = 0; column < testM.n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << testM[row][column];
-        }
-        outputFilePtr() << endl;
-    }
+    // RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
+    // dataFile = mesh.time().path()/"SVD"/"testM";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // testM = fieldValueSVD.V();
+    // // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
+    // // Info << testM;
+    // for (label row = 0; row < testM.m(); ++row)
+    // {
+    //     for (label column = 0; column < testM.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << testM[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
 
     // write temporal coefficient Matrix
-    RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());
-    coeff = snapshotsM.T() * fieldValueSVD.U();
+    RectangularMatrix<scalar> temporalCoeff(snapshotsM.n(), modesNum);
+    temporalCoeff = snapshotsM.T() * 
+                    RectangularMatrix<scalar> (fieldValueSVD.U().subMatrix(0, 0, -1, modesNum));
 
-    dataFile = mesh.time().path()/"SVD"/"coeffMatrix";
+    dataFile = mesh.time().path()/"SVD"/"temporalCoeffMatrix";
     outputFilePtr.reset(new OFstream(dataFile));
-    for (label row = 0; row < coeff.m(); ++row)
+    for (label row = 0; row < temporalCoeff.m(); ++row)
     {
         // for (label column = 0; column < coeff.n(); ++column)
-        for (label column = 0; column < coeff.n(); ++column)
+        for (label column = 0; column < temporalCoeff.n(); ++column)
         {
             outputFilePtr().width(16);
-            outputFilePtr() << coeff[row][column];
+            outputFilePtr() << temporalCoeff[row][column];
         }
         outputFilePtr() << endl;
     }
-    Info << "write temporal coefficient Matrix: " << coeff.sizes() << endl;
+    Info << "write temporal coefficient Matrix: " << temporalCoeff.sizes() << endl;
 
     // write eigenvalue of covariance Matrix
     // eigenvalue is squre of the diagnoal Matrix in SVD

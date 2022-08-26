@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
                 zeroScalarField
             );
 
-            // read zone name of the field field value
+            // read zone name of the field value (not modes field value), i.e. gradx
             IFstream zoneNameStream(dataPath/fieldName[nameNo]);
             List<word> zoneName (mesh.cellZones().size());
 
@@ -128,6 +128,8 @@ int main(int argc, char *argv[])
             
             // Info << "test1 " << endl;
 
+            
+            // read modes field data (i.e. gradx_mode0) and write to runTime.timename() folder 
             fileName dataFile (dataPath/fieldName[nameNo] + 
                                 "_mode" + name(modeNumber[No_]));                
 

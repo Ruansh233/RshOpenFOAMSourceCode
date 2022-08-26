@@ -7,6 +7,7 @@
         
         RectangularMatrix<scalar> subDProjModes(mesh.cellZones()[zoneI].size(), modesNum);
         RectangularMatrix<scalar> subDProjLapModes(mesh.cellZones()[zoneI].size(), modesNum);
+
         RectangularMatrix<scalar> subDdiffuCoeffMatrix(modesNum, modesNum);
         RectangularMatrix<scalar> subDTempCoeffMatrix(modesNum, modesNum);
         RectangularMatrix<scalar> subDCoeffMatrix(modesNum, modesNum);
@@ -23,37 +24,9 @@
 
         subDTempCoeffMatrix = subDProjModes.T() * subDProjModes;
         subDdiffuCoeffMatrix = subDProjModes.T() * subDProjLapModes;
-                
-        // // write subDdiffuCoeffMatrix to file
-        // dataFile = mesh.time().path()/"SVD"/"subDdiffuCoeffMatrix" + "domain" + name(zoneI);
-        // outputFilePtr.reset(new OFstream(dataFile));
-        // for (label row = 0; row < subDdiffuCoeffMatrix.m(); ++row)
-        // {
-        //     for (label column = 0; column < subDdiffuCoeffMatrix.n(); ++column)
-        //     {
-        //         outputFilePtr().width(16);
-        //         outputFilePtr() << subDdiffuCoeffMatrix[row][column];
-        //     }
-        //     outputFilePtr() << endl;
-        // }
-
-        
-        // // write subDTempCoeffMatrix to file
-        // dataFile = mesh.time().path()/"SVD"/"subDTempCoeffMatrix" + "domain" + name(zoneI);
-        // outputFilePtr.reset(new OFstream(dataFile));
-        // for (label row = 0; row < subDTempCoeffMatrix.m(); ++row)
-        // {
-        //     for (label column = 0; column < subDTempCoeffMatrix.n(); ++column)
-        //     {
-        //         outputFilePtr().width(16);
-        //         outputFilePtr() << subDTempCoeffMatrix[row][column];
-        //     }
-        //     outputFilePtr() << endl;
-        // }
-
         subDCoeffMatrix = SVDinv(subDTempCoeffMatrix) * subDdiffuCoeffMatrix;
         
-        // write subDCoeffMatrix to file
+        // write subdomain ROM CoeffMatrix to file
         dataFile = mesh.time().path()/"SVD"/"subDCoeffMatrix" + "domain" + name(zoneI);
         outputFilePtr.reset(new OFstream(dataFile));
         for (label row = 0; row < subDCoeffMatrix.m(); ++row)
@@ -65,6 +38,35 @@
             }
             outputFilePtr() << endl;
         }
+
+        // write subdomain temporal coefficients
+        RectangularMatrix<scalar> subDfieldValue(mesh.cellZones()[zoneI].size(), snapshotsM.n());
+        RectangularMatrix<scalar> subDtemporalCoeff(mesh.cellZones()[zoneI].size(), modesNum);
+
+        for(label col=0; col < fieldValueSVD.U().n(); ++col)
+        {  
+            forAll(mesh.cellZones()[zoneI], cellI)
+            {
+                label cell = mesh.cellZones()[zoneI][cellI];
+                subDfieldValue(cellI, col) = snapshotsM(cell, col); 
+            }
+        }
+
+        subDtemporalCoeff = subDfieldValue.T() * subDProjModes;
+
+        // write subDtemporalCoeff to file
+        dataFile = mesh.time().path()/"SVD"/"subDtemporalCoeff" + "domain" + name(zoneI);
+        outputFilePtr.reset(new OFstream(dataFile));
+        for (label row = 0; row < subDtemporalCoeff.m(); ++row)
+        {
+            for (label column = 0; column < subDtemporalCoeff.n(); ++column)
+            {
+                outputFilePtr().width(16);
+                outputFilePtr() << subDtemporalCoeff[row][column];
+            }
+            outputFilePtr() << endl;
+        }
+        
     }
 
     // diffuTermCoeffMatrix = projModes.T() * projLapModes;

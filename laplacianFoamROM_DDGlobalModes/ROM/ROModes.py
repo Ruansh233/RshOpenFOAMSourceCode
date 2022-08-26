@@ -2,7 +2,7 @@ from scipy.integrate import solve_ivp
 import numpy as np
 # import matplotlib.pyplot as plt
 
-filePath = "/home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/laplacianFoamROM_NorlizBun/svdtest/SVD"
+filePath = "../svdtest/SVD"
 diffucoefficience = filePath + "/diffuTermCoeffMatrix"
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"

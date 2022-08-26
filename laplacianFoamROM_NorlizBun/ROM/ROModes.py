@@ -2,21 +2,21 @@ from scipy.integrate import solve_ivp
 import numpy as np
 # import matplotlib.pyplot as plt
 
-filePath = "/home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/laplacianFoamROM_NorlizBun/svdtest/SVD"
-diffucoefficience = filePath + "/diffuTermCoeffMatrix"
+filePath = "../svdtest/SVD"
+diffucoefficient = filePath + "/diffuTermCoeffMatrix"
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
 coeff_calculate = filePath + "/coeff_calculate"
 snapshots_calculate = filePath + "/snapshots_calculate"
 
 
-# modeMatrix = np.loadtxt(diffucoefficience)
+# modeMatrix = np.loadtxt(coeff)
 # testM = np.loadtxt(coeff)
 
 # print(np.matmul(modeMatrix, testM))
 
 
-diffuTermCoeffMatrix = np.loadtxt(diffucoefficience)
+diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)
 coeffMatrix = np.loadtxt(coeff)
 modeMatrix = np.loadtxt(spatialmode)
 projmodeMatrix = modeMatrix[:, :np.shape(diffuTermCoeffMatrix)[1]]
