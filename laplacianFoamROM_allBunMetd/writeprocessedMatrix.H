@@ -1,4 +1,8 @@
     Info << "write svd data\n" << endl;
+    
+    // check whether SVD folder exist or not
+    if(!isDir(dataFile = mesh.time().path()/"SVD"))
+        mkDir(dataFile);    
         
     // write SnapshotMatrix
     dataFile = mesh.time().path()/"SVD"/"SnapshotMatrix";    
