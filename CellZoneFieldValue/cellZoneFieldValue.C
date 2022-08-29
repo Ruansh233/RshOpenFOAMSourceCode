@@ -23,6 +23,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+// Rsh. get postprocessed field value (i.e. grad(U), laplacian(U) and Ux, ..., P, grad(P)) in each cell zone
+// -- and write them into a file each column of represent a cell zone
+
 #include "fvCFD.H"
 #include "wordRe.H"
 
@@ -44,7 +47,7 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    // dict Selector
+    // add dict Selector option
     const word dictName("cellZoneDict");
     #include "setSystemMeshDictionaryIO.H"
     Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
