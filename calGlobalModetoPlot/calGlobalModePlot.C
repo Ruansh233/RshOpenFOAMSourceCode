@@ -29,6 +29,9 @@ License
 
 int main(int argc, char *argv[])
 {
+    // add timeSelector to generate all ROM results
+    timeSelector::addOptions();
+    
     // Initialise OF case
     #include "setRootCase.H"
 
@@ -93,7 +96,7 @@ int main(int argc, char *argv[])
                     {
                         calModecoeff(snapshotsN, modesN) = singleData.scalarToken();
                         ++modesN;                            
-                    }             
+                    }         
                 }
                 ++snapshotsN;
                 modesN = 0;
@@ -149,6 +152,11 @@ int main(int argc, char *argv[])
                     {
                         snapshotsM(cellN, modesN) = singleData.scalarToken();
                         ++modesN;                            
+                    }     
+                    if(singleData.isLabel())
+                    {
+                        snapshotsM(cellN, modesN) = scalar(singleData.labelToken());
+                        ++modesN;                   
                     }                    
                 }
                 ++cellN;
@@ -164,6 +172,18 @@ int main(int argc, char *argv[])
         Info<< "snapshots matrix is: " << snapshotsM.m() << " * " 
             << snapshotsM.n() << endl; 
 
+        // // write snapshotsM
+        // dataFile = mesh.time().path()/"SVD"/"snapshotsM_test";    
+        // outputFilePtr.reset(new OFstream(dataFile));
+        // for (label row = 0; row < snapshotsM.m(); ++row)
+        // {
+        //     for (label column = 0; column < snapshotsM.n(); ++column)
+        //     {
+        //         outputFilePtr().width(12);
+        //         outputFilePtr() << snapshotsM(row, column);
+        //     }
+        //     outputFilePtr() << endl;
+        // }
 
         // read mode matrix
         // only the required number of modes are read
@@ -205,23 +225,56 @@ int main(int argc, char *argv[])
         }
         Info<< "modes matrix is: " << modesMatrix.m() << " * " 
             << modesMatrix.n() << endl; 
+        
+        // // write modesMatrix
+        // dataFile = mesh.time().path()/"SVD"/"modesMatrix_test";    
+        // outputFilePtr.reset(new OFstream(dataFile));
+        // for (label row = 0; row < modesMatrix.m(); ++row)
+        // {
+        //     for (label column = 0; column < modesMatrix.n(); ++column)
+        //     {
+        //         outputFilePtr().width(12);
+        //         outputFilePtr() << modesMatrix(row, column);
+        //     }
+        //     outputFilePtr() << endl;
+        // }
 
 
         // snapshots of ROM and the error estimate 
-        RectangularMatrix<scalar> calSnapshotsM(mesh.C().size(), modesNum); 
+        RectangularMatrix<scalar> calSnapshotsM(mesh.C().size(), snapshotsNum); 
         calSnapshotsM = modesMatrix * calModecoeff.T();
 
-        RectangularMatrix<scalar> errorMatrix(mesh.C().size(), modesNum); 
+        Info<< "calculated snapshots matrix is: " << calSnapshotsM.m() << " * " 
+            << calSnapshotsM.n() << endl; 
 
-        for(label rows = 0; rows < errorMatrix.n(); ++rows)
-        {
-            for(label columns = 0; columns < errorMatrix.n(); ++columns)
-            {
-                errorMatrix(rows, columns) = abs(calSnapshotsM(rows, columns) - 
-                                                snapshotsM(rows, columns)) /
-                                                snapshotsM(rows, columns);
-            }
-        }   
+        // // write calSnapshotsM
+        // dataFile = mesh.time().path()/"SVD"/"calSnapshotsM_test";    
+        // outputFilePtr.reset(new OFstream(dataFile));
+        // for (label row = 0; row < calSnapshotsM.m(); ++row)
+        // {
+        //     for (label column = 0; column < calSnapshotsM.n(); ++column)
+        //     {
+        //         outputFilePtr().width(12);
+        //         outputFilePtr() << calSnapshotsM(row, column);
+        //     }
+        //     outputFilePtr() << endl;
+        // }
+
+        RectangularMatrix<scalar> errorMatrix(mesh.C().size(), snapshotsNum); 
+        errorMatrix = calSnapshotsM - snapshotsM;
+
+        // // write calModecoeff
+        // dataFile = mesh.time().path()/"SVD"/"errorMatrix_test";    
+        // outputFilePtr.reset(new OFstream(dataFile));
+        // for (label row = 0; row < errorMatrix.m(); ++row)
+        // {
+        //     for (label column = 0; column < errorMatrix.n(); ++column)
+        //     {
+        //         outputFilePtr().width(12);
+        //         outputFilePtr() << errorMatrix(row, column);
+        //     }
+        //     outputFilePtr() << endl;
+        // }
         
         List<scalar> averageError(snapshotsNum);
         List<scalar> maxError(snapshotsNum);
@@ -229,21 +282,80 @@ int main(int argc, char *argv[])
 
         for(label columns = 0; columns < errorMatrix.n(); ++columns)
         {
-            for(label rows = 0; rows < errorMatrix.n(); ++rows)
+            for(label rows = 0; rows < errorMatrix.m(); ++rows)
             {
-                tempValue[rows] = errorMatrix(rows, columns);
+                tempValue[rows] = mag(errorMatrix(rows, columns)/snapshotsM(rows, columns));
             }
             maxError[columns] = max(tempValue);        
             averageError[columns] = average(tempValue);
         } 
 
-        // Info<< maxError << endl
-        //     << averageError << endl;       
 
+        // output the error
+        dataFile = mesh.time().path()/"SVD"/"errorList";    
+        outputFilePtr.reset(new OFstream(dataFile));
+        for (label row = 0; row < averageError.size(); ++row)
+        {
+            outputFilePtr().width(16);
+            outputFilePtr() << row;
+            outputFilePtr().width(16);
+            outputFilePtr() << averageError[row];
+            outputFilePtr().width(16);
+            outputFilePtr() << maxError[row];
+
+            outputFilePtr() << endl;
+        }
+
+    // write data of specific time
+    // read time list
+    // List<label> outputTime (customDict.lookup("outputTime"));
+    instantList timeDirs = timeSelector::select0(runTime, args);
+    scalar timeInterval (customDict.getScalar("timeInterval"));
+
+    forAll(timeDirs, timeI)
+    {
+        runTime.setTime(timeDirs[timeI], 1);        
+        Info<< "runtime: " << runTime.timeName() << endl;
+
+        volScalarField tempFieldValue
+        (
+            IOobject
+            (
+                "T",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        );
+
+        volScalarField calFieldValue
+        (
+            IOobject
+            (
+                "calFieldValue",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            tempFieldValue
+        );
+
+        label timeColumn (runTime.value()/timeInterval);
+        if(timeColumn >= calSnapshotsM.n())
+            --timeColumn;
+
+        forAll(calFieldValue, cellI)
+        {
+            calFieldValue[cellI] = calSnapshotsM(cellI, timeColumn);
+        }
+
+        calFieldValue.write();
+    }
 
     // }
-
-    
 
     Info<< "End\n" << endl;
 

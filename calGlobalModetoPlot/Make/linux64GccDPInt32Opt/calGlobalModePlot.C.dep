@@ -1,5 +1,5 @@
-$(OBJECTS_DIR)/modeValuePlot.C.dep: \
-modeValuePlot.C \
+$(OBJECTS_DIR)/calGlobalModePlot.C.dep: \
+calGlobalModePlot.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvCFD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pstream.H \

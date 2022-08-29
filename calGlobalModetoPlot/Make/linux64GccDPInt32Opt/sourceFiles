@@ -1,4 +1,4 @@
 SOURCE = \
-calModePlot.C \
+calGlobalModePlot.C \
 
 # sources
