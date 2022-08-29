@@ -32,6 +32,7 @@
     }
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
+    // the orthogonal temporal coefficient matrix, fieldValueSVD.V()
     RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
     dataFile = mesh.time().path()/"SVD"/"testM";
     outputFilePtr.reset(new OFstream(dataFile));
