@@ -29,6 +29,9 @@ License
 
 int main(int argc, char *argv[])
 {
+    // add timeSelector to generate all ROM results
+    timeSelector::addOptions();
+    
     // Initialise OF case
     #include "setRootCase.H"
 
@@ -302,6 +305,55 @@ int main(int argc, char *argv[])
 
             outputFilePtr() << endl;
         }
+
+    // write data of specific time
+    // read time list
+    // List<label> outputTime (customDict.lookup("outputTime"));
+    instantList timeDirs = timeSelector::select0(runTime, args);
+    scalar timeInterval (customDict.getScalar("timeInterval"));
+
+    forAll(timeDirs, timeI)
+    {
+        runTime.setTime(timeDirs[timeI], 1);        
+        Info<< "runtime: " << runTime.timeName() << endl;
+
+        volScalarField tempFieldValue
+        (
+            IOobject
+            (
+                "T",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        );
+
+        volScalarField calFieldValue
+        (
+            IOobject
+            (
+                "calFieldValue",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            tempFieldValue
+        );
+
+        label timeColumn (runTime.value()/timeInterval);
+        if(timeColumn >= calSnapshotsM.n())
+            --timeColumn;
+
+        forAll(calFieldValue, cellI)
+        {
+            calFieldValue[cellI] = calSnapshotsM(cellI, timeColumn);
+        }
+
+        calFieldValue.write();
+    }
 
     // }
 
