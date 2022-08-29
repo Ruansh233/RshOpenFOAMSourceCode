@@ -9,14 +9,26 @@ FoamFile
 {
     version     2.0;
     format      ascii;
+    arch        "LSB;label=32;scalar=64";
     class       dictionary;
+    location    "system";
     object      svdDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 timeInterval    0.1;
+
 CellNo          500;
-modeExtract     4; 
-// snapshots       50;
+
+modeExtract     4;
+
+calCoeffFile    ( coeff_calculate );
+
+calCoeffFile    ( coeff_calculate );
+
+
+
+snapshotsNum    500;
+
 
 // ************************************************************************* //

@@ -19,4 +19,11 @@ CellNo          500;
 modeExtract     5; 
 // snapshots       50;
 
+snapshotsNum    500;
+
+calCoeffFile    ("coeff_calculate");
+modesName       ("modeMatrix");
+snapshotsMatrixName ("SnapshotMatrix");
+
+
 // ************************************************************************* //
