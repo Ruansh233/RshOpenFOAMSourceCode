@@ -121,7 +121,9 @@ int main(int argc, char *argv[])
     // -- sometimes the snapshotsNo = snapshotsNum-1 due to the double type of runTime at the last step
     if(snapshotsNo != snapshotsNum)
     {
-        snapshotsM.resize(snapshotsRows, snapshotsNo);        
+        snapshotsM.resize(snapshotsRows, snapshotsNo);     
+        svdDict.add("snapshotsNum", snapshotsNo);   
+        svdDict.regIOobject::write();
     }
 
     // svd of the snapshots matrix
