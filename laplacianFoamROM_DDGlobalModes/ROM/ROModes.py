@@ -1,43 +1,32 @@
+from ast import For
 from scipy.integrate import solve_ivp
 import numpy as np
 # import matplotlib.pyplot as plt
 
 filePath = "../svdtest/SVD"
-diffucoefficience = filePath + "/diffuTermCoeffMatrix"
-coeff = filePath + "/coeffMatrix"
-spatialmode = filePath + "/modeMatrix"
-coeff_calculate = filePath + "/coeff_calculate"
-snapshots_calculate = filePath + "/snapshots_calculate"
 
 
-# modeMatrix = np.loadtxt(diffucoefficience)
-# testM = np.loadtxt(coeff)
+for domainI in range(0, 4):
 
-# print(np.matmul(modeMatrix, testM))
-
-
-diffuTermCoeffMatrix = np.loadtxt(diffucoefficience)
-coeffMatrix = np.loadtxt(coeff)
-modeMatrix = np.loadtxt(spatialmode)
-projmodeMatrix = modeMatrix[:, :np.shape(diffuTermCoeffMatrix)[1]]
-initialA = coeffMatrix[0, :np.shape(diffuTermCoeffMatrix)[1]]
-
-print(diffuTermCoeffMatrix)
-print(initialA)
-
-time = np.linspace(0, 50, 501)
+    ROMdiffucoefficient = filePath + "/subDROMCoeffMatrixdomain" + str(domainI)
+    coeff = filePath + "/subDtemporalCoeffdomain" + str(domainI)
+    coeff_calculate = filePath + "/coeff_calculate" + str(domainI)
 
 
-def odefun(t, a):
-    da = 2.5e-3 * diffuTermCoeffMatrix.dot(a)
-    return da
+    diffuTermCoeffMatrix = np.loadtxt(ROMdiffucoefficient)
+    coeffMatrix = np.loadtxt(coeff)
+    initialA = coeffMatrix[0, :np.shape(diffuTermCoeffMatrix)[1]]
 
-sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
+    print(diffuTermCoeffMatrix)
+    print(initialA)
 
-# print(sol.y)
-# print(sol.sol(time))
+    time = np.linspace(0, 50, 501)
 
-snapshots_cal = projmodeMatrix @ sol.sol(time)
 
-np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
-np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')
+    def odefun(t, a):
+        da = 2.5e-3 * diffuTermCoeffMatrix.dot(a)
+        return da
+
+    sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
+
+    np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')

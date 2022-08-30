@@ -20,13 +20,9 @@ timeInterval    0.1;
 
 CellNo          500;
 
-modeExtract     4;
+modeExtract     5;
 
 calCoeffFile    ( coeff_calculate );
-
-calCoeffFile    ( coeff_calculate );
-
-
 
 snapshotsNum    500;
 
