@@ -68,6 +68,44 @@
     }
     Info << "write temporal coefficient Matrix: " << coeff.sizes() << endl;
 
+    // // temporal coefficient calculation test
+    // RectangularMatrix<scalar> coeffTest(snapshotsM.n(), snapshotsM.n());    
+    // for (label column = 0; column < coeffTest.n(); ++column)
+    // {
+    //     RectangularMatrix<scalar> coeffTestTemp(fieldValueSVD.V().subColumn(column, 0, -1));
+    //     for (label row = 0; row < coeffTest.m(); ++row)
+    //     {
+    //         coeffTest(row, column) = fieldValueSVD.S()[column] * coeffTestTemp(row, 0);
+    //     }
+    // }
+
+    // dataFile = mesh.time().path()/"SVD"/"coeffMatrixTest";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // for (label row = 0; row < coeffTest.m(); ++row)
+    // {
+    //     for (label column = 0; column < coeffTest.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << coeffTest[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+
+    // RectangularMatrix<scalar> coeffTestTemp(fieldValueSVD.V().subColumn(0, 0, -1));
+    // dataFile = mesh.time().path()/"SVD"/"coeffTestTemp";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // for (label row = 0; row < coeffTestTemp.m(); ++row)
+    // {
+    //     for (label column = 0; column < coeffTestTemp.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << coeffTestTemp[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+
+    
+
     // RectangularMatrix<scalar> testT(snapshotsM.m(), snapshotsM.n());
     // RectangularMatrix<scalar> testphi(fieldValueSVD.U().subMatrix(0, 0, -1, 6));
     // RectangularMatrix<scalar> testcoeff(coeff.subMatrix(0, 0, -1, 6));
