@@ -1,4 +1,4 @@
 SOURCE = \
-calModePlot.C \
+calsubDModetoPlot.C \
 
 # sources
