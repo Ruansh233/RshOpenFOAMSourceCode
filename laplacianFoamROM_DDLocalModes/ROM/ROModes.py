@@ -19,7 +19,8 @@ for domainI in range(0, 4):
 
     # print(diffuTermCoeffMatrix)
 
-    # print(initialA)
+    print(initialA)
+    print(domainI)
     # print("")
 
     time = np.linspace(0, 50, 501)

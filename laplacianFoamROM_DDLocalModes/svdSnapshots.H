@@ -27,6 +27,38 @@
         RectangularMatrix<scalar> subDLapModesM(mesh.cellZones()[zoneI].size(), modesNum);
         subDLapModesM = subDLapFieldValue * SVDinv(subDfieldValueSVD.U().T() * subDFieldValue);
 
+        // check whether the svd is correct
+        RectangularMatrix<scalar> subDFieldValueTest(mesh.cellZones()[zoneI].size(), snapshotsNo);
+        RectangularMatrix<scalar> subDLapFieldValueTest(mesh.cellZones()[zoneI].size(), snapshotsNo);
+
+        dataFile = mesh.time().path()/"SVD"/"subDFieldValueTest" + name(zoneI);
+        outputFilePtr.reset(new OFstream(dataFile));
+        subDFieldValueTest = subDModesM * (RectangularMatrix<scalar> (subDfieldValueSVD.V().subMatrix(0, 0, -1, modesNum))).T();
+        for (label row = 0; row < subDFieldValueTest.m(); ++row)
+        {
+            for (label column = 0; column < subDFieldValueTest.n(); ++column)
+            {
+                subDFieldValueTest (row, column) = subDFieldValueTest (row, column) * subDfieldValueSVD.S()[row];
+                outputFilePtr().width(16);
+                outputFilePtr() << subDFieldValueTest(row, column);
+            }
+            outputFilePtr() << endl;
+        }
+
+        dataFile = mesh.time().path()/"SVD"/"subDLapFieldValueTest" + name(zoneI);
+        outputFilePtr.reset(new OFstream(dataFile));
+        subDLapFieldValueTest = subDLapModesM * (RectangularMatrix<scalar> (subDfieldValueSVD.V().subMatrix(0, 0, -1, modesNum))).T();
+        for (label row = 0; row < subDLapFieldValueTest.m(); ++row)
+        {
+            for (label column = 0; column < subDLapFieldValueTest.n(); ++column)
+            {
+                subDLapFieldValueTest (row, column) = subDLapFieldValueTest (row, column) * subDfieldValueSVD.S()[row];
+                outputFilePtr().width(16);
+                outputFilePtr() << subDLapFieldValueTest(row, column);
+            }
+            outputFilePtr() << endl;
+        }
+
         // coefficients of matrix form
         RectangularMatrix<scalar> subDROMCoeffMatrix(modesNum, modesNum);
         subDROMCoeffMatrix = subDModesM.T() * subDLapModesM;
@@ -115,7 +147,8 @@
         }
 
         // write eigen value matrix
-        dataFile = mesh.time().path()/"SVD"/"eigenVMatrix";
+        dataFile = mesh.time().path()/"SVD"/"eigenVMatrix" + name(zoneI);
+        Info << dataFile << endl;
         outputFilePtr.reset(new OFstream(dataFile));
         for (label row = 0; row < subDfieldValueSVD.S().size(); ++row)
         {

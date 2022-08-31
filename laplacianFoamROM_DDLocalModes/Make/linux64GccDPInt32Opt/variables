@@ -1,1 +1,1 @@
-EXE = $(FOAM_APPBIN)/laplacianFoamDDGmodes
+EXE = $(FOAM_APPBIN)/laplacianFoamDDLmodes

@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     laplacianFoamDDGmodes;
+application     laplacianFoamDDLmodes;
 
 // startFrom       latestTime;
 startFrom       startTime;
