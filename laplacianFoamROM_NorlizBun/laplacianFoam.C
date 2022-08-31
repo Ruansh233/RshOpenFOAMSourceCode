@@ -121,6 +121,8 @@ int main(int argc, char *argv[])
     if(snapshotsNo != snapshotsNum)
     {
         snapshotsM.resize(snapshotsRows, snapshotsNo);        
+        svdDict.add("snapshotsNum", snapshotsNo, true);   
+        svdDict.regIOobject::write();
     }
 
     // svd of the snapshots matrix

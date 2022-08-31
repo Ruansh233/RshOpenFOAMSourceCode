@@ -16,9 +16,7 @@
 
     scalar snapshotsTime (0);
     scalar timeInterval  (svdDict.lookupOrDefault<scalar>("timeInterval", 0.1));
-    label defaultSnapshotsNum (label(runTime.endTime().value()/timeInterval + 1));
-    // snapshotsNum: snapshots number from dict
-    label snapshotsNum (svdDict.lookupOrDefault<label>("snapshots", defaultSnapshotsNum));
+    label snapshotsNum (label(runTime.endTime().value()/timeInterval + 1));
     // snapshotsNo: snapshots extract in running, using to swith to new column
     label snapshotsNo (0);
     // how many mode needed

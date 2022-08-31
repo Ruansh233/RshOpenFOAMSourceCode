@@ -5,21 +5,10 @@ import numpy as np
 filePath = "../svdtest/SVD"
 diffucoefficient = filePath + "/diffuTermCoeffMatrix"
 coeff = filePath + "/coeffMatrix"
-spatialmode = filePath + "/modeMatrix"
 coeff_calculate = filePath + "/coeff_calculate"
-snapshots_calculate = filePath + "/snapshots_calculate"
-
-
-# modeMatrix = np.loadtxt(coeff)
-# testM = np.loadtxt(coeff)
-
-# print(np.matmul(modeMatrix, testM))
-
 
 diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)
 coeffMatrix = np.loadtxt(coeff)
-modeMatrix = np.loadtxt(spatialmode)
-projmodeMatrix = modeMatrix[:, :np.shape(diffuTermCoeffMatrix)[1]]
 initialA = coeffMatrix[0, :np.shape(diffuTermCoeffMatrix)[1]]
 
 print(diffuTermCoeffMatrix)
@@ -37,7 +26,4 @@ sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
 # print(sol.y)
 # print(sol.sol(time))
 
-snapshots_cal = projmodeMatrix @ sol.sol(time)
-
 np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
-np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')
