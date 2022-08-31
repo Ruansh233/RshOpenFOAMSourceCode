@@ -196,23 +196,40 @@
     //     outputFilePtr() << endl;
     // }
 
-    // RectangularMatrix<scalar> boundaryValueMTest(T.boundaryField()[0].size(), 
-    //                                         snapshotsNo, 
-    //                                         T.boundaryField()[0][0]);
-    // RectangularMatrix<scalar> boundaryModeMTest(boundaryValueMTest * fieldValueSVD.V());
-    // // write boundaryModeMTest
-    // dataFile = mesh.time().path()/"SVD"/"boundaryModeMTest";
-    // outputFilePtr.reset(new OFstream(dataFile));
+    RectangularMatrix<scalar> boundaryValueMTest(T.boundaryField()[0].size(), 
+                                            snapshotsNo, 
+                                            T.boundaryField()[4][0]);
+    RectangularMatrix<scalar> boundaryModeMTest(boundaryValueMTest * fieldValueSVD.V());
+    // write boundaryModeMTest
+    dataFile = mesh.time().path()/"SVD"/"boundaryModeMTest";
+    outputFilePtr.reset(new OFstream(dataFile));
 
-    // for (label row = 0; row < boundaryModeMTest.m(); ++row)
-    // {
-    //     for (label column = 0; column < modesNum; ++column)
-    //     {
-    //         outputFilePtr().width(16);
-    //         outputFilePtr() << boundaryModeMTest[row][column];
-    //     }
-    //     outputFilePtr() << endl;
-    // }
+    for (label row = 0; row < boundaryModeMTest.m(); ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            outputFilePtr().width(16);
+            outputFilePtr() << boundaryModeMTest[row][column];
+        }
+        outputFilePtr() << endl;
+    }
+
+    // write boundaryValueMTest
+    dataFile = mesh.time().path()/"SVD"/"boundaryValueMTest";
+    outputFilePtr.reset(new OFstream(dataFile));
+
+    scalar eigenValueSqrt;
+
+    for (label row = 0; row < boundaryValueMTest.m(); ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            eigenValueSqrt = fieldValueSVD.S()[column];
+            outputFilePtr().width(16);
+            outputFilePtr() << boundaryValueMTest[row][column] / eigenValueSqrt;
+        }
+        outputFilePtr() << endl;
+    }
 
 
 

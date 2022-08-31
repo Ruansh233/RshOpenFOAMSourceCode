@@ -15,9 +15,6 @@
         sfVectorNames[iname] = "mesh_sf" + name(iname);
     }
 
-    Info << "test3 " << nl;
-
-
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
 
