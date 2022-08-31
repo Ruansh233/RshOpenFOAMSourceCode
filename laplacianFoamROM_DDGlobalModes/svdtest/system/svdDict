@@ -20,7 +20,7 @@ timeInterval    0.1;
 
 CellNo          500;
 
-modeExtract     6;
+modeExtract     4;
 
 calCoeffFile    ( coeff_calculate );
 

@@ -47,8 +47,10 @@
 
         scalar eigenValueSqrt (fieldValueSVD.S()[No_]);
 
+        // assign boundary value of all boundaries
         forAll(fieldValueMode.boundaryField(), patchI)
         {
+            // for fixedValue, // phibc = Tbc * V * inv(S)
             if(T.boundaryField()[patchI].type() == "fixedValue")
             {
                 fieldValueMode.boundaryFieldRef().set(patchI, 
@@ -74,6 +76,7 @@
                     fieldValueMode.boundaryFieldRef()[patchI][faceI] = boundaryModeM(faceI, 0);
                 }
             }
+            // for zeroGradient, the face value is equal to the face owner
             else if(T.boundaryField()[patchI].type() == "zeroGradient")
             {
                 // fieldValueMode.boundaryFieldRef().set(patchI, 
@@ -95,6 +98,13 @@
         }
         fieldValueMode.write();
 
+        // // this kind of definition also give strange value on boundary cell
+        // // -- do not use
+        // volVectorField gradFieldValueMode
+        // (
+        //     fvc::grad(fieldValueMode)
+        // );
+        
         // gradient of mode
         volVectorField gradFieldValueMode
         (
