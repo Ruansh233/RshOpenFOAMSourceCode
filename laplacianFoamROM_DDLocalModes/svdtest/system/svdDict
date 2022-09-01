@@ -16,7 +16,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-timeInterval    0.1;
+timeInterval    0.2;
 
 modeExtract     8;
 
