@@ -9,32 +9,48 @@ FoamFile
 {
     version     2.0;
     format      ascii;
+    arch        "LSB;label=32;scalar=64";
     class       volScalarField;
-    object      T;
+    location    "20";
+    object      DT;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 1 0 0 0];
+dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform 523;
+internalField   uniform 0.0025;
 
 boundaryField
 {
-    "wall.*"
+    wall_minX
     {
-        type            zeroGradient;
+        type            calculated;
+        value           uniform 0.0025;
     }
-
-    "inlet.*"
+    wall_maxX
     {
-        type            fixedValue;
-        value           uniform 273;
+        type            calculated;
+        value           uniform 0.0025;
     }
-
-    "outlet.*"
+    wall_minY
     {
-        type            fixedValue;
-        value           uniform 573;
+        type            calculated;
+        value           uniform 0.0025;
+    }
+    wall_maxY
+    {
+        type            calculated;
+        value           uniform 0.0025;
+    }
+    inlet_minZ
+    {
+        type            calculated;
+        value           uniform 0.0025;
+    }
+    outlet_maxZ
+    {
+        type            calculated;
+        value           uniform 0.0025;
     }
 }
 

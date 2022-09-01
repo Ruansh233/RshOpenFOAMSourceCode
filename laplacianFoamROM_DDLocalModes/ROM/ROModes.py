@@ -23,13 +23,13 @@ for domainI in range(0, 4):
     print(domainI)
     # print("")
 
-    time = np.linspace(0, 20, 101)
+    time = np.linspace(0, 50, 501)
 
 
     def odefun(t, a):
         da = 2.5e-3 * diffuTermCoeffMatrix.dot(a)
         return da
 
-    sol = solve_ivp(odefun, [0, 20], initialA, method='BDF', dense_output=True)
+    sol = solve_ivp(odefun, [0, 50], initialA, method='Radau', dense_output=True)
 
     np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
