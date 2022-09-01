@@ -30,6 +30,6 @@ for domainI in range(0, 4):
         da = 2.5e-3 * diffuTermCoeffMatrix.dot(a)
         return da
 
-    sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
+    sol = solve_ivp(odefun, [0, 50], initialA, method='Radau', dense_output=True)
 
     np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
