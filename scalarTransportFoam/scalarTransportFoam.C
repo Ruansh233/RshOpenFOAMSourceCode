@@ -5,8 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2011-2016 OpenFOAM Foundation
-    Copyright (C) 2019 OpenCFD Ltd.
+    Copyright (C) 2011-2017 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,40 +24,33 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    icoFoam
+    scalarTransportFoam
 
 Group
-    grpIncompressibleSolvers
+    grpBasicSolvers
 
 Description
-    Transient solver for incompressible, laminar flow of Newtonian fluids.
+    Passive scalar transport equation solver.
 
     \heading Solver details
-    The solver uses the PISO algorithm to solve the continuity equation:
+    The equation is given by:
 
-        \f[
-            \div \vec{U} = 0
-        \f]
-
-    and momentum equation:
-
-        \f[
-            \ddt{\vec{U}}
-          + \div \left( \vec{U} \vec{U} \right)
-          - \div \left(\nu \grad \vec{U} \right)
-          = - \grad p
-        \f]
+    \f[
+        \ddt{T} + \div \left(\vec{U} T\right) - \div \left(D_T \grad T \right)
+        = S_{T}
+    \f]
 
     Where:
     \vartable
-        \vec{U} | Velocity
-        p       | Pressure
+        T       | Passive scalar
+        D_T     | Diffusion coefficient
+        S_T     | Source
     \endvartable
 
     \heading Required fields
     \plaintable
+        T       | Passive scalar
         U       | Velocity [m/s]
-        p       | Kinematic pressure, p/rho [m2/s2]
     \endplaintable
 
 \*---------------------------------------------------------------------------*/
@@ -73,11 +65,8 @@ int main(int argc, char *argv[])
 {
     argList::addNote
     (
-        "Transient solver for incompressible, laminar flow"
-        " of Newtonian fluids."
+        "Passive scalar transport equation solver."
     );
-
-    #include "postProcess.H"
 
     #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
@@ -90,7 +79,9 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nStarting time loop\n" << endl;
+    Info<< "\nCalculating scalar transport\n" << endl;
+
+    #include "CourantNo.H"
 
     while (simple.loop())
     {
@@ -98,21 +89,22 @@ int main(int argc, char *argv[])
 
         while (simple.correctNonOrthogonal())
         {
-            fvVectorMatrix UEqn
+            fvScalarMatrix TEqn
             (
-                fvm::ddt(U)
-              + fvm::div(phi, U)
-            //   - fvm::laplacian(nu, U)
-            //  == fvOptions(U)
+                fvm::ddt(T)
+              + fvm::div(phi, T)
+              - fvm::laplacian(DT, T)
+             ==
+                fvOptions(T)
             );
 
-            // fvOptions.constrain(UEqn);
-            UEqn.relax();
-            UEqn.solve();
-        }  
+            TEqn.relax();
+            fvOptions.constrain(TEqn);
+            TEqn.solve();
+            fvOptions.correct(T);
+        }
 
         runTime.write();
-        runTime.printExecutionTime(Info);
     }
 
     Info<< "End\n" << endl;

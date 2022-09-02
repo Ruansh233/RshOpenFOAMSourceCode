@@ -28,7 +28,7 @@ boundaryField
 
     "wall.*"
     {
-        type            noSlip;
+        type            zeroGradient;
     }
 
     "outlet.*"

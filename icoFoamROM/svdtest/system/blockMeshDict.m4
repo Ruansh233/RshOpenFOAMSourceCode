@@ -54,7 +54,7 @@ vertices
 blocks
 ( 
     // x y z of the block must equal to the coordinate of points
-    hex ( q01 q02 q03 q04 q05 q06 q07 q08) (10 10 40) simpleGrading (1 1 1) 
+    hex ( q01 q02 q03 q04 q05 q06 q07 q08) (20 20 80) simpleGrading (1 1 1) 
 );
 
 

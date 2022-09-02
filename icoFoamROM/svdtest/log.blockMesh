@@ -9,11 +9,11 @@ Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
 Date   : Sep 02 2022
-Time   : 00:41:34
-Host   : Sh-Ruan-matebook
-PID    : 13857
+Time   : 11:11:56
+Host   : ites-fps-ruanLX
+PID    : 24807
 I/O    : uncollated
-Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/icoFoamROM/svdtest
+Case   : /home/ruan/Desktop/Shenhui_ruan/OpenFOAM/OpenFOAMsourcecode/icoFoamROM/svdtest
 nProcs : 1
 trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
 fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
@@ -47,9 +47,9 @@ Creating patches
 Creating cells
 Creating points with scale 1
     Block 0 cell size :
-        i : 0.01 .. 0.01
-        j : 0.01 .. 0.01
-        k : 0.01 .. 0.01
+        i : 0.005 .. 0.005
+        j : 0.005 .. 0.005
+        k : 0.005 .. 0.005
 
 
 There are no merge patch pairs
@@ -59,19 +59,19 @@ Writing polyMesh with 0 cellZones
 Mesh Information
 ----------------
   boundingBox: (-0.05 -0.05 -0.2) (0.05 0.05 0.2)
-  nPoints: 4961
-  nCells: 4000
-  nFaces: 12900
-  nInternalFaces: 11100
+  nPoints: 35721
+  nCells: 32000
+  nFaces: 99600
+  nInternalFaces: 92400
 ----------------
 Patches
 ----------------
-  patch 0 (start: 11100 size: 400) name: wall_minX
-  patch 1 (start: 11500 size: 400) name: wall_maxX
-  patch 2 (start: 11900 size: 400) name: wall_minY
-  patch 3 (start: 12300 size: 400) name: wall_maxY
-  patch 4 (start: 12700 size: 100) name: inlet_minZ
-  patch 5 (start: 12800 size: 100) name: outlet_maxZ
+  patch 0 (start: 92400 size: 1600) name: wall_minX
+  patch 1 (start: 94000 size: 1600) name: wall_maxX
+  patch 2 (start: 95600 size: 1600) name: wall_minY
+  patch 3 (start: 97200 size: 1600) name: wall_maxY
+  patch 4 (start: 98800 size: 400) name: inlet_minZ
+  patch 5 (start: 99200 size: 400) name: outlet_maxZ
 
 End
 
