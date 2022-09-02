@@ -1,0 +1,1240 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2106                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _c15bfde3cb-20210624 OPENFOAM=2106
+Arch   : "LSB;label=32;scalar=64"
+Exec   : icoFoamROM
+Date   : Sep 01 2022
+Time   : 23:32:49
+Host   : Sh-Ruan-matebook
+PID    : 8361
+I/O    : uncollated
+Case   : /home/shenhui_ruan/gitFolder/RshOpenFOAMSourceCode/icoFoamROM/cavity
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: no convergence criteria found. Calculations will run for 1 steps.
+
+Reading transportProperties
+
+Reading field U
+
+Reading/calculating face flux field phi
+
+
+Starting time loop
+
+Time = 0.005
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 8.28632e-07, No Iterations 5
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.01
+
+smoothSolver:  Solving for Ux, Initial residual = 0.182581, Final residual = 2.56306e-06, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.015
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0919682, Final residual = 1.52177e-06, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.02
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0580647, Final residual = 1.10488e-06, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.025
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0412028, Final residual = 8.80066e-07, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.03
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0314903, Final residual = 7.38818e-07, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.035
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0252869, Final residual = 8.66941e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.04
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0211092, Final residual = 7.6385e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.045
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0181422, Final residual = 6.85519e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.05
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0159422, Final residual = 6.23843e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.055
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0142209, Final residual = 5.72648e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.06
+
+smoothSolver:  Solving for Ux, Initial residual = 0.012838, Final residual = 5.29372e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.065
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0117015, Final residual = 4.92214e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.07
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0107599, Final residual = 4.60338e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.075
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00996856, Final residual = 4.32739e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.08
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0092938, Final residual = 4.0859e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.085
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00871067, Final residual = 3.87235e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.09
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00820189, Final residual = 3.68224e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.095
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00775365, Final residual = 3.5117e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.1
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00735199, Final residual = 3.35614e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.105
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00698836, Final residual = 3.21294e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.11
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00665615, Final residual = 3.08006e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.115
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00635452, Final residual = 2.95788e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.12
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00608014, Final residual = 2.84549e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.125
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0058296, Final residual = 2.74183e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.13
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00560013, Final residual = 2.64601e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.135
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00538913, Final residual = 2.55716e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.14
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00519423, Final residual = 2.47441e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.145
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00501365, Final residual = 2.39717e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.15
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0048457, Final residual = 2.32482e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.155
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00468929, Final residual = 2.25701e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.16
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00454329, Final residual = 2.19331e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.165
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00440665, Final residual = 2.13336e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.17
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00427728, Final residual = 2.07624e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.175
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00415456, Final residual = 2.02172e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.18
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00403781, Final residual = 1.96956e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.185
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0039274, Final residual = 1.91999e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.19
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00382289, Final residual = 1.87285e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.195
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00372375, Final residual = 1.82795e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.2
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00362968, Final residual = 1.78516e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.205
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00354024, Final residual = 1.74432e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.21
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00345522, Final residual = 1.70537e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.215
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00337431, Final residual = 1.66816e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.22
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00329719, Final residual = 1.63258e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.225
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00322359, Final residual = 1.59851e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.23
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00315328, Final residual = 1.56587e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.235
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00308593, Final residual = 1.5345e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.24
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00302141, Final residual = 1.50436e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.245
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00295945, Final residual = 1.47534e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.25
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00290001, Final residual = 1.44742e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.01 s  ClockTime = 0 s
+
+Time = 0.255
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00284292, Final residual = 1.42054e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.26
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00278805, Final residual = 1.39464e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.265
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00273522, Final residual = 1.36964e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.27
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0026841, Final residual = 1.34538e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.275
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00263455, Final residual = 1.32181e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.28
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00258655, Final residual = 1.29892e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.285
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00254008, Final residual = 1.27671e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.29
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00249511, Final residual = 1.25516e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.295
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00245158, Final residual = 1.23426e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.3
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00240936, Final residual = 1.21395e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.305
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00236846, Final residual = 1.19424e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.31
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00232885, Final residual = 1.17511e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.315
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0022904, Final residual = 1.1565e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.32
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00225309, Final residual = 1.13842e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.325
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00221686, Final residual = 1.12082e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.33
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0021817, Final residual = 1.10372e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.335
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00214756, Final residual = 1.08709e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.34
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0021144, Final residual = 1.0709e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.345
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00208216, Final residual = 1.05514e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.35
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00205081, Final residual = 1.0398e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.355
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00202031, Final residual = 1.02484e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.36
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00199061, Final residual = 1.01026e-06, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.365
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00196169, Final residual = 9.96045e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.37
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00193351, Final residual = 9.82171e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.375
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00190602, Final residual = 9.68619e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.38
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00187919, Final residual = 9.55371e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.385
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00185298, Final residual = 9.42416e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.39
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00182739, Final residual = 9.29748e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.395
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00180239, Final residual = 9.17363e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.4
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00177798, Final residual = 9.05251e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.405
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00175413, Final residual = 8.93403e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.41
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00173081, Final residual = 8.81807e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.415
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00170799, Final residual = 8.70445e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.42
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00168562, Final residual = 8.593e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.425
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00166366, Final residual = 8.48341e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.43
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00164213, Final residual = 8.37587e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.435
+
+smoothSolver:  Solving for Ux, Initial residual = 0.001621, Final residual = 8.27025e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.44
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00160031, Final residual = 8.16672e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.445
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00158002, Final residual = 8.06506e-07, No Iterations 3
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.45
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00156011, Final residual = 9.97164e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.455
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00154068, Final residual = 9.84879e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.46
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00152163, Final residual = 9.72827e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.465
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00150293, Final residual = 9.60998e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.47
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00148459, Final residual = 9.49387e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.475
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00146659, Final residual = 9.37986e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.48
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00144893, Final residual = 9.2679e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.485
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00143157, Final residual = 9.15789e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.49
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0014145, Final residual = 9.04962e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.495
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00139772, Final residual = 8.94314e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.5
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00138122, Final residual = 8.83837e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.505
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00136501, Final residual = 8.73538e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.51
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00134907, Final residual = 8.6341e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.515
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00133339, Final residual = 8.53449e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.52
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00131799, Final residual = 8.43651e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.525
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00130283, Final residual = 8.3401e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.53
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00128792, Final residual = 8.24524e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.535
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00127325, Final residual = 8.15186e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.54
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00125882, Final residual = 8.05994e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.545
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00124461, Final residual = 7.96944e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.55
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00123062, Final residual = 7.88032e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.555
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00121685, Final residual = 7.79255e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.56
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00120329, Final residual = 7.70609e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.565
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00118993, Final residual = 7.62091e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.57
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00117678, Final residual = 7.53697e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.575
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00116381, Final residual = 7.45426e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+Time = 0.58
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00115104, Final residual = 7.37273e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.585
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00113845, Final residual = 7.29236e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.59
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00112603, Final residual = 7.21306e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.595
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00111378, Final residual = 7.13485e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.6
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0011017, Final residual = 7.05764e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.605
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00108978, Final residual = 6.98149e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.61
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00107802, Final residual = 6.90638e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.615
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00106643, Final residual = 6.83229e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.62
+
+smoothSolver:  Solving for Ux, Initial residual = 0.001055, Final residual = 6.75919e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.625
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00104372, Final residual = 6.68708e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.63
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00103259, Final residual = 6.61591e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.635
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00102161, Final residual = 6.54569e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.64
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00101078, Final residual = 6.47638e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.645
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00100009, Final residual = 6.40797e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.65
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000989532, Final residual = 6.34044e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.655
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000979115, Final residual = 6.27378e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.66
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000968832, Final residual = 6.20796e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.665
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000958679, Final residual = 6.14297e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.67
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000948647, Final residual = 6.07875e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.675
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000938734, Final residual = 6.01528e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.68
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000928932, Final residual = 5.95251e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.685
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000919251, Final residual = 5.89051e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.69
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00090969, Final residual = 5.82928e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.695
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000900245, Final residual = 5.76878e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.7
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000890905, Final residual = 5.70895e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.705
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000881673, Final residual = 5.64981e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.71
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000872545, Final residual = 5.59133e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.715
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000863528, Final residual = 5.53356e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.72
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00085462, Final residual = 5.47648e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.725
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000845818, Final residual = 5.42007e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.73
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00083712, Final residual = 5.36433e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.735
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000828525, Final residual = 5.30925e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.74
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000820031, Final residual = 5.25481e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.745
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000811636, Final residual = 5.20101e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.75
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00080334, Final residual = 5.14783e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.755
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000795139, Final residual = 5.09526e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.76
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000787032, Final residual = 5.04329e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.765
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000779017, Final residual = 4.99191e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.77
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000771085, Final residual = 4.94106e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.775
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000763241, Final residual = 4.89078e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.78
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00075548, Final residual = 4.84102e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.785
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000747806, Final residual = 4.79182e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.79
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000740219, Final residual = 4.74317e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.795
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000732718, Final residual = 4.69508e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.8
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000725301, Final residual = 4.64752e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.805
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000717966, Final residual = 4.60049e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.81
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000710714, Final residual = 4.55399e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.815
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000703542, Final residual = 4.508e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.82
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00069645, Final residual = 4.46252e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.825
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000689435, Final residual = 4.41755e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.83
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000682498, Final residual = 4.37306e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.835
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000675637, Final residual = 4.32907e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.84
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000668851, Final residual = 4.28555e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.845
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000662139, Final residual = 4.24251e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.85
+
+smoothSolver:  Solving for Ux, Initial residual = 0.0006555, Final residual = 4.19994e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.855
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000648933, Final residual = 4.15782e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.86
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000642437, Final residual = 4.11616e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.865
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000636011, Final residual = 4.07495e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.87
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000629653, Final residual = 4.03419e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.875
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000623365, Final residual = 3.99386e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.88
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000617143, Final residual = 3.95396e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.885
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000610987, Final residual = 3.91449e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.89
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000604898, Final residual = 3.87544e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.895
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000598873, Final residual = 3.8368e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.03 s  ClockTime = 0 s
+
+Time = 0.9
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000592911, Final residual = 3.79857e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.905
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000587013, Final residual = 3.76075e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.91
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000581177, Final residual = 3.72332e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.915
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000575402, Final residual = 3.68629e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.92
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000569688, Final residual = 3.64965e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.925
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000564034, Final residual = 3.6134e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.93
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000558439, Final residual = 3.57752e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.935
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000552903, Final residual = 3.54202e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.94
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000547424, Final residual = 3.50689e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.945
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000542001, Final residual = 3.47211e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.95
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000536632, Final residual = 3.43769e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.955
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000531317, Final residual = 3.40361e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.96
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000526056, Final residual = 3.36987e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.965
+
+smoothSolver:  Solving for Ux, Initial residual = 0.00052085, Final residual = 3.33649e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.97
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000515697, Final residual = 3.30345e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.975
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000510598, Final residual = 3.27076e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.98
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000505551, Final residual = 3.2384e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.985
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000500556, Final residual = 3.20637e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.99
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000495613, Final residual = 3.17468e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 0.995
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000490721, Final residual = 3.14331e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+Time = 1
+
+smoothSolver:  Solving for Ux, Initial residual = 0.000485878, Final residual = 3.11226e-06, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 0, Final residual = 0, No Iterations 0
+ExecutionTime = 0.04 s  ClockTime = 0 s
+
+End
+

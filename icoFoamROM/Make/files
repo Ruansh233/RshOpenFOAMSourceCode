@@ -1,0 +1,3 @@
+icoFoamROM.C
+
+EXE = $(FOAM_APPBIN)/icoFoamROM
