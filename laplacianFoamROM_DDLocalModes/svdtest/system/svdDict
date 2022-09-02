@@ -18,7 +18,7 @@ FoamFile
 
 timeInterval    0.1;
 
-modeExtract     6;
+modeExtract     4;
 
 snapshotsNum    500;
 
