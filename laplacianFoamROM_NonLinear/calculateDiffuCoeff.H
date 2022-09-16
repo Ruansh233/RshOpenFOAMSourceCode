@@ -19,6 +19,30 @@
         outputFilePtr() << endl;
     }
 
+    RectangularMatrix<scalar> nonLinearCoeffMatrix(modesNum, modesNum);
+    List<scalar> tempList(mesh.C());
+    dataFile = mesh.time().path()/"SVD"/"nonLinearCoeffMatrix";
+    outputFilePtr.reset(new OFstream(dataFile));
+    for (label row = 0; row < nonLinearCoeffMatrix.m(); ++row)
+    {
+        for (label column = 0; column < nonLinearCoeffMatrix.n(); ++column)
+        {
+            
+            forAll(tempList, i)
+            {
+                tempList[i] = projModes(i, row) * 
+            }
+
+            RectangularMatrix<scalar> (projModes.subColumn(row));
+            RectangularMatrix<scalar> (projModes.subColumn(row))
+            
+            outputFilePtr().width(16);
+            outputFilePtr() << diffuTermCoeffMatrix[row][column];
+        }
+        outputFilePtr() << endl;
+    }
+
+
     //     outputFilePtr() << endl;
     // }
 

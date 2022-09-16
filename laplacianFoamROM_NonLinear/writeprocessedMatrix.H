@@ -23,7 +23,7 @@
     outputFilePtr.reset(new OFstream(dataFile));
     for (label row = 0; row < fieldValueSVD.U().m(); ++row)
     {
-        for (label column = 0; column < fieldValueSVD.U().n(); ++column)
+        for (label column = 0; column < modesNum; ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << fieldValueSVD.U()[row][column];
@@ -32,23 +32,23 @@
     }
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
-    // the orthogonal temporal coefficient matrix, fieldValueSVD.V()
-    RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
-    dataFile = mesh.time().path()/"SVD"/"testM";
-    outputFilePtr.reset(new OFstream(dataFile));
-    testM = fieldValueSVD.V();
-    // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
-    // Info << testM;
-    for (label row = 0; row < testM.m(); ++row)
-    {
-        for (label column = 0; column < testM.n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << testM[row][column];
-        }
-        outputFilePtr() << endl;
-    }
-    // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
+    // // the orthogonal temporal coefficient matrix, fieldValueSVD.V()
+    // RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
+    // dataFile = mesh.time().path()/"SVD"/"testM";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // testM = fieldValueSVD.V();
+    // // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
+    // // Info << testM;
+    // for (label row = 0; row < testM.m(); ++row)
+    // {
+    //     for (label column = 0; column < testM.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << testM[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+    // // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
 
     // write temporal coefficient Matrix
     RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());
@@ -59,7 +59,7 @@
     for (label row = 0; row < coeff.m(); ++row)
     {
         // for (label column = 0; column < coeff.n(); ++column)
-        for (label column = 0; column < coeff.n(); ++column)
+        for (label column = 0; column < modesNum; ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << coeff[row][column];
@@ -131,17 +131,6 @@
     // eigenvalue is squre of the diagnoal Matrix in SVD
     dataFile = mesh.time().path()/"SVD"/"eigenVMatrix";
     outputFilePtr.reset(new OFstream(dataFile));
-    // scalar sumofEigenV (0.0);
-    // for (label row = 0; row < fieldValueSVD.S().size(); ++row)
-    // {
-    //     sumofEigenV += pow(fieldValueSVD.S()[row], 2);
-    // }
-
-    // for (label row = 0; row < fieldValueSVD.S().size(); ++row)
-    // {
-    //     outputFilePtr() << pow(fieldValueSVD.S()[row], 2)/sumofEigenV;
-    //     outputFilePtr() << endl;
-    // }
     for (label row = 0; row < fieldValueSVD.S().size(); ++row)
     {
         outputFilePtr() << fieldValueSVD.S()[row];
@@ -155,7 +144,7 @@
 
     for (label row = 0; row < laplacianModesMatrix.m(); ++row)
     {
-        for (label column = 0; column < laplacianModesMatrix.n(); ++column)
+        for (label column = 0; column < modesNum; ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << laplacianModesMatrix[row][column];
@@ -164,23 +153,23 @@
     }
     Info << "laplacian of modes Matrix: " << laplacianModesMatrix.sizes() << endl;
 
-    // test
-    RectangularMatrix<scalar> laplacianModesMatrixTest(mesh.C().size(), modesNum);
-    laplacianModesMatrixTest = snapshotsLapM * SVDinv(fieldValueSVD.U().T() * snapshotsM);
-    // write laplacian of modes Matrix
-    dataFile = mesh.time().path()/"SVD"/"laplacianModesMatrixTest";
-    outputFilePtr.reset(new OFstream(dataFile));
+    // // test
+    // RectangularMatrix<scalar> laplacianModesMatrixTest(mesh.C().size(), modesNum);
+    // laplacianModesMatrixTest = snapshotsLapM * SVDinv(fieldValueSVD.U().T() * snapshotsM);
+    // // write laplacian of modes Matrix
+    // dataFile = mesh.time().path()/"SVD"/"laplacianModesMatrixTest";
+    // outputFilePtr.reset(new OFstream(dataFile));
 
-    for (label row = 0; row < laplacianModesMatrixTest.m(); ++row)
-    {
-        for (label column = 0; column < modesNum; ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << laplacianModesMatrixTest[row][column];
-        }
-        outputFilePtr() << endl;
-    }
-    Info << "laplacianModesMatrixTest: " << laplacianModesMatrixTest.sizes() << endl;
+    // for (label row = 0; row < laplacianModesMatrixTest.m(); ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << laplacianModesMatrixTest[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+    // Info << "laplacianModesMatrixTest: " << laplacianModesMatrixTest.sizes() << endl;
 
     //     // write laplacian of modes Matrix
     // dataFile = mesh.time().path()/"SVD"/"snapshotsLapM";
@@ -196,41 +185,37 @@
     //     outputFilePtr() << endl;
     // }
 
-    RectangularMatrix<scalar> boundaryValueMTest(T.boundaryField()[0].size(), 
-                                            snapshotsNo, 
-                                            T.boundaryField()[4][0]);
-    RectangularMatrix<scalar> boundaryModeMTest(boundaryValueMTest * fieldValueSVD.V());
-    // write boundaryModeMTest
-    dataFile = mesh.time().path()/"SVD"/"boundaryModeMTest";
-    outputFilePtr.reset(new OFstream(dataFile));
+    // RectangularMatrix<scalar> boundaryValueMTest(T.boundaryField()[0].size(), 
+    //                                         snapshotsNo, 
+    //                                         T.boundaryField()[4][0]);
+    // RectangularMatrix<scalar> boundaryModeMTest(boundaryValueMTest * fieldValueSVD.V());
+    // // write boundaryModeMTest
+    // dataFile = mesh.time().path()/"SVD"/"boundaryModeMTest";
+    // outputFilePtr.reset(new OFstream(dataFile));
 
-    for (label row = 0; row < boundaryModeMTest.m(); ++row)
-    {
-        for (label column = 0; column < modesNum; ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << boundaryModeMTest[row][column];
-        }
-        outputFilePtr() << endl;
-    }
+    // for (label row = 0; row < boundaryModeMTest.m(); ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << boundaryModeMTest[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
 
-    // write boundaryValueMTest
-    dataFile = mesh.time().path()/"SVD"/"boundaryValueMTest";
-    outputFilePtr.reset(new OFstream(dataFile));
+    // // write boundaryValueMTest
+    // dataFile = mesh.time().path()/"SVD"/"boundaryValueMTest";
+    // outputFilePtr.reset(new OFstream(dataFile));
 
-    scalar eigenValueSqrt;
+    // scalar eigenValueSqrt;
 
-    for (label row = 0; row < boundaryValueMTest.m(); ++row)
-    {
-        for (label column = 0; column < modesNum; ++column)
-        {
-            eigenValueSqrt = fieldValueSVD.S()[column];
-            outputFilePtr().width(16);
-            outputFilePtr() << boundaryValueMTest[row][column] / eigenValueSqrt;
-        }
-        outputFilePtr() << endl;
-    }
-
-
-
-
+    // for (label row = 0; row < boundaryValueMTest.m(); ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         eigenValueSqrt = fieldValueSVD.S()[column];
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << boundaryValueMTest[row][column] / eigenValueSqrt;
+    //     }
+    //     outputFilePtr() << endl;
+    // }
