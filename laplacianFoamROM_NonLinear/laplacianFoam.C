@@ -138,8 +138,8 @@ int main(int argc, char *argv[])
     fileName dataFile;
     autoPtr<OFstream> outputFilePtr;
 
-    // write diffusion terms coefficient
-    #include "calculateDiffuCoeff.H"
+    // // write diffusion terms coefficient
+    // #include "calculateDiffuCoeff.H"
 
     // wirte snapshots matrix, modes, eigenvalues and coefficient
     #include "writeprocessedMatrix.H"   

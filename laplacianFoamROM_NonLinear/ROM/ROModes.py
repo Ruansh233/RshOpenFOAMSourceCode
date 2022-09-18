@@ -3,24 +3,21 @@ import numpy as np
 # import matplotlib.pyplot as plt
 
 filePath = "../svdtest/SVD"
+
 diffucoefficient = filePath + "/diffuTermCoeffMatrix"
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
+laplacianMode = filePath + "/laplacianModesMatrix"
 coeff_calculate = filePath + "/coeff_calculate"
 snapshots_calculate = filePath + "/snapshots_calculate"
 
-
-# modeMatrix = np.loadtxt(coeff)
-# testM = np.loadtxt(coeff)
-
-# print(np.matmul(modeMatrix, testM))
-
-
 diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)
-coeffMatrix = np.loadtxt(coeff)
+
 modeMatrix = np.loadtxt(spatialmode)
-projmodeMatrix = modeMatrix[:, :np.shape(diffuTermCoeffMatrix)[1]]
-initialA = coeffMatrix[0, :np.shape(diffuTermCoeffMatrix)[1]]
+modeLapMatrix = np.loadtxt(laplacianMode)
+
+coeffMatrix = np.loadtxt(coeff)
+initialA = coeffMatrix[0, :]
 
 print(diffuTermCoeffMatrix)
 print(initialA)

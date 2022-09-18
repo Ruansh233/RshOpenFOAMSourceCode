@@ -102,20 +102,20 @@
         //     fvc::grad(fieldValueMode)
         // );
         
-        // gradient of mode
-        volVectorField gradFieldValueMode
-        (
-            IOobject
-            (
-                gradModeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            fvc::grad(fieldValueMode)
-        );
-        gradFieldValueMode.write();   
+        // // gradient of mode
+        // volVectorField gradFieldValueMode
+        // (
+        //     IOobject
+        //     (
+        //         gradModeNames[No_],
+        //         mesh.time().timeName(),
+        //         mesh,
+        //         IOobject::NO_READ,
+        //         IOobject::AUTO_WRITE
+        //     ),
+        //     fvc::grad(fieldValueMode)
+        // );
+        // gradFieldValueMode.write();   
 
         // laplacian of mode
         volScalarField lapFieldValueMode
