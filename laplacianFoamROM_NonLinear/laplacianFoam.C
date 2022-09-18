@@ -137,9 +137,13 @@ int main(int argc, char *argv[])
     // file location and OF pointer of the file
     fileName dataFile;
     autoPtr<OFstream> outputFilePtr;
+    
+    // check whether SVD folder exist or not
+    if(!isDir(dataFile = mesh.time().path()/"SVD"))
+        mkDir(dataFile);    
 
-    // // write diffusion terms coefficient
-    // #include "calculateDiffuCoeff.H"
+    // write diffusion terms coefficient
+    #include "calculateDiffuCoeff.H"
 
     // wirte snapshots matrix, modes, eigenvalues and coefficient
     #include "writeprocessedMatrix.H"   

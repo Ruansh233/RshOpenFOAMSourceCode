@@ -32,16 +32,27 @@ initialA = coeffMatrix[0, :]
 print(initialA)
 # print(nonLinearCoeffTensor)
 
-time = np.linspace(0, 50, 501)
+a = np.array([1, 2, 3])
+# print(a)
+b = a.reshape(3, 1)
 
-def odefun(t, a):
-    da = -1.0e-5 * a.dot(nonLinearCoeffTensor).dot(a) + 6.0e-3 * diffuTermCoeffMatrix.dot(a)
-    return da
+c = a.dot(nonLinearCoeffTensor).dot(a)
 
-sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
+print(c)
+
+# d = np.array([[1], [2], [2]])
+# print(a.dot(d))
+
+# time = np.linspace(0, 50, 501)
+
+# def odefun(t, a):
+#     da = 2.5e-3 * diffuTermCoeffMatrix.dot(a)
+#     return da
+
+# sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
 
 
-snapshots_cal = modeMatrix @ sol.sol(time)
+# snapshots_cal = modeMatrix @ sol.sol(time)
 
-np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
-np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')
+# np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
+# np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')

@@ -19,29 +19,37 @@
         outputFilePtr() << endl;
     }
 
-    RectangularMatrix<scalar> nonLinearCoeffMatrix(modesNum, modesNum);
-    List<scalar> tempList(mesh.C());
-    dataFile = mesh.time().path()/"SVD"/"nonLinearCoeffMatrix";
-    outputFilePtr.reset(new OFstream(dataFile));
-    for (label row = 0; row < nonLinearCoeffMatrix.m(); ++row)
+    scalar tensorM = modesNum * modesNum;
+    RectangularMatrix<scalar> nonLinearCoeffM(tensorM, modesNum);
+    List<scalar> tempList(mesh.C().size());
+    for (label i = 0; i < nonLinearCoeffM.n(); ++i)
     {
-        for (label column = 0; column < nonLinearCoeffMatrix.n(); ++column)
+        for (label j = 0; j < nonLinearCoeffM.n(); ++j)
         {
-            
-            forAll(tempList, i)
-            {
-                tempList[i] = projModes(i, row) * 
+            for (label k = 0; k < nonLinearCoeffM.n(); ++k)
+            {            
+                forAll(tempList, listI)
+                {
+                    tempList[listI] = fieldValueSVD.U()(listI, i) * fieldValueSVD.U()(listI, j) * laplacianModesMatrix(listI, k);
+                }
+                nonLinearCoeffM(i * modesNum + j, k) = gSum(tempList);
+                Info << "j, k: " << i * modesNum + j << ", " << k << ": " 
+                     << nonLinearCoeffM(i * modesNum + j, k) << endl;
             }
+        }
+    }
 
-            RectangularMatrix<scalar> (projModes.subColumn(row));
-            RectangularMatrix<scalar> (projModes.subColumn(row))
-            
+    dataFile = mesh.time().path()/"SVD"/"nonLinearCoeffM";
+    outputFilePtr.reset(new OFstream(dataFile));
+    for (label row = 0; row < nonLinearCoeffM.m(); ++row)
+    {
+        for (label column = 0; column < nonLinearCoeffM.n(); ++column)
+        {
             outputFilePtr().width(16);
-            outputFilePtr() << diffuTermCoeffMatrix[row][column];
+            outputFilePtr() << nonLinearCoeffM[row][column];
         }
         outputFilePtr() << endl;
     }
-
 
     //     outputFilePtr() << endl;
     // }

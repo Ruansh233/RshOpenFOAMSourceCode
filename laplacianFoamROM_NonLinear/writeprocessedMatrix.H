@@ -1,8 +1,4 @@
     Info << "write svd data\n" << endl;
-        
-    // check whether SVD folder exist or not
-    if(!isDir(dataFile = mesh.time().path()/"SVD"))
-        mkDir(dataFile);    
     
     // write SnapshotMatrix
     dataFile = mesh.time().path()/"SVD"/"SnapshotMatrix";    
@@ -144,7 +140,7 @@
 
     for (label row = 0; row < laplacianModesMatrix.m(); ++row)
     {
-        for (label column = 0; column < modesNum; ++column)
+        for (label column = 0; column < laplacianModesMatrix.n(); ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << laplacianModesMatrix[row][column];

@@ -845,6 +845,7 @@ setTransportProperties.H \
 write.H \
 snapshotsMatrix.H \
 writeModesField.H \
+calculateDiffuCoeff.H \
 writeprocessedMatrix.H \
 
 #END
