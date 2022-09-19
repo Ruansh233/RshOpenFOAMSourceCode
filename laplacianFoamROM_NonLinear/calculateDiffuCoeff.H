@@ -33,8 +33,8 @@
                     tempList[listI] = fieldValueSVD.U()(listI, i) * fieldValueSVD.U()(listI, j) * laplacianModesMatrix(listI, k);
                 }
                 nonLinearCoeffM(i * modesNum + j, k) = gSum(tempList);
-                Info << "j, k: " << i * modesNum + j << ", " << k << ": " 
-                     << nonLinearCoeffM(i * modesNum + j, k) << endl;
+                // Info << "j, k: " << i * modesNum + j << ", " << k << ": " 
+                //      << nonLinearCoeffM(i * modesNum + j, k) << endl;
             }
         }
     }

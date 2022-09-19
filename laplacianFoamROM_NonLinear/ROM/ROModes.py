@@ -9,7 +9,7 @@ coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
 laplacianMode = filePath + "/laplacianModesMatrix"
 diffucoefficient = filePath + "/diffuTermCoeffMatrix"
-nonLinearCoeff = filePath + "/nonLinearCoeffMatrix"
+nonLinearCoeff = filePath + "/nonLinearCoeffM"
 
 coeff_calculate = filePath + "/coeff_calculate"
 snapshots_calculate = filePath + "/snapshots_calculate"
@@ -35,10 +35,10 @@ print(initialA)
 time = np.linspace(0, 50, 501)
 
 def odefun(t, a):
-    da = -1.0e-5 * a.dot(nonLinearCoeffTensor).dot(a) + 6.0e-3 * diffuTermCoeffMatrix.dot(a)
+    da = 1.0e-6 * a.dot(nonLinearCoeffTensor).dot(a)
     return da
 
-sol = solve_ivp(odefun, [0, 50], initialA, dense_output=True)
+sol = solve_ivp(odefun, [0, 50], initialA, method='Radau', dense_output=True)
 
 
 snapshots_cal = modeMatrix @ sol.sol(time)
