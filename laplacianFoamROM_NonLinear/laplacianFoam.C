@@ -58,6 +58,7 @@ Description
 #include "SVD.H"
 #include "fvOptions.H"
 #include "simpleControl.H"
+#include "cpuTimeCxx.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -109,44 +110,52 @@ int main(int argc, char *argv[])
 
         runTime.printExecutionTime(Info);
 
-        // add snapshots in specific time interval
-        #include "snapshotsMatrix.H"
+        if(ROMorNot)
+        {
+            // add snapshots in specific time interval
+            #include "snapshotsMatrix.H"
+        }
     }
-
-    // volScalarField lapFieldMode2 (fvc::laplacian(T));
-    // lapFieldMode2.write();
 
     Info<< "End\n" << endl;
 
-    Info<< "snapshots number is: " << snapshotsNo << endl
-        << "snapshotsTime is: " << snapshotsTime << endl;
-
-    // check whether the number of snapshots is equal to predefined value,
-    // -- sometimes the snapshotsNo = snapshotsNum-1 due to the double type of runTime at the last step
-    if(snapshotsNo != snapshotsNum)
+    Info<< "The simulation of FOM is finished in " << runTime.elapsedCpuTime() << " s." << nl;
+ 
+    if(ROMorNot)
     {
-        snapshotsM.resize(snapshotsRows, snapshotsNo);        
+        Info<< "snapshots number is: " << snapshotsNo << endl
+            << "snapshotsTime is: " << snapshotsTime << endl;
+
+        // check whether the number of snapshots is equal to predefined value,
+        // -- sometimes the snapshotsNo = snapshotsNum-1 due to the double type of runTime at the last step
+        if(snapshotsNo != snapshotsNum)
+        {
+            snapshotsM.resize(snapshotsRows, snapshotsNo); 
+            snapshotsNum = snapshotsNo;  
+        }
+        svdDict.add("snapshotsNum", snapshotsNum, true);   
+        svdDict.regIOobject::write();
+
+        // svd of the snapshots matrix
+        SVD fieldValueSVD(snapshotsM);   
+
+        Info<< "The SVD process of snapshots are finished in " << runTime.elapsedCpuTime() << " s." << nl;
+
+        // write data of modes
+        #include "writeModesField.H"
+
+        // file location and OF pointer of the file
+        fileName dataFile;
+        autoPtr<OFstream> outputFilePtr;
+
+        // write diffusion terms coefficient
+        #include "calculateDiffuCoeff.H"
+
+        // wirte snapshots matrix, modes, eigenvalues and coefficient
+        #include "writeprocessedMatrix.H"   
     }
 
-    // svd of the snapshots matrix
-    SVD fieldValueSVD(snapshotsM);   
-
-    // write data of modes
-    #include "writeModesField.H"
-
-    // file location and OF pointer of the file
-    fileName dataFile;
-    autoPtr<OFstream> outputFilePtr;
-    
-    // check whether SVD folder exist or not
-    if(!isDir(dataFile = mesh.time().path()/"SVD"))
-        mkDir(dataFile);    
-
-    // write diffusion terms coefficient
-    #include "calculateDiffuCoeff.H"
-
-    // wirte snapshots matrix, modes, eigenvalues and coefficient
-    #include "writeprocessedMatrix.H"   
+    Info<< "The solver is finished in " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
     return 0;
 }

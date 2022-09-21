@@ -5,6 +5,11 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 cleanCase0
 
-rm -r SVD/*
+if [ "$(ls -A SVD)" ]; 
+    then
+    rm -r SVD/*
+	else
+    echo "SVD is Empty"
+fi
 
 #------------------------------------------------------------------------------

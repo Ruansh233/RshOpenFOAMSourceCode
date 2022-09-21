@@ -18,9 +18,11 @@ FoamFile
 
 timeInterval    0.1;
 
-modeExtract     6;
+modeExtract     5;
 
 snapshotsNum    500;
+
+ROMorNot        true;
 
 calCoeffFile    ( "coeff_calculate" );
 
