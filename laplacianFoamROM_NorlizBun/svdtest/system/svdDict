@@ -22,6 +22,8 @@ modeExtract     4;
 
 snapshotsNum    2001;
 
+ROMorNot        false;
+
 calCoeffFile    ( "coeff_calculate" );
 
 modesName       ( "modeMatrix" );
