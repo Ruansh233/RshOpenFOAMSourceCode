@@ -14,7 +14,7 @@
 
     );
 
-    bool ROMorNot (svdDict.getBool("ROMorNot"));
+    bool ROMorNot (svdDict.lookupOrDefault<bool>("ROMorNot", false));
     
     scalar snapshotsTime (0);
     scalar timeInterval  (svdDict.lookupOrDefault<scalar>("timeInterval", 0.1));
