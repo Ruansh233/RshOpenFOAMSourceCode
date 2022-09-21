@@ -20,7 +20,7 @@ timeInterval    0.1;
 
 modeExtract     4;
 
-snapshotsNum    500;
+snapshotsNum    2001;
 
 calCoeffFile    ( "coeff_calculate" );
 

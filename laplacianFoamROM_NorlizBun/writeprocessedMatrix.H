@@ -23,7 +23,7 @@
     outputFilePtr.reset(new OFstream(dataFile));
     for (label row = 0; row < fieldValueSVD.U().m(); ++row)
     {
-        for (label column = 0; column < fieldValueSVD.U().n(); ++column)
+        for (label column = 0; column < modesNum; ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << fieldValueSVD.U()[row][column];
@@ -32,23 +32,23 @@
     }
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
-    // the orthogonal temporal coefficient matrix, fieldValueSVD.V()
-    RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
-    dataFile = mesh.time().path()/"SVD"/"testM";
-    outputFilePtr.reset(new OFstream(dataFile));
-    testM = fieldValueSVD.V();
-    // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
-    // Info << testM;
-    for (label row = 0; row < testM.m(); ++row)
-    {
-        for (label column = 0; column < testM.n(); ++column)
-        {
-            outputFilePtr().width(16);
-            outputFilePtr() << testM[row][column];
-        }
-        outputFilePtr() << endl;
-    }
-    // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
+    // // the orthogonal temporal coefficient matrix, fieldValueSVD.V()
+    // RectangularMatrix<scalar> testM(fieldValueSVD.U().n(), fieldValueSVD.U().m());
+    // dataFile = mesh.time().path()/"SVD"/"testM";
+    // outputFilePtr.reset(new OFstream(dataFile));
+    // testM = fieldValueSVD.V();
+    // // testM = multiply(fieldValueSVD.U(), fieldValueSVD.U().T());
+    // // Info << testM;
+    // for (label row = 0; row < testM.m(); ++row)
+    // {
+    //     for (label column = 0; column < testM.n(); ++column)
+    //     {
+    //         outputFilePtr().width(16);
+    //         outputFilePtr() << testM[row][column];
+    //     }
+    //     outputFilePtr() << endl;
+    // }
+    // // Info << "test: \n" << fieldValueSVD.V() * fieldValueSVD.V().T() << endl;
 
     // write temporal coefficient Matrix
     RectangularMatrix<scalar> coeff(snapshotsM.n(), snapshotsM.n());
@@ -59,7 +59,7 @@
     for (label row = 0; row < coeff.m(); ++row)
     {
         // for (label column = 0; column < coeff.n(); ++column)
-        for (label column = 0; column < coeff.n(); ++column)
+        for (label column = 0; column < modesNum; ++column)
         {
             outputFilePtr().width(16);
             outputFilePtr() << coeff[row][column];
