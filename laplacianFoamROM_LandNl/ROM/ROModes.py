@@ -28,17 +28,18 @@ modeLapMatrix = np.loadtxt(laplacianMode)
 coeffMatrix = np.loadtxt(coeff)
 initialA = coeffMatrix[0, :]
 
-# print(diffuTermCoeffMatrix)
 print(initialA)
-# print(nonLinearCoeffTensor)
+print(diffuTermCoeffMatrix.shape)
+print(nonLinearCoeffTensor.shape)
 
-time = np.linspace(0, 50, 501)
+time = np.linspace(0, 100, 1001)
 
 def odefun(t, a):
-    da = 1.0e-6 * a.dot(nonLinearCoeffTensor).dot(a) - 1.0e-6 * 100 * diffuTermCoeffMatrix.dot(a)
+    # da = 1.0e-6 * a.dot(nonLinearCoeffTensor).dot(a) + 5.0e-4 * diffuTermCoeffMatrix.dot(a)
+    da = 2.0e-6 * a.dot(nonLinearCoeffTensor).dot(a)
     return da
 
-sol = solve_ivp(odefun, [0, 50], initialA, method='Radau', dense_output=True)
+sol = solve_ivp(odefun, [0, 100], initialA, method='Radau', dense_output=True)
 
 
 snapshots_cal = modeMatrix @ sol.sol(time)

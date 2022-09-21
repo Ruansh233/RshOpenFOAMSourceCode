@@ -127,6 +127,8 @@ int main(int argc, char *argv[])
     {
         snapshotsM.resize(snapshotsRows, snapshotsNo);        
     }
+    svdDict.add("snapshotsNum", snapshotsNo);   
+    svdDict.regIOobject::write();
 
     // svd of the snapshots matrix
     SVD fieldValueSVD(snapshotsM);   

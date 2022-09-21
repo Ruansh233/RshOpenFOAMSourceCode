@@ -47,4 +47,10 @@ if (!DT.headerOk())
     DT = dimensionedScalar("DT", dimViscosity, transportProperties);
 }
 
+scalar DTT1 (transportProperties.getScalar("DTT1"));
+scalar DTT2 (transportProperties.getScalar("DTT2"));
+
+Info << "DTT1: " << DTT1 << nl
+     << "DTT2: " << DTT2 << nl;
+
 #include "createFvOptions.H"

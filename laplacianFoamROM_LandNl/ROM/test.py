@@ -9,7 +9,7 @@ coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
 laplacianMode = filePath + "/laplacianModesMatrix"
 diffucoefficient = filePath + "/diffuTermCoeffMatrix"
-nonLinearCoeff = filePath + "/nonLinearCoeffMatrix"
+nonLinearCoeff = filePath + "/nonLinearCoeffM"
 
 coeff_calculate = filePath + "/coeff_calculate"
 snapshots_calculate = filePath + "/snapshots_calculate"
@@ -32,13 +32,15 @@ initialA = coeffMatrix[0, :]
 print(initialA)
 # print(nonLinearCoeffTensor)
 
-a = np.array([1, 2, 3])
+a = np.array([1, 2, 3, 3, 3, 3, 3, 3])
 # print(a)
-b = a.reshape(3, 1)
+b = a.reshape(8, 1)
 
 c = a.dot(nonLinearCoeffTensor).dot(a)
 
 print(c)
+
+print(a.transpose())
 
 # d = np.array([[1], [2], [2]])
 # print(a.dot(d))
