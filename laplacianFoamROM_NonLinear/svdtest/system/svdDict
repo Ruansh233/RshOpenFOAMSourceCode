@@ -18,9 +18,9 @@ FoamFile
 
 timeInterval    0.1;
 
-modeExtract     5;
+modeExtract     10;
 
-snapshotsNum    500;
+snapshotsNum    1000;
 
 ROMorNot        true;
 

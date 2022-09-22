@@ -8,10 +8,10 @@
 Build  : _c15bfde3cb-20210624 OPENFOAM=2106
 Arch   : "LSB;label=32;scalar=64"
 Exec   : blockMesh
-Date   : Sep 21 2022
-Time   : 14:59:07
+Date   : Sep 22 2022
+Time   : 15:27:57
 Host   : ites-fps-ruanLX
-PID    : 31884
+PID    : 50145
 I/O    : uncollated
 Case   : /home/ruan/Desktop/Shenhui_ruan/OpenFOAM/OpenFOAMsourcecode/laplacianFoamROM_LandNl/svdtest
 nProcs : 1

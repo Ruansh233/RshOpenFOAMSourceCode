@@ -38,17 +38,17 @@
         //                         RectangularMatrix<scalar> (subDfieldValueSVD.V().T().subRow(column, 0, -1));
         // }
 
-        // dataFile = mesh.time().path()/"SVD"/"subDFieldValueTest" + name(zoneI);
-        // outputFilePtr.reset(new OFstream(dataFile));
-        // for (label row = 0; row < subDFieldValueTest.m(); ++row)
-        // {
-        //     for (label column = 0; column < subDFieldValueTest.n(); ++column)
-        //     {
-        //         outputFilePtr().width(16);
-        //         outputFilePtr() << subDFieldValueTest(row, column);
-        //     }
-        //     outputFilePtr() << endl;
-        // }
+        dataFile = mesh.time().path()/"SVD"/"subDFieldValue" + name(zoneI);
+        outputFilePtr.reset(new OFstream(dataFile));
+        for (label row = 0; row < subDFieldValue.m(); ++row)
+        {
+            for (label column = 0; column < subDFieldValue.n(); ++column)
+            {
+                outputFilePtr().width(16);
+                outputFilePtr() << subDFieldValue(row, column);
+            }
+            outputFilePtr() << endl;
+        }
 
         // for (label column = 0; column < modesNum; ++column)
         // {

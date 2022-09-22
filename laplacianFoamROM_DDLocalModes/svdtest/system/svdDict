@@ -22,5 +22,11 @@ modeExtract     4;
 
 snapshotsNum    500;
 
+calCoeffFile    ( "coeff_calculate0" "coeff_calculate1" "coeff_calculate2" "coeff_calculate3" );
+
+modesName       ( "subDModesM0" "subDModesM1" "subDModesM2" "subDModesM3" );
+
+snapshotsMatrixName ( "subDFieldValue0" "subDFieldValue1" "subDFieldValue2" "subDFieldValue3" );
+
 
 // ************************************************************************* //

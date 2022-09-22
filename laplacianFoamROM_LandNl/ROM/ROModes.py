@@ -35,8 +35,9 @@ print(nonLinearCoeffTensor.shape)
 time = np.linspace(0, 100, 1001)
 
 def odefun(t, a):
-    # da = 1.0e-6 * a.dot(nonLinearCoeffTensor).dot(a) + 5.0e-4 * diffuTermCoeffMatrix.dot(a)
-    da = 2.0e-6 * a.dot(nonLinearCoeffTensor).dot(a)
+    # da = 2.5e-6 * a.dot(nonLinearCoeffTensor).dot(a) + 5.0e-4 * diffuTermCoeffMatrix.dot(a)
+    da = 1.0e-7 * a.dot(nonLinearCoeffTensor).dot(a) + 1.0e-3 * diffuTermCoeffMatrix.dot(a)
+    # da = 2.0e-6 * a.dot(nonLinearCoeffTensor).dot(a)
     return da
 
 sol = solve_ivp(odefun, [0, 100], initialA, method='Radau', dense_output=True)

@@ -14,39 +14,39 @@
 
     );
 
+    bool ROMorNot (svdDict.lookupOrDefault<bool>("ROMorNot", false));
+    
     scalar snapshotsTime (0);
     scalar timeInterval  (svdDict.lookupOrDefault<scalar>("timeInterval", 0.1));
-    label defaultSnapshotsNum (label(runTime.endTime().value()/timeInterval + 1));
-    // snapshotsNum: snapshots number from dict
-    label snapshotsNum (svdDict.lookupOrDefault<label>("snapshots", defaultSnapshotsNum));
+    label snapshotsNum (label(runTime.endTime().value()/timeInterval + 1));
     // snapshotsNo: snapshots extract in running, using to swith to new column
     label snapshotsNo (0);
     // how many mode needed
     label modesNum (svdDict.lookupOrDefault<label>("modeExtract", 5));
-
-    
-    // // total number of boundary faces
-    // label boundaryFacesNum(0);
-    // forAll(mesh.boundary(), patchI)
-    // {
-    //     boundaryFacesNum += mesh.boundary()[patchI].size();
-    // }
-    // // total number of snapshots rows
-    // // label snapshotsRows (boundaryFacesNum + mesh.C().size());
     label snapshotsRows (mesh.C().size());
     RectangularMatrix<scalar> snapshotsM(snapshotsRows, snapshotsNum);
-        
     RectangularMatrix<scalar> snapshotsLapM(snapshotsRows, snapshotsNum);
-    volScalarField lapFieldMode (fvc::laplacian(T));
-    lapFieldMode.write();
+    
+    if(ROMorNot)
+    {       
+        // // total number of boundary faces
+        // label boundaryFacesNum(0);
+        // forAll(mesh.boundary(), patchI)
+        // {
+        //     boundaryFacesNum += mesh.boundary()[patchI].size();
+        // }
+        // // total number of snapshots rows
+        // // label snapshotsRows (boundaryFacesNum + mesh.C().size());
 
-    Info << "snapshots extract\n" << "time Interval of snapshots is: " << timeInterval << endl << endl;
+        Info << "snapshots extract\n" << "time Interval of snapshots is: " << timeInterval << endl << endl;
 
-    forAll(mesh.C(), cellI)
-    {
-        snapshotsM[cellI][snapshotsNo] = T[cellI];
-        snapshotsLapM[cellI][snapshotsNo] = lapFieldMode[cellI];
+        forAll(mesh.C(), cellI)
+        {
+            snapshotsM[cellI][snapshotsNo] = T[cellI];
+        }
+
+        snapshotsTime += timeInterval;
+        ++ snapshotsNo;
     }
 
-    snapshotsTime += timeInterval;
-    ++ snapshotsNo;
+    
