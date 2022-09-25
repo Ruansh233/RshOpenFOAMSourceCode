@@ -5,6 +5,10 @@ import numpy as np
 
 filePath = "../svdtest_2/SVD"
 
+ddt1 = 1.0e-7
+ddt2 = 1.0e-3
+modesNum = 2
+
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
 laplacianMode = filePath + "/laplacianModesMatrix"
@@ -14,30 +18,38 @@ nonLinearCoeff = filePath + "/nonLinearCoeffM"
 coeff_calculate = filePath + "/coeff_calculate"
 snapshots_calculate = filePath + "/snapshots_calculate"
 
-diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)
+modeMatrix = np.loadtxt(spatialmode)[: , 0: modesNum]
+modeLapMatrix = np.loadtxt(laplacianMode)[: , 0: modesNum]
+coeffMatrix = np.loadtxt(coeff)[: , 0: modesNum]
+
+diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)[0: modesNum, 0: modesNum]
 nonLinearCoeffMatrix = np.loadtxt(nonLinearCoeff)
+nonLinearCoeffLen = modeLapMatrix.shape[1]
+nonLinearCoeffMatrix = nonLinearCoeffMatrix[: , 0: modesNum]
 
-# mode numbers 
-modesNum = nonLinearCoeffMatrix.shape[1]
+diffuTermCoeffMatrix = diffuTermCoeffMatrix
+nonLinearCoeffMatrix = nonLinearCoeffMatrix
+nonLinearCoeffTensor = np.empty((0, 2))
+
+for i in range(0, modesNum):
+    for j in range(0, modesNum):
+        rowN = i * nonLinearCoeffLen + j
+        nonLinearCoeffTensor = np.append(nonLinearCoeffTensor, nonLinearCoeffMatrix[rowN, :].reshape(1, modesNum), 0)
+
 # nonliear tensor
-nonLinearCoeffTensor = nonLinearCoeffMatrix.reshape(modesNum, modesNum, modesNum)
+nonLinearCoeffTensor = nonLinearCoeffTensor.reshape(modesNum, modesNum, modesNum)
 
-modeMatrix = np.loadtxt(spatialmode)
-modeLapMatrix = np.loadtxt(laplacianMode)
+# print(diffuTermCoeffMatrix)
+# print(nonLinearCoeffTensor)
 
-coeffMatrix = np.loadtxt(coeff)
-initialA = coeffMatrix[0, :]
+initialA = coeffMatrix[0, 0: modesNum]
 
 print(initialA)
-print(diffuTermCoeffMatrix.shape)
-print(nonLinearCoeffTensor.shape)
 
 time = np.linspace(0, 100, 1001)
 
 def odefun(t, a):
-    # da = 2.5e-6 * a.dot(nonLinearCoeffTensor).dot(a) + 5.0e-4 * diffuTermCoeffMatrix.dot(a)
-    da = 1.0e-6 * a.dot(nonLinearCoeffTensor).dot(a) + 1.0e-3 * diffuTermCoeffMatrix.dot(a)
-    # da = 2.0e-6 * a.dot(nonLinearCoeffTensor).dot(a)
+    da = ddt1 * a.dot(nonLinearCoeffTensor).dot(a) + ddt2 * diffuTermCoeffMatrix.dot(a)
     return da
 
 sol = solve_ivp(odefun, [0, 100], initialA, method='Radau', dense_output=True)

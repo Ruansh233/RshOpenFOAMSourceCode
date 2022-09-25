@@ -29,12 +29,12 @@ coeffMatrix = np.loadtxt(coeff)
 initialA = coeffMatrix[0, :]
 
 # print(diffuTermCoeffMatrix)
-print(initialA)
-# print(nonLinearCoeffTensor)
+# print(initialA)
+print(nonLinearCoeffTensor)
 
-a = np.array([1, 2, 3, 3, 3, 3, 3, 3])
+a = np.array([1, 1, 2, 2, 3, 3])
 # print(a)
-b = a.reshape(8, 1)
+b = a.reshape(6, 1)
 
 c = a.dot(nonLinearCoeffTensor).dot(a)
 
