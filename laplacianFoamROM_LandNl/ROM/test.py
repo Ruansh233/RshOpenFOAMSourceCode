@@ -47,14 +47,14 @@ nonLinearCoeffTensor = nonLinearCoeffTensor.reshape(modesNum, modesNum, modesNum
 # print("\n____________________________________\n")
 # print(diffuTermCoeffMatrix[0])
 
-print(diffuTermCoeffMatrix)
-print(nonLinearCoeffTensor)
+# print(diffuTermCoeffMatrix)
+# print(nonLinearCoeffTensor)
 
 initialA = coeffMatrix[0, 0: modesNum]
 print(initialA)
 
 dt = 0.01
-totalt = 100
+totalt = 1000
 An = np.zeros((5, modesNum))
 An = newtonOdesFunc(nonLinearCoeffTensor, diffuTermCoeffMatrix, initialA, dt, totalt, modesNum)
 # print(An.shape)
