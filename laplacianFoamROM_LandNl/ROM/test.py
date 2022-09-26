@@ -1,15 +1,14 @@
-import imp
-from os import PRIO_USER
-# from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp
 import numpy as np
-from newtonOdes import newtonOdes
+from newtonOdes import newtonOdesFunc
+
 # import matplotlib.pyplot as plt
 
 filePath = "../svdtest/SVD"
 
 ddt1 = 1.0e-7
 ddt2 = 1.0e-3
-modesNum = 3
+modesNum = 5
 
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
@@ -29,8 +28,6 @@ nonLinearCoeffMatrix = np.loadtxt(nonLinearCoeff)
 nonLinearCoeffLen = nonLinearCoeffMatrix.shape[1]
 nonLinearCoeffMatrix = nonLinearCoeffMatrix[: , 0: modesNum]
 
-diffuTermCoeffMatrix = diffuTermCoeffMatrix
-nonLinearCoeffMatrix = nonLinearCoeffMatrix
 nonLinearCoeffTensor = np.empty((0, modesNum))
 
 for i in range(0, modesNum):
@@ -50,12 +47,69 @@ nonLinearCoeffTensor = nonLinearCoeffTensor.reshape(modesNum, modesNum, modesNum
 # print("\n____________________________________\n")
 # print(diffuTermCoeffMatrix[0])
 
-# print(diffuTermCoeffMatrix)
-# print(nonLinearCoeffTensor)
+print(diffuTermCoeffMatrix)
+print(nonLinearCoeffTensor)
 
-# initialA = coeffMatrix[0, 0: modesNum]
+initialA = coeffMatrix[0, 0: modesNum]
+print(initialA)
 
-# print(initialA)
+dt = 0.01
+totalt = 100
+An = np.zeros((5, modesNum))
+An = newtonOdesFunc(nonLinearCoeffTensor, diffuTermCoeffMatrix, initialA, dt, totalt, modesNum)
+# print(An.shape)
+
+np.savetxt("An", An, fmt='%.6e', delimiter=',')
+# print("\n____________________________________\n")
+
+# dA = np.zeros((modesNum))
+# dA[0] = 1
+# delta = dA[0]
+# iniA_da = initialA + dA
+
+# test1 = - 0.1 * (initialA.dot(nonLinearCoeffTensor[0]).dot(initialA) + diffuTermCoeffMatrix[0].dot(initialA))
+
+# test2 = delta - 0.1 * (iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da))
+# # test2 = iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da)
+
+# print(test1, test2)
+# print((test2  - test1)/delta)
+
+# dA = np.zeros((modesNum))
+# dA[1] = 1
+# delta = dA[1]
+# iniA_da = initialA + dA
+
+# test1 = - 0.1 * (initialA.dot(nonLinearCoeffTensor[0]).dot(initialA) + diffuTermCoeffMatrix[0].dot(initialA))
+
+# test2 = - 0.1 * (iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da))
+# # test2 = iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da)
+
+# print(test1, test2)
+# print((test2  - test1)/delta)
+
+# dA = np.zeros((modesNum))
+# dA[2] = 1
+# delta = dA[2]
+# iniA_da = initialA + dA
+
+# test1 = - 0.1 * (initialA.dot(nonLinearCoeffTensor[2]).dot(initialA) + diffuTermCoeffMatrix[2].dot(initialA))
+
+# test2 = - 0.1 * (iniA_da.dot(nonLinearCoeffTensor[2]).dot(iniA_da) + diffuTermCoeffMatrix[2].dot(iniA_da))
+# # test2 = iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da)
+
+# print(test1, test2)
+# print((test2  - test1)/delta)
+
+# dA = np.zeros((modesNum))
+# dA[0] = 1
+# delta = dA[0]
+# iniA_da = initialA + dA
+
+# test1 = 1.0e-7*initialA.dot(nonLinearCoeffTensor[0]).dot(initialA) + 1.0e-3*diffuTermCoeffMatrix[0].dot(initialA)
+# # test2 = iniA_da.dot(nonLinearCoeffTensor[0]).dot(iniA_da) + diffuTermCoeffMatrix[0].dot(iniA_da)
+
+# print(test1)
 
 # time = np.linspace(0, 100, 1001)
 
@@ -70,3 +124,8 @@ nonLinearCoeffTensor = nonLinearCoeffTensor.reshape(modesNum, modesNum, modesNum
 
 # np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
 # np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')
+
+
+
+				
+

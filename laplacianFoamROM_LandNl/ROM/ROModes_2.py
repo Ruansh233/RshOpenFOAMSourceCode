@@ -7,7 +7,7 @@ filePath = "../svdtest_2/SVD"
 
 ddt1 = 1.0e-7
 ddt2 = 1.0e-3
-modesNum = 2
+modesNum = 5
 
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
