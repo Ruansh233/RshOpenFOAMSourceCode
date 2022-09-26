@@ -24,12 +24,12 @@ coeffMatrix = np.loadtxt(coeff)[: , 0: modesNum]
 
 diffuTermCoeffMatrix = np.loadtxt(diffucoefficient)[0: modesNum, 0: modesNum]
 nonLinearCoeffMatrix = np.loadtxt(nonLinearCoeff)
-nonLinearCoeffLen = modeLapMatrix.shape[1]
+nonLinearCoeffLen = nonLinearCoeffMatrix.shape[1]
 nonLinearCoeffMatrix = nonLinearCoeffMatrix[: , 0: modesNum]
 
 diffuTermCoeffMatrix = diffuTermCoeffMatrix
 nonLinearCoeffMatrix = nonLinearCoeffMatrix
-nonLinearCoeffTensor = np.empty((0, 2))
+nonLinearCoeffTensor = np.empty((0, modesNum))
 
 for i in range(0, modesNum):
     for j in range(0, modesNum):

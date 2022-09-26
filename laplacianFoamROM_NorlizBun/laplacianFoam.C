@@ -141,6 +141,10 @@ int main(int argc, char *argv[])
         fileName dataFile;
         autoPtr<OFstream> outputFilePtr;
 
+        // check whether SVD folder exist or not
+        if(!isDir(mesh.time().path()/"SVD"))
+            mkDir(mesh.time().path()/"SVD");    
+
         // write diffusion terms coefficient
         #include "calculateDiffuCoeff.H"
 
