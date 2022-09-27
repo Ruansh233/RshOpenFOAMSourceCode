@@ -17,6 +17,7 @@
 
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
+    RectangularMatrix<vector> gradModesMatrix(mesh.C().size(), modesNum);
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -102,20 +103,25 @@
         //     fvc::grad(fieldValueMode)
         // );
         
-        // // gradient of mode
-        // volVectorField gradFieldValueMode
-        // (
-        //     IOobject
-        //     (
-        //         gradModeNames[No_],
-        //         mesh.time().timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::AUTO_WRITE
-        //     ),
-        //     fvc::grad(fieldValueMode)
-        // );
-        // gradFieldValueMode.write();   
+        // gradient of mode
+        volVectorField gradFieldValueMode
+        (
+            IOobject
+            (
+                gradModeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::grad(fieldValueMode)
+        );
+        gradFieldValueMode.write();   
+
+        forAll(mesh.C(), cellI)
+        {
+            gradModesMatrix[cellI][No_] = gradFieldValueMode[cellI];
+        }
 
         // laplacian of mode
         volScalarField lapFieldValueMode
@@ -141,6 +147,7 @@
         }
     }
 
+    // // Rsh, write the file and then open it, the value near the boundary face will be correct
     // // T field test
     // volScalarField testT
     // (
