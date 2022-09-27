@@ -20,9 +20,9 @@ timeInterval    0.1;
 
 modeExtract     10;
 
-snapshotsNum    1000;
+snapshotsNum    201;
 
-ROMorNot        false;
+ROMorNot        true;
 
 calCoeffFile    ( "coeff_calculate" );
 

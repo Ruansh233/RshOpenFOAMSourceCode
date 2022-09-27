@@ -76,14 +76,14 @@
             // for zeroGradient, the face value is equal to the face owner
             else if(T.boundaryField()[patchI].type() == "zeroGradient")
             {
-                // fieldValueMode.boundaryFieldRef().set(patchI, 
-                //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
-                forAll(fieldValueMode.boundaryField()[patchI], faceI)
-                {
-                    label gFaceI = mesh.boundary()[patchI].start() + faceI;
-                    label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
-                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
-                }
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                // forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                // {
+                //     label gFaceI = mesh.boundary()[patchI].start() + faceI;
+                //     label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
+                //     fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
+                // }
             }
             else
             {
@@ -128,12 +128,25 @@
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            // mesh,
-            // dimless,
             fvc::laplacian(fieldValueMode)
-            // "zeroGradient"
         );
         lapFieldValueMode.write();   
+
+        dimensionedScalar t1 ("t1", dimless, 1.);
+
+        volScalarField lapFieldValueModeTest
+        (
+            IOobject
+            (
+                laplacianModeNames[No_] + "_test",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::laplacian(t1, fieldValueMode)
+        );
+        lapFieldValueModeTest.write();   
 
         forAll(mesh.C(), cellI)
         {
