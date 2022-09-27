@@ -22,7 +22,7 @@ modeExtract     10;
 
 snapshotsNum    1000;
 
-ROMorNot        true;
+ROMorNot        false;
 
 calCoeffFile    ( "coeff_calculate" );
 

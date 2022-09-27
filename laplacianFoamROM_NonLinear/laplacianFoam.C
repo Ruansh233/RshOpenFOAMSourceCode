@@ -89,12 +89,14 @@ int main(int argc, char *argv[])
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;  
+
+        #include "setTransportProperties.H"
         
         while (simple.correctNonOrthogonal())
         {
             fvScalarMatrix TEqn
             (
-                fvm::ddt(T) - fvm::laplacian(DT, T)
+                fvm::ddt(T) - fvm::laplacian(DTTT, T)
              ==
                 fvOptions(T)
             );
@@ -103,8 +105,6 @@ int main(int argc, char *argv[])
             TEqn.solve();
             fvOptions.correct(T);
         }
-
-        #include "setTransportProperties.H"
 
         #include "write.H"
 

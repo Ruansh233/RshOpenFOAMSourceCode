@@ -79,6 +79,8 @@
             ),
             fvc::laplacian(T)
         );
+        
+        #include "gradLapComparion.H"
 
         runTime.write();
 

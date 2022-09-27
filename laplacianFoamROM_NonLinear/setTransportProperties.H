@@ -1,7 +1,29 @@
 scalar DTT (transportProperties.getScalar("DTT"));
 
-forAll(mesh.C(), cellI)
+volScalarField DTTT 
+(
+    IOobject
+    (
+        "DTTT",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimViscosity,
+    DTT * T
+);
+
+forAll(DTTT.boundaryField(), patchI)
 {
-    // DT[cellI] = 1.0e-5 * (600 - T[cellI]);
-    DT[cellI] = DTT* T[cellI];
+    forAll(DTTT.boundaryField()[patchI], faceI)
+    {
+        DTTT.boundaryFieldRef()[patchI][faceI] = DTT * T.boundaryFieldRef()[patchI][faceI];
+    }
 }
+
+// forAll(mesh.C(), cellI)
+// {
+//     DT[cellI] = DTT * T[cellI];
+// }

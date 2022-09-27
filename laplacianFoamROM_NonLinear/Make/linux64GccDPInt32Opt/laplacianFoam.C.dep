@@ -844,6 +844,7 @@ $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
 readSVDDict.H \
 setTransportProperties.H \
 write.H \
+gradLapComparion.H \
 snapshotsMatrix.H \
 writeModesField.H \
 calculateDiffuCoeff.H \

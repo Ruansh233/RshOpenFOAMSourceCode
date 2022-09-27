@@ -8,7 +8,7 @@ filePath = "../svdtest/SVD"
 
 ddt1 = 1.0e-7
 ddt2 = 1.0e-3
-modesNum = 5
+modesNum = 15
 
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"
@@ -53,13 +53,21 @@ nonLinearCoeffTensor = nonLinearCoeffTensor.reshape(modesNum, modesNum, modesNum
 initialA = coeffMatrix[0, 0: modesNum]
 print(initialA)
 
-dt = 0.01
-totalt = 1000
-An = np.zeros((5, modesNum))
-An = newtonOdesFunc(nonLinearCoeffTensor, diffuTermCoeffMatrix, initialA, dt, totalt, modesNum)
-# print(An.shape)
+testA = coeffMatrix[900, 0: modesNum]
 
-np.savetxt("An", An, fmt='%.6e', delimiter=',')
+test1 = 1.0e-7*testA.dot(nonLinearCoeffTensor[0]).dot(testA) + 1.0e-3*diffuTermCoeffMatrix[0].dot(testA)
+test2 = 1.0e-7*testA.dot(nonLinearCoeffTensor[1]).dot(testA) + 1.0e-3*diffuTermCoeffMatrix[1].dot(testA)
+test3 = 1.0e-7*testA.dot(nonLinearCoeffTensor[2]).dot(testA) + 1.0e-3*diffuTermCoeffMatrix[2].dot(testA)
+
+print(test1, test2, test3)
+
+# dt = 0.01
+# totalt = 1000
+# An = np.zeros((5, modesNum))
+# An = newtonOdesFunc(nonLinearCoeffTensor, diffuTermCoeffMatrix, initialA, dt, totalt, modesNum)
+# # print(An.shape)
+
+# np.savetxt("An", An, fmt='%.6e', delimiter=',')
 # print("\n____________________________________\n")
 
 # dA = np.zeros((modesNum))
@@ -111,19 +119,18 @@ np.savetxt("An", An, fmt='%.6e', delimiter=',')
 
 # print(test1)
 
-# time = np.linspace(0, 100, 1001)
+time = np.linspace(0, 100, 1001)
 
-# def odefun(t, a):
-#     da = ddt1 * a.dot(nonLinearCoeffTensor).dot(a) + ddt2 * diffuTermCoeffMatrix.dot(a)
-#     return da
+def odefun(t, a):
+    da = ddt1 * a.dot(nonLinearCoeffTensor).dot(a) + ddt2 * diffuTermCoeffMatrix.dot(a)
+    return da
 
-# sol = solve_ivp(odefun, [0, 100], initialA, method='Radau', dense_output=True)
+sol = solve_ivp(odefun, [0, 100], testA, method='Radau', dense_output=True)
 
+snapshots_cal = modeMatrix @ sol.sol(time)
 
-# snapshots_cal = modeMatrix @ sol.sol(time)
-
-# np.savetxt(f"{coeff_calculate}", sol.sol(time).T, fmt='%.6e', delimiter=',')
-# np.savetxt(f"{snapshots_calculate}", snapshots_cal, fmt='%.6e', delimiter=',')
+coeff_calculate_test = filePath + "/coeff_calculate_test"
+np.savetxt(f"{coeff_calculate_test}", sol.sol(time).T, fmt='%.6e', delimiter=',')
 
 
 

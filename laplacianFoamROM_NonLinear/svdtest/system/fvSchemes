@@ -19,21 +19,22 @@ ddtSchemes
     default         Euler;
 }
 
-// gradSchemes
-// {
-//     default         Gauss linear;
-//     grad(T)         Gauss linear;
-// }
-
 gradSchemes
 {
-    default         leastSquares;
-    grad(T)         leastSquares;
+    default         Gauss linear;
+    grad(T)         Gauss linear;
 }
+
+// gradSchemes
+// {
+//     default         leastSquares;
+//     grad(T)         leastSquares;
+// }
 
 divSchemes
 {
-    default         none;
+    // default         none;
+    default         Gauss linear corrected;
 }
 
 laplacianSchemes
