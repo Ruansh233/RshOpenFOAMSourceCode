@@ -4,10 +4,10 @@ import numpy as np
 
 filePath = "../svdtest/SVD"
 
-ddt1 = 2.5e-6
+ddt1 = 1.0e-6
 ddt2 = 1.0e-3
-modesNum = 10
-fileLen = 10
+modesNum = 5
+fileLen = 20
 
 coeff = filePath + "/coeffMatrix"
 spatialmode = filePath + "/modeMatrix"

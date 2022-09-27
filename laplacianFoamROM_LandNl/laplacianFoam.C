@@ -89,6 +89,8 @@ int main(int argc, char *argv[])
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;  
+
+        #include "setTransportProperties.H"
         
         while (simple.correctNonOrthogonal())
         {
@@ -103,8 +105,6 @@ int main(int argc, char *argv[])
             TEqn.solve();
             fvOptions.correct(T);
         }
-
-        #include "setTransportProperties.H"
 
         #include "write.H"
 

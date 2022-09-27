@@ -1,3 +1,6 @@
+dimensionedScalar DT1 = dimensionedScalar("DT1", dimensionSet(0, 2, -1, -1, 0, 0, 0), DTT1);
+dimensionedScalar DT2 = dimensionedScalar("DT2", dimViscosity, DTT2);
+
 volScalarField DTT
 (
     IOobject
@@ -10,13 +13,13 @@ volScalarField DTT
     ),
     mesh,
     dimViscosity,
-    DTT1 * T + DTT2
+    DT1 * T + DT2
 );
 
 forAll(DTT.boundaryField(), patchI)
 {
     forAll(DTT.boundaryField()[patchI], faceI)
     {
-        DTT.boundaryFieldRef()[patchI][faceI] = DTT1 * T.boundaryFieldRef()[patchI][faceI] + DTT2;
+        DTT.boundaryFieldRef()[patchI][faceI] = DT1.value() * T.boundaryFieldRef()[patchI][faceI] + DT2.value();
     }
 }
