@@ -90,8 +90,13 @@
             {
                 Info<< "The boundary: " << T.boundaryField()[patchI].type() 
                     << " doesn't support, and redefine to zeroGradient" << nl;
-                fieldValueMode.boundaryFieldRef().set(patchI, 
-                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                    
+                forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                {
+                    label gFaceI = mesh.boundary()[patchI].start() + faceI;
+                    label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
+                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
+                }
             }
         }
         fieldValueMode.write();

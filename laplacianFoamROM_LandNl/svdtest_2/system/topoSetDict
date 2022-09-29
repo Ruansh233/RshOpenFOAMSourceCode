@@ -9,34 +9,44 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      T;
+    class       dictionary;
+    object      topoSetDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 1 0 0 0];
-
-internalField   uniform 273;
-
-boundaryField
-{
-    "wall.*"
+actions
+(
     {
-        type            zeroGradient;
+        name    subdomain1;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (-0.05 -0.05 -0.2) (0.05 0 0);
     }
 
-    "inlet.*"
     {
-        type            fixedValue;
-        value           uniform 273;
+        name    subdomain2;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (-0.05 0 -0.2) (0.05 0.05 0);
     }
 
-    "outlet.*"
     {
-        type            fixedValue;
-        value           uniform 573;
+        name    subdomain3;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (-0.05 -0.05 0) (0.05 0 0.2);
     }
-}
 
+    {
+        name    subdomain4;
+        type    cellZoneSet;
+        action  new;
+        source  boxToCell;
+        box     (-0.05 0 0) (0.05 0.05 0.2);
+    }
+);
 
 // ************************************************************************* //

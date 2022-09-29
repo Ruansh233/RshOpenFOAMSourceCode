@@ -9,34 +9,26 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      T;
+    arch        "LSB;label=32;scalar=64";
+    class       dictionary;
+    location    "system";
+    object      svdDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 0 0 1 0 0 0];
+timeInterval    0.1;
 
-internalField   uniform 273;
+modeExtract     20;
 
-boundaryField
-{
-    "wall.*"
-    {
-        type            zeroGradient;
-    }
+snapshotsNum    1000;
 
-    "inlet.*"
-    {
-        type            fixedValue;
-        value           uniform 273;
-    }
+ROMorNot        true;
 
-    "outlet.*"
-    {
-        type            fixedValue;
-        value           uniform 573;
-    }
-}
+calCoeffFile    ( "coeff_calculate" );
+
+modesName       ( "modeMatrix" );
+
+snapshotsMatrixName ( "SnapshotMatrix" );
 
 
 // ************************************************************************* //

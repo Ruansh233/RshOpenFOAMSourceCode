@@ -25,6 +25,12 @@ boundaryField
         type            zeroGradient;
     }
 
+    wall_minX
+    {
+        type            fixedGradient;
+        gradient        uniform 100;
+    }
+
     "inlet.*"
     {
         type            fixedValue;
