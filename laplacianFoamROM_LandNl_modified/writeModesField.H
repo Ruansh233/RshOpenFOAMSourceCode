@@ -74,39 +74,78 @@
                     fieldValueMode.boundaryFieldRef()[patchI][faceI] = boundaryModeM(faceI, 0);
                 }
             }
+
             // for zeroGradient, the face value is equal to the face owner
             else if(T.boundaryField()[patchI].type() == "zeroGradient")
             {
-                // fieldValueMode.boundaryFieldRef().set(patchI, 
-                //     fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
-                forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+            }
+
+            // for fixedGradient, the face value is equal to the face owner
+            else if(T.boundaryField()[patchI].type() == "fixedGradient")
+            {
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("fixedGradient", mesh.boundary()[patchI], fieldValueMode));
+
+                // Define new patch-field for the variable at the patch (in my case temperature T)
+                fixedGradientFvPatchField<scalar>& Tpatch = refCast<fixedGradientFvPatchField<scalar>>(T.boundaryFieldRef()[patchI]);
+                // Create scalar Field for the gradient at that patch
+                scalarField& gradTpatch = Tpatch.gradient();
+                
+                // phibc = Tbc * V * inv(S)
+                RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
+                                                         snapshotsNo, 
+                                                         gradTpatch[0]);
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * 
+                                RectangularMatrix<scalar>(fieldValueSVD.V().subColumn(No_, 0, -1)));
+                
+                for(label i = 0; i < boundaryModeM.m(); i++)
                 {
-                    label gFaceI = mesh.boundary()[patchI].start() + faceI;
-                    label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
-                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
+                    for(label j = 0; j < boundaryModeM.n(); j++)
+                    {
+                        boundaryModeM(i, j) = boundaryModeM(i, j) / eigenValueSqrt;
+                    }
+                }
+
+                // Define new patch-field for the variable at the patch (in my case temperature T)
+                fixedGradientFvPatchField<scalar>& Mpatch = refCast<fixedGradientFvPatchField<scalar>>(fieldValueMode.boundaryFieldRef()[patchI]);
+                // Create scalar Field for the gradient at that patch
+                scalarField& gradMpatch = Mpatch.gradient();
+
+                // Loop over every gradient in this patch
+                forAll(gradMpatch, faceI)
+                {
+                    // Perform calculations to determine the new gradient "newGrad"
+                    // Store the new value in the scalar field
+                    gradMpatch[faceI] = boundaryModeM(faceI, 0);
                 }
             }
+
             else
             {
                 Info<< "The boundary: " << T.boundaryField()[patchI].type() 
                     << " doesn't support, and redefine to zeroGradient" << nl;
                     
-                forAll(fieldValueMode.boundaryField()[patchI], faceI)
-                {
-                    label gFaceI = mesh.boundary()[patchI].start() + faceI;
-                    label bunFaceOwnerI = mesh.faceOwner()[gFaceI];
-                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = fieldValueMode[bunFaceOwnerI];
-                }
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
         }
         fieldValueMode.write();
 
-        // // this kind of definition also give strange value on boundary cell
-        // // -- do not use
-        // volVectorField gradFieldValueMode
-        // (
-        //     fvc::grad(fieldValueMode)
-        // );
+        // gradient of mode
+        volScalarField fieldValueModeRef
+        (
+            IOobject
+            (
+                modeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh
+        );
         
         // gradient of mode
         volVectorField gradFieldValueMode
@@ -119,7 +158,7 @@
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            fvc::grad(fieldValueMode)
+            fvc::grad(fieldValueModeRef)
         );
         gradFieldValueMode.write();   
 
@@ -139,10 +178,7 @@
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            // mesh,
-            // dimless,
-            fvc::laplacian(fieldValueMode)
-            // "zeroGradient"
+            fvc::laplacian(fieldValueModeRef)
         );
         lapFieldValueMode.write();   
 
