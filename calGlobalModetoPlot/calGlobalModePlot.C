@@ -139,28 +139,28 @@ int main(int argc, char *argv[])
         {                
             IFstream dataStream(snapshotsMFile);
             word dataLine;
+            token singleData;   
 
             while(dataStream.getLine(dataLine) && dataLine != word::null)
             {
                 IStringStream dataString (dataLine);
-                token singleData;   
 
                 while(!dataString.eof())
                 {
                     dataString.read(singleData);
                     if(singleData.isScalar())
                     {
-                        snapshotsM(cellN, modesN) = singleData.scalarToken();
-                        ++modesN;                            
+                        snapshotsM(cellN, snapshotsN) = singleData.scalarToken();
+                        ++snapshotsN;                            
                     }     
                     if(singleData.isLabel())
                     {
-                        snapshotsM(cellN, modesN) = scalar(singleData.labelToken());
-                        ++modesN;                   
+                        snapshotsM(cellN, snapshotsN) = scalar(singleData.labelToken());
+                        ++snapshotsN;                   
                     }                    
                 }
                 ++cellN;
-                modesN = 0;
+                snapshotsN = 0;
             }
                           
         }  

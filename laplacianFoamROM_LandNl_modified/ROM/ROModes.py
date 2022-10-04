@@ -6,7 +6,7 @@ filePath = "../svdtest/SVD"
 
 ddt1 = 1.0e-6
 ddt2 = 1.0e-3
-modesNum = 5
+modesNum = 6
 fileLen = 20
 
 coeff = filePath + "/coeffMatrix"
