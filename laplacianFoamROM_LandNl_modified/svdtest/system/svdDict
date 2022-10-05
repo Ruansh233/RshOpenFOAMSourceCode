@@ -20,6 +20,8 @@ timeInterval    0.1;
 
 modeExtract     20;
 
+modeProject     6;
+
 snapshotsNum    1000;
 
 ROMorNot        true;

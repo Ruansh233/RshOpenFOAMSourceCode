@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
 
     // read data from dictionary
     label snapshotsNum (customDict.getLabel("snapshotsNum"));
-    label modesNum (customDict.getLabel("modeExtract"));
+    label modesNum (customDict.getLabel("modeProject"));
     List<word> calCoeffFile (customDict.lookup("calCoeffFile"));
     List<word> modesMatrixName (customDict.lookup("modesName"));
     List<word> snapshotsMatrixName (customDict.lookup("snapshotsMatrixName"));
@@ -254,8 +254,8 @@ int main(int argc, char *argv[])
         // {
         //     for (label column = 0; column < calSnapshotsM.n(); ++column)
         //     {
-        //         outputFilePtr().width(12);
         //         outputFilePtr() << calSnapshotsM(row, column);
+        //         outputFilePtr() << " ";
         //     }
         //     outputFilePtr() << endl;
         // }
@@ -263,15 +263,15 @@ int main(int argc, char *argv[])
         RectangularMatrix<scalar> errorMatrix(mesh.C().size(), snapshotsNum); 
         errorMatrix = calSnapshotsM - snapshotsM;
 
-        // // write calModecoeff
-        // dataFile = mesh.time().path()/"SVD"/"errorMatrix_test";    
+        // // // write errorMatrix
+        // dataFile = mesh.time().path()/"SVD"/"errorMatrix";    
         // outputFilePtr.reset(new OFstream(dataFile));
         // for (label row = 0; row < errorMatrix.m(); ++row)
         // {
         //     for (label column = 0; column < errorMatrix.n(); ++column)
         //     {
-        //         outputFilePtr().width(12);
         //         outputFilePtr() << errorMatrix(row, column);
+        //         outputFilePtr() << " ";
         //     }
         //     outputFilePtr() << endl;
         // }
