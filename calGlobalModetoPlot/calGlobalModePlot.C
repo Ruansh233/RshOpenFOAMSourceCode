@@ -364,7 +364,7 @@ int main(int argc, char *argv[])
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            calFieldValue - tempFieldValue
+            (calFieldValue - tempFieldValue)/tempFieldValue
         );
         errorField.write();
     }
