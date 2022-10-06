@@ -353,6 +353,20 @@ int main(int argc, char *argv[])
         }
 
         calFieldValue.write();
+
+        volScalarField errorField
+        (
+            IOobject
+            (
+                "errorField",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            calFieldValue - tempFieldValue
+        );
+        errorField.write();
     }
 
     // }
