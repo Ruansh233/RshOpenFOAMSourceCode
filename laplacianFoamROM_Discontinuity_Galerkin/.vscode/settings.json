@@ -5,11 +5,13 @@
         "fvSchemes": "OpenFOAM",
         "fvSolution": "OpenFOAM",
         "**/system/*": "OpenFOAM",
-        "**/constant/*": "OpenFOAM",
+        "**/constant/g": "OpenFOAM",
         "**/0/*": "OpenFOAM",
+        "**/constant/*": "OpenFOAM",
         "writeModesField.H": "cpp",
         "calculateDiffuCoeff.H": "cpp",
         "readSVDDict.H": "cpp",
-        "snapshotsMatrix.H": "cpp"
+        "snapshotsMatrix.H": "cpp",
+        "svdSnapshots.H": "cpp"
     }
 }

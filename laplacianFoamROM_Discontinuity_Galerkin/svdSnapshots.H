@@ -1,6 +1,7 @@
     // calculate and write matrix element value of diffusion term
     label elementCellSize (mesh.cellZones()[0].size());
     label snapshotsNum (mesh.cellZones().size());
+    List<fileName> modeNames (modesNum);
     RectangularMatrix<scalar> cellFieldValue(elementCellSize, snapshotsNum);
     RectangularMatrix<scalar> faceFieldValue;
 
@@ -14,6 +15,105 @@
     }
 
     SVD fieldValueSVD(cellFieldValue); 
+    RectangularMatrix<scalar> coefficientsM(cellFieldValue.T() * fieldValueSVD.U());
+    RectangularMatrix<scalar> invCoefficientsM(SVDinv(coefficientsM.T()));
+
+    // list of boundary type wordRe
+    // List<label> boundaryWordRe ({".*block.*_in", ".*block.*_out", ".*block.*_wall.*"})
+    List<word> boundaryWordRe ({".*block.*_in", ".*block.*_out"});
+    List<label> matchPatchID(mesh.boundaryMesh().size());
+    wordRe matchPatch;
+    label countNumber(0);
+
+    forAll(boundaryWordRe, reI)
+    {
+        // Get index of patch
+        matchPatch = boundaryWordRe[reI];
+        matchPatch.compile ();
+
+        forAll(mesh.boundaryMesh(), patchI)
+        {
+            if(matchPatch.match(mesh.boundary()[patchI].name()))
+            {
+                matchPatchID[countNumber] = patchI;
+                countNumber += 1;
+            }
+        }
+    }
+    matchPatchID.resize(countNumber);
+
+    Info << "matchPatch: " << matchPatchID << endl;
+
+    PtrList<RectangularMatrix<scalar>> boundarySnapshotsMList;
+    PtrList<RectangularMatrix<scalar>> boundaryModesMList;
+    RectangularMatrix<scalar> patchSnapshots;
+    label patchType(0);
+
+    forAll(matchPatchID, patchID)
+    {        
+        forAll(mesh.boundary()[matchPatchID[patchID]], faceI)
+        {
+            patchSnapshots(faceI, patchID - patchType) = T.boundaryField()[matchPatchID[patchID]][faceI];
+        }
+
+        if((patchID + 1) % 5 == 0)
+        {
+            patchType += 5;
+            boundarySnapshotsMList.append(patchSnapshots.clone());
+            boundaryModesMList.append(RectangularMatrix<scalar> (patchSnapshots * invCoefficientsM).clone());
+        }
+    }
+    
+    
+    // mode field value name
+    for (label iname = 0; iname < modesNum; ++iname)
+    {
+        modeNames[iname] = "Tmode" + name(iname);
+    }
+
+    // set mode field value
+    forAll(modeNames, No_)
+    {
+        // create mode field by copying T
+        volScalarField fieldValueMode
+        (
+            IOobject
+            (
+                modeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            T
+        );
+
+        // set cell value
+        forAll(mesh.cellZones(), zoneI)
+        {
+            forAll(mesh.cellZones()[zoneI], cellI)
+            {   
+                label cell (mesh.cellZones()[zoneI][cellI]);
+                fieldValueMode[cell] = fieldValueSVD.U()(cellI, No_);
+            }
+        }
+
+        // set patch value
+        patchType = 0;
+        forAll(matchPatchID, patchID)
+        {
+            forAll(fieldValueMode.boundaryField()[matchPatchID[patchID]], faceI)
+            {
+                fieldValueMode.boundaryFieldRef()[matchPatchID[patchID]][faceI] = boundaryModesMList[patchType](faceI, No_);
+            }
+            if((patchID + 1) % 5 == 0)
+            {
+                patchType += 1;
+            }
+        }
+
+        fieldValueMode.write();
+    }
 
     if(!isDir(mesh.time().path()/"SVD"))
         mkDir(mesh.time().path()/"SVD");
@@ -29,6 +129,11 @@
     // write eigen value Matrix
     dataFile = mesh.time().path()/"SVD"/"eigenValueM";
     writeMatrix(fieldValueSVD.S(), dataFile);
+
+    // write eigen value Matrix
+    dataFile = mesh.time().path()/"SVD"/"coefficientsM";
+    writeMatrix(coefficientsM, dataFile);
+
 
         // // mode matrix of subdomains
         // RectangularMatrix<scalar> subDModesM(mesh.cellZones()[zoneI].size(), modesNum);

@@ -60,6 +60,7 @@ Description
 #include "simpleControl.H"
 #include "cpuTimeCxx.H"
 #include "writeMatrix.H"
+#include "wordRe.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
