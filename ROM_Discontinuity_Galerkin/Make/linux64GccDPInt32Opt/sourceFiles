@@ -1,4 +1,4 @@
 SOURCE = \
-laplacianFoam.C \
+ROM_DG.C \
 
 # sources

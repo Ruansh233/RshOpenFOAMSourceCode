@@ -1,5 +1,5 @@
-$(OBJECTS_DIR)/laplacianFoam.C.dep: \
-laplacianFoam.C \
+$(OBJECTS_DIR)/ROM_DG.C.dep: \
+ROM_DG.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvCFD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pstream.H \
@@ -817,33 +817,17 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangeI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/scalarRangesI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SVD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SVDI.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvOptions.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvOptionList.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvOption.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvOptionI.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvOptionListTemplates.C \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/simpleControl.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControl.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlTemplates.C \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/solutionControlI.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/cpuTimeCxx.H \
 writeMatrix.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/postProcess.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addRegionOption.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addFunctionObjectOptions.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addDictOption.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/IFstream.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/stringOps.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SubStrings.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/stringOpsSort.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/stringOpsEvaluate.H \
+$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/stringOpsTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCase.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/foamDlOpenLibs.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addCheckCaseOptions.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCaseLists.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCaseListOptions.H \
-$(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCaseListOutput.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createTime.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createMesh.H \
-createFields.H \
-$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/createFvOptions.H \
-readSVDDict.H \
-write.H \
-svdSnapshots.H \
 
 #END

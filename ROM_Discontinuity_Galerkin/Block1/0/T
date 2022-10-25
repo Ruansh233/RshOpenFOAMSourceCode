@@ -36,11 +36,6 @@ boundaryField
         type            fixedValue;
         value           uniform 573;
     }
-
-    "inter.*"
-    {
-        type            cyclic;
-    }
 }
 
 
