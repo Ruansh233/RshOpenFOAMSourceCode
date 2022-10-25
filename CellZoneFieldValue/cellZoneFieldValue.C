@@ -74,7 +74,9 @@ int main(int argc, char *argv[])
     // );
 
     // Info << "mesh.time(): " << mesh.time().name() << endl;
+    // the output: 
     // Info << "runTime.timeName(): " << runTime.timeName() << endl;
+    // the output: 
 
     if (mesh.cellZones().size() == 0)
     {

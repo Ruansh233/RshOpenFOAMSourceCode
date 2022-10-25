@@ -46,6 +46,7 @@
         scalar eigenValueSqrt (fieldValueSVD.S()[No_]);
 
         // assign boundary value of all boundaries
+        // creating the mode field by copying the T, than the setting of patch type is not needed
         forAll(fieldValueMode.boundaryField(), patchI)
         {
             // for fixedValue, // phibc = Tbc * V * inv(S)
@@ -88,6 +89,10 @@
                 fieldValueMode.boundaryFieldRef().set(patchI, 
                     fvPatchField<scalar>::New("fixedGradient", mesh.boundary()[patchI], fieldValueMode));
 
+                // the steps to access the gradient of patch
+                // the following line is usable or not
+                // fixedGradientFvPatchField<scalar> (T.boundaryField()[patchI]).gradient
+                // or T.boundaryField()[patchI].snGrad()
                 // Define new patch-field for the variable at the patch (in my case temperature T)
                 fixedGradientFvPatchField<scalar>& Tpatch = refCast<fixedGradientFvPatchField<scalar>>(T.boundaryFieldRef()[patchI]);
                 // Create scalar Field for the gradient at that patch
