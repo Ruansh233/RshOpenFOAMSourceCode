@@ -56,8 +56,6 @@ Description
 
 #include "fvCFD.H"
 #include "SVD.H"
-#include "fvOptions.H"
-#include "simpleControl.H"
 #include "cpuTimeCxx.H"
 #include "writeMatrix.H"
 #include "wordRe.H"
@@ -66,60 +64,14 @@ Description
 
 int main(int argc, char *argv[])
 {
-    argList::addNote
-    (
-        "Laplace equation solver for a scalar quantity."
-    );
-
+    
     #include "postProcess.H"
 
-    #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
 
-    simpleControl simple(mesh);
-
-    #include "createFields.H"
-
-    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-    Info<< "\nCalculating temperature distribution\n" << endl;
-
-    #include "readSVDDict.H"
-
-    while (simple.loop())
-    {
-        Info<< "Time = " << runTime.timeName() << nl << endl;  
-        
-        while (simple.correctNonOrthogonal())
-        {
-            fvScalarMatrix TEqn
-            (
-                fvm::ddt(T) - fvm::laplacian(DT, T)
-             ==
-                fvOptions(T)
-            );
-
-            fvOptions.constrain(TEqn);
-            TEqn.solve();
-            fvOptions.correct(T);
-        }
-
-        #include "write.H"
-
-        runTime.printExecutionTime(Info);
-    }
-
-    Info<< "\nThe simulation of FOM is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
-
-    // file location and OF pointer of the file
-    fileName dataFile;
-    autoPtr<OFstream> outputFilePtr;
-
-    #include "svdSnapshots.H"
-
-    Info<< "\nThe solver is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
+    
 
     return 0;
 }
