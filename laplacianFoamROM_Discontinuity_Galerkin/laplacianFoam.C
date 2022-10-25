@@ -111,13 +111,15 @@ int main(int argc, char *argv[])
         runTime.printExecutionTime(Info);
     }
 
-    Info<< "\nThe simulation of FOM is finished in " << runTime.elapsedCpuTime() << " s.\n" << nl;
+    Info<< "\nThe simulation of FOM is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
     // file location and OF pointer of the file
     fileName dataFile;
     autoPtr<OFstream> outputFilePtr;
 
     #include "svdSnapshots.H"
+
+    Info<< "\nThe solver is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
     return 0;
 }

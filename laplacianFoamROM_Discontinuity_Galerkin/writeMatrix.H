@@ -43,3 +43,25 @@ void writeMatrix(scalarDiagonalMatrix matrixProc,
                         matrixProc.size()
     );
 }
+
+template <class T>
+void writeMatrix(T matrixProc,
+                fileName dataFile,
+                label rows)
+{
+    OFstream writeOF(dataFile);
+    for (label row = 0; row < rows; ++row)
+    {
+        writeOF << matrixProc[row];
+        writeOF << endl;
+    }
+}
+
+template <class T>
+void writeMatrix(T matrixProc,
+                fileName dataFile)
+{
+    return writeMatrix(matrixProc, dataFile,
+                        matrixProc.size()
+    );
+}

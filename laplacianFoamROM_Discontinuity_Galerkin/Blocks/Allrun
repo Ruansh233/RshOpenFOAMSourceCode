@@ -3,16 +3,9 @@ cd "${0%/*}" || exit                                # Run from this directory
 . ${WM_PROJECT_DIR:?}/bin/tools/RunFunctions        # Tutorial run functions
 #------------------------------------------------------------------------------
 
-restore0Dir
-
-# runApplication ansysToFoam \
-#     ${FOAM_TUTORIALS:?}/resources/geometry/flange.ans -scale 0.001
-
-# m4 system/blockMeshDict.m4 > system/blockMeshDict
-# runApplication blockMesh
 runApplication $(getApplication)
 
-touch svdtest.foam
+touch Blocks.foam
 
 # if true
 # then

@@ -20,23 +20,29 @@
 
     // list of boundary type wordRe
     // List<label> boundaryWordRe ({".*block.*_in", ".*block.*_out", ".*block.*_wall.*"})
-    List<word> boundaryWordRe ({".*block.*_in", ".*block.*_out"});
+    // the list word su
+    List<word> boundaryWordRe ({"_in", "_out"});
     List<label> matchPatchID(mesh.boundaryMesh().size());
     wordRe matchPatch;
     label countNumber(0);
 
     forAll(boundaryWordRe, reI)
     {
-        // Get index of patch
-        matchPatch = boundaryWordRe[reI];
-        matchPatch.compile ();
-
-        forAll(mesh.boundaryMesh(), patchI)
+        forAll(mesh.cellZones(), zoneI)
         {
-            if(matchPatch.match(mesh.boundary()[patchI].name()))
+            // Get index of patch
+            matchPatch = ".*block" + name(zoneI + 1) + boundaryWordRe[reI];
+            matchPatch.compile ();
+
+            forAll(mesh.boundaryMesh(), patchI)
             {
-                matchPatchID[countNumber] = patchI;
-                countNumber += 1;
+                if(matchPatch.match(mesh.boundary()[patchI].name()))
+                {
+                    matchPatchID[countNumber] = patchI;
+                    ++countNumber;
+
+                    break;
+                }
             }
         }
     }
@@ -46,11 +52,11 @@
 
     PtrList<RectangularMatrix<scalar>> boundarySnapshotsMList;
     PtrList<RectangularMatrix<scalar>> boundaryModesMList;
-    RectangularMatrix<scalar> patchSnapshots;
+    RectangularMatrix<scalar> patchSnapshots(mesh.boundary()[matchPatchID[0]].size(), snapshotsNum);
     label patchType(0);
 
     forAll(matchPatchID, patchID)
-    {        
+    {
         forAll(mesh.boundary()[matchPatchID[patchID]], faceI)
         {
             patchSnapshots(faceI, patchID - patchType) = T.boundaryField()[matchPatchID[patchID]][faceI];
@@ -61,59 +67,156 @@
             patchType += 5;
             boundarySnapshotsMList.append(patchSnapshots.clone());
             boundaryModesMList.append(RectangularMatrix<scalar> (patchSnapshots * invCoefficientsM).clone());
+
+            if(patchID + 1 < matchPatchID.size())
+                patchSnapshots.resize(mesh.boundary()[matchPatchID[patchID + 1]].size(), snapshotsNum);
         }
     }
-    
-    
-    // mode field value name
-    for (label iname = 0; iname < modesNum; ++iname)
+
+
+    forAll(boundarySnapshotsMList, listI)
     {
-        modeNames[iname] = "Tmode" + name(iname);
+        dataFile = mesh.time().path()/"SVD"/"boundarySnapshots" + name(listI);
+        writeMatrix(boundarySnapshotsMList[listI], dataFile);
+
+        dataFile = mesh.time().path()/"SVD"/"boundaryModes" + name(listI);
+        writeMatrix(boundaryModesMList[listI], dataFile);
     }
 
-    // set mode field value
-    forAll(modeNames, No_)
-    {
-        // create mode field by copying T
-        volScalarField fieldValueMode
-        (
-            IOobject
-            (
-                modeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            T
-        );
+    dataFile = mesh.time().path()/"SVD"/"boundaryPatchID";
+    writeMatrix(matchPatchID, dataFile);
 
-        // set cell value
-        forAll(mesh.cellZones(), zoneI)
-        {
-            forAll(mesh.cellZones()[zoneI], cellI)
-            {   
-                label cell (mesh.cellZones()[zoneI][cellI]);
-                fieldValueMode[cell] = fieldValueSVD.U()(cellI, No_);
-            }
-        }
 
-        // set patch value
-        patchType = 0;
-        forAll(matchPatchID, patchID)
-        {
-            forAll(fieldValueMode.boundaryField()[matchPatchID[patchID]], faceI)
-            {
-                fieldValueMode.boundaryFieldRef()[matchPatchID[patchID]][faceI] = boundaryModesMList[patchType](faceI, No_);
-            }
-            if((patchID + 1) % 5 == 0)
-            {
-                patchType += 1;
-            }
-        }
+    // // create fvmesh object of a single element, 
+    // // but the object still contains data of whole mesh
+    // fvMesh  refElementMesh
+    // (
+    //     IOobject
+    //     (
+    //         polyMesh::defaultRegion,
+    //         mesh.time().path()/"refMesh",
+    //         runTime,
+    //         IOobject::MUST_READ
+    //     ),
+    //     false
+    // );
 
-        fieldValueMode.write();
-    }
+    // // create mode field by copying T
+    // volScalarField fieldValueMode
+    // (
+    //     IOobject
+    //     (
+    //         "TmdoeTest",
+    //         mesh.time().timeName(),
+    //         refElementMesh,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     refElementMesh,
+    //     dimless
+    // );
+
+    // forAll(mesh.cellZones()[0], cellI)
+    // {   
+    //     label cell (mesh.cellZones()[0][cellI]);
+    //     fieldValueMode[cell] = fieldValueSVD.U()(cellI, 0);
+    // }
+    // fieldValueMode.write();
+
+
+    // // mode field value name
+    // for (label iname = 0; iname < modesNum; ++iname)
+    // {
+    //     modeNames[iname] = "Tmode" + name(iname);
+    // }
+
+    // // set mode field value
+    // forAll(modeNames, No_)
+    // {
+    //     // create mode field by copying T
+    //     volScalarField fieldValueMode
+    //     (
+    //         IOobject
+    //         (
+    //             modeNames[No_],
+    //             mesh.time().timeName(),
+    //             mesh,
+    //             IOobject::NO_READ,
+    //             IOobject::AUTO_WRITE
+    //         ),
+    //         T
+    //     );
+
+    //     // set cell value
+    //     forAll(mesh.cellZones(), zoneI)
+    //     {
+    //         forAll(mesh.cellZones()[zoneI], cellI)
+    //         {   
+    //             label cell (mesh.cellZones()[zoneI][cellI]);
+    //             fieldValueMode[cell] = fieldValueSVD.U()(cellI, No_);
+    //         }
+    //     }
+
+    //     // set patch value
+    //     patchType = 0;
+    //     forAll(matchPatchID, patchID)
+    //     {
+    //         forAll(fieldValueMode.boundaryField()[matchPatchID[patchID]], faceI)
+    //         {
+    //             fieldValueMode.boundaryFieldRef()[matchPatchID[patchID]][faceI] = boundaryModesMList[patchType](faceI, No_);
+    //         }
+    //         if((patchID + 1) % 5 == 0)
+    //         {
+    //             patchType += 1;
+    //         }
+    //     }
+
+    //     fieldValueMode.write();
+    // }
+
+    // // create mode field by copying T
+    // volScalarField fieldValueModeTest
+    // (
+    //     IOobject
+    //     (
+    //         modeNames[0],
+    //         mesh.time().timeName(),
+    //         mesh,
+    //         IOobject::READ_IF_PRESENT,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     mesh
+    // );
+
+    // // create mode field by copying T
+    // volVectorField fieldValueModegrad
+    // (
+    //     IOobject
+    //     (
+    //         "grad" + modeNames[0],
+    //         mesh.time().timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     fvc::grad(fieldValueModeTest)
+    // );
+    // fieldValueModegrad.write();
+
+    // // create mode field by copying T
+    // volScalarField fieldValueModelap
+    // (
+    //     IOobject
+    //     (
+    //         "lap" + modeNames[0],
+    //         mesh.time().timeName(),
+    //         mesh,
+    //         IOobject::NO_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     fvc::laplacian(fieldValueModeTest)
+    // );
+    // fieldValueModelap.write();
 
     if(!isDir(mesh.time().path()/"SVD"))
         mkDir(mesh.time().path()/"SVD");
