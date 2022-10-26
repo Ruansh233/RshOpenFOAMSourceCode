@@ -319,14 +319,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < localInFaceMatrix.n(); ++column)
         {
-            localInFaceMatrix(row, column) = -1/2 * lapBoundaryModesMList[0](column, row) & faceNormal 
+            localInFaceMatrix(row, column) = -1/2 * (lapBoundaryModesMList[0](column, row) & faceNormal) 
                                                   * boundaryModesMList[0](row, column)
-                                             +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                  * lapBoundaryModesMList[0](row, column) & faceNormal
-                                             +xigema0/pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+                                             + 1/2 * epsilonPara * boundaryModesMList[0](column, row) 
+                                                  * (lapBoundaryModesMList[0](row, column) & faceNormal)
+                                             + xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
                                                   * boundaryModesMList[0](row, column)
-                                             +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[0](column, row) 
-                                                  & lapBoundaryModesMList[0](row, column);
+                                             + xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[0](column, row) 
+                                                  & lapBoundaryModesMList[0](row, column));
         }
     }
 
@@ -337,14 +337,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < localOutFaceMatrix.n(); ++column)
         {
-            localOutFaceMatrix(row, column) =  1/2 * lapBoundaryModesMList[1](column, row) & faceNormal 
+            localOutFaceMatrix(row, column) =  1/2 * (lapBoundaryModesMList[1](column, row) & faceNormal)
                                                    * boundaryModesMList[1](row, column)
                                               -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
-                                                   * lapBoundaryModesMList[1](row, column) & faceNormal
-                                              +xigema0/pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+                                                   * (lapBoundaryModesMList[1](row, column) & faceNormal)
+                                              +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
                                                    * boundaryModesMList[1](row, column)
-                                              +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[1](column, row) 
-                                                   & lapBoundaryModesMList[1](row, column);
+                                              +xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[1](column, row) 
+                                                   & lapBoundaryModesMList[1](row, column));
         }
     }
 
@@ -355,14 +355,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < localIOFaceMatrix.n(); ++column)
         {
-            localIOFaceMatrix(row, column) = -1/2 * lapBoundaryModesMList[1](column, row) & faceNormal 
+            localIOFaceMatrix(row, column) = -1/2 * (lapBoundaryModesMList[1](column, row) & faceNormal) 
                                                   * boundaryModesMList[0](row, column)
                                              -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
-                                                  * lapBoundaryModesMList[0](row, column) & faceNormal
-                                             +xigema0/pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+                                                  * (lapBoundaryModesMList[0](row, column) & faceNormal)
+                                             -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
                                                   * boundaryModesMList[0](row, column)
-                                             +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[1](column, row) 
-                                                  & lapBoundaryModesMList[0](row, column);
+                                             -xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[1](column, row) 
+                                                  & lapBoundaryModesMList[0](row, column));
         }
     }
 
@@ -373,14 +373,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < localOIFaceMatrix.n(); ++column)
         {
-            localOIFaceMatrix(row, column) =  1/2 * lapBoundaryModesMList[0](column, row) & faceNormal 
+            localOIFaceMatrix(row, column) =  1/2 * (lapBoundaryModesMList[0](column, row) & faceNormal) 
                                                   * boundaryModesMList[1](row, column)
                                              +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                  * lapBoundaryModesMList[1](row, column) & faceNormal
-                                             +xigema0/pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+                                                  * (lapBoundaryModesMList[1](row, column) & faceNormal)
+                                             -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
                                                   * boundaryModesMList[1](row, column)
-                                             +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[0](column, row) 
-                                                  & lapBoundaryModesMList[1](row, column);
+                                             -xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[0](column, row) 
+                                                  & lapBoundaryModesMList[1](row, column));
         }
     }
 
@@ -392,14 +392,12 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < bounInFaceMatrix.n(); ++column)
         {
-            bounInFaceMatrix(row, column) =  1/2 * lapBoundaryModesMList[0](column, row) & faceNormal 
-                                                 * boundaryModesMList[1](row, column)
-                                            +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                 * lapBoundaryModesMList[1](row, column) & faceNormal
-                                            +xigema0/pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-                                                 * boundaryModesMList[1](row, column)
-                                            +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[0](column, row) 
-                                                 & lapBoundaryModesMList[1](row, column);
+            bounInFaceMatrix(row, column) = -(lapBoundaryModesMList[0](column, row) & faceNormal) 
+                                                * boundaryModesMList[0](row, column)
+                                            +epsilonPara * boundaryModesMList[0](column, row) 
+                                                * (lapBoundaryModesMList[0](row, column) & faceNormal)
+                                            +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+                                                * boundaryModesMList[0](row, column);
         }
     }
 
@@ -410,20 +408,32 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < bounOutFaceMatrix.n(); ++column)
         {
-            bounOutFaceMatrix(row, column) =  1/2 * lapBoundaryModesMList[0](column, row) & faceNormal 
-                                                  * boundaryModesMList[1](row, column)
-                                             +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                  * lapBoundaryModesMList[1](row, column) & faceNormal
-                                             +xigema0/pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-                                                  * boundaryModesMList[1](row, column)
-                                             +xigema1/pow(elementVol, beta1) * lapBoundaryModesMList[0](column, row) 
-                                                  & lapBoundaryModesMList[1](row, column);
+            bounOutFaceMatrix(row, column) = -(lapBoundaryModesMList[1](column, row) & faceNormal) 
+                                                * boundaryModesMList[1](row, column)
+                                            +epsilonPara * boundaryModesMList[1](column, row) 
+                                                * (lapBoundaryModesMList[1](row, column) & faceNormal)
+                                            +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+                                                * boundaryModesMList[1](row, column);
         }
     }
 
     // Fin
+    scalar Tin(273.0);
+    RectangularMatrix<scalar> bouninPenaltyMatrix(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < bouninPenaltyMatrix.m(); ++row)
+    {
+        bouninPenaltyMatrix(row, 0) =   (lapBoundaryModesMList[0](column, row) & faceNormal) * Tin
+                                      + +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+    }
 
     // Fout
+    scalar Tout(573.0);
+    RectangularMatrix<scalar> bouninPenaltyMatrix(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < bouninPenaltyMatrix.m(); ++row)
+    {
+        bouninPenaltyMatrix(row, 0) =   (lapBoundaryModesMList[1](column, row) & faceNormal) * Tout
+                                      + +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+    }
 
     // global matrix
 
