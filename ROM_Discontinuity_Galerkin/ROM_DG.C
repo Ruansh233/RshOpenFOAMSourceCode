@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
     // read boundary patch modes matrix and matchPatchID
     PtrList<RectangularMatrix<scalar>> boundaryModesMList;
-    PtrList<RectangularMatrix<vector>> lapBoundaryModesMList(2);
+    PtrList<RectangularMatrix<vector>> gradBoundaryModesMList;
     List<fileName> boundaryModesName({dataPath/"boundaryModes0", dataPath/"boundaryModes1"});
     RectangularMatrix<scalar> boundaryModesM(mesh.C().size(), modesNum);            
 
@@ -132,27 +132,6 @@ int main(int argc, char *argv[])
     //     writeMatrix(boundaryModesMList[matrixI], dataFile);
     // }
 
-    // // matchPatchID
-    // List<label> matchPatchID(2*modesNum);
-    // dataFile = dataPath + "/boundaryPatchID";
-    // label row(0);
-
-    // if(isFile(dataFile))
-    // {                
-    //     IFstream dataStream(dataFile);
-    //     while(dataStream.read(matchPatchID[row]))
-    //     {
-    //         ++row;
-    //     }            
-    // }  
-    // else
-    // {
-    //     Info << "file: " << dataFile << " is not exist!" << endl;
-    //     // break;
-    // }
-    // // Info << matchPatchID << endl;
-
-
     // create field value
     List<fileName> modeNames (modesNum);
     for (label iname = 0; iname < modesNum; ++iname)
@@ -182,6 +161,10 @@ int main(int argc, char *argv[])
     }
     matchPatchID.resize(countNumber);
 
+    // ptrlist to field value
+    PtrList<volScalarField> fieldModesList;
+    PtrList<volVectorField> gradfieldModesList;
+    
     forAll(modeNames, No_)
     {
         volScalarField T
@@ -227,8 +210,16 @@ int main(int argc, char *argv[])
         }
 
         fieldValueMode.write();
+        fieldModesList.append(fieldValueMode.clone());
     }
 
+    // the ptrlist for matchpatch matrix 
+    gradBoundaryModesMList.append(gradModesM.clone());
+    gradBoundaryModesMList.append(gradModesM.clone());
+    gradBoundaryModesMList[0].resize(mesh.boundary()[matchPatchID[0]].size(), modesNum);
+    gradBoundaryModesMList[1].resize(mesh.boundary()[matchPatchID[1]].size(), modesNum);
+
+    // calculate gradModesM and gradBoundaryModesM
     forAll(modeNames, No_)
     {
         // create mode field by copying T
@@ -259,6 +250,7 @@ int main(int argc, char *argv[])
             fvc::grad(fieldValueModeTest)
         );
         fieldValueModegrad.write();
+        gradfieldModesList.append(fieldValueModegrad.clone());
 
         forAll(mesh.C(), cellI)
         {
@@ -267,11 +259,10 @@ int main(int argc, char *argv[])
 
         forAll(matchPatchID, patchID)
         {
-            lapBoundaryModesMList[patchID].resize(fieldValueModegrad.boundaryField()[matchPatchID[patchID]].size(), modesNum);
             forAll(fieldValueModegrad.boundaryField()[matchPatchID[patchID]], faceI)
             {
-                lapBoundaryModesMList[patchID](faceI, No_) = 
-                    fieldValueModegrad.boundaryFieldRef()[matchPatchID[patchID]][faceI];
+                gradBoundaryModesMList[patchID](faceI, No_) = 
+                    fieldValueModegrad.boundaryField()[matchPatchID[patchID]][faceI];
             }
         }
 
@@ -290,153 +281,219 @@ int main(int argc, char *argv[])
         // );
         // fieldValueModelap.write();
     }
+    
+    volScalarField fieldValueModeTest
+    (
+        fieldModesList[0] * fieldModesList[1]
+    );
 
     // create Matrix system
     // initial global matrix
     RectangularMatrix<scalar> globalphiMatrix(modesNum * modesNum, modesNum * modesNum, Foam::Zero);
-    RectangularMatrix<scalar> globalFM(modesNum * modesNum, 1, Foam::Zero);
+    RectangularMatrix<scalar> globalFMmatrix(modesNum * modesNum, 1, Foam::Zero);
+
+    List<scalar> tempList;
+    tempList.resize(mesh.C().size());
 
     // volumtric contribution
     RectangularMatrix<scalar> localphiMatrix(modesNum, modesNum, Foam::Zero);
-
+    // localphiMatrix = gradModesM.T() & gradModesM;
     for (label row = 0; row < localphiMatrix.m(); ++row)
     {
         for (label column = 0; column < localphiMatrix.n(); ++column)
         {
-            localphiMatrix(row, column) = gradModesM(column, row) & gradModesM(row, column);
+            forAll(tempList, ListI)
+            {
+                tempList[ListI] = gradModesM(ListI, row) & gradModesM(ListI, column);
+            }
+            localphiMatrix(row, column) = gSum(tempList);
         }
     }
-    // dataFile = mesh.time().path()/"SVD"/"localphiMatrix";
-    // writeMatrix(localphiMatrix, dataFile);
+    dataFile = mesh.time().path()/"SVD"/"localphiMatrix";
+    writeMatrix(localphiMatrix, dataFile);
 
-    // interface contribution
-    vector faceNormal(0, 0, 1);
-
-    // M11
-    RectangularMatrix<scalar> localInFaceMatrix(modesNum, modesNum, Foam::Zero);
-
-    for (label row = 0; row < localInFaceMatrix.m(); ++row)
+    // volumtric contribution
+    RectangularMatrix<scalar> localphiMatrixTest(modesNum, modesNum, Foam::Zero);
+    // localphiMatrix = gradModesM.T() & gradModesM;
+    for (label row = 0; row < localphiMatrixTest.m(); ++row)
     {
-        for (label column = 0; column < localInFaceMatrix.n(); ++column)
+        for (label column = 0; column < localphiMatrixTest.n(); ++column)
         {
-            localInFaceMatrix(row, column) = -1/2 * (lapBoundaryModesMList[0](column, row) & faceNormal) 
-                                                  * boundaryModesMList[0](row, column)
-                                             + 1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                  * (lapBoundaryModesMList[0](row, column) & faceNormal)
-                                             + xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-                                                  * boundaryModesMList[0](row, column)
-                                             + xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[0](column, row) 
-                                                  & lapBoundaryModesMList[0](row, column));
+            // localphiMatrix(row, column) = gSum(fieldModesList[row] * fieldModesList[column]);
         }
     }
+    dataFile = mesh.time().path()/"SVD"/"localphiMatrixTest";
+    writeMatrix(localphiMatrixTest, dataFile);
 
-    // M22
-    RectangularMatrix<scalar> localOutFaceMatrix(modesNum, modesNum, Foam::Zero);
+    // // interface contribution
+    // vector faceNormal(0, 0, 1);
 
-    for (label row = 0; row < localOutFaceMatrix.m(); ++row)
-    {
-        for (label column = 0; column < localOutFaceMatrix.n(); ++column)
-        {
-            localOutFaceMatrix(row, column) =  1/2 * (lapBoundaryModesMList[1](column, row) & faceNormal)
-                                                   * boundaryModesMList[1](row, column)
-                                              -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
-                                                   * (lapBoundaryModesMList[1](row, column) & faceNormal)
-                                              +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
-                                                   * boundaryModesMList[1](row, column)
-                                              +xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[1](column, row) 
-                                                   & lapBoundaryModesMList[1](row, column));
-        }
-    }
+    // // M11
+    // RectangularMatrix<scalar> localInFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // M12
-    RectangularMatrix<scalar> localIOFaceMatrix(modesNum, modesNum, Foam::Zero);
+    // for (label row = 0; row < localInFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < localInFaceMatrix.n(); ++column)
+    //     {
+    //         localInFaceMatrix(row, column) = -1/2 * (gradBoundaryModesMList[0](column, row) & faceNormal) 
+    //                                               * boundaryModesMList[0](row, column)
+    //                                          + 1/2 * epsilonPara * boundaryModesMList[0](column, row) 
+    //                                               * (gradBoundaryModesMList[0](row, column) & faceNormal)
+    //                                          + xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+    //                                               * boundaryModesMList[0](row, column)
+    //                                          + xigema1/Foam::pow(elementVol, beta1) * (gradBoundaryModesMList[0](column, row) 
+    //                                               & gradBoundaryModesMList[0](row, column));
+    //     }
+    // }
 
-    for (label row = 0; row < localIOFaceMatrix.m(); ++row)
-    {
-        for (label column = 0; column < localIOFaceMatrix.n(); ++column)
-        {
-            localIOFaceMatrix(row, column) = -1/2 * (lapBoundaryModesMList[1](column, row) & faceNormal) 
-                                                  * boundaryModesMList[0](row, column)
-                                             -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
-                                                  * (lapBoundaryModesMList[0](row, column) & faceNormal)
-                                             -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
-                                                  * boundaryModesMList[0](row, column)
-                                             -xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[1](column, row) 
-                                                  & lapBoundaryModesMList[0](row, column));
-        }
-    }
+    // // M22
+    // RectangularMatrix<scalar> localOutFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // M21
-    RectangularMatrix<scalar> localOIFaceMatrix(modesNum, modesNum, Foam::Zero);
+    // for (label row = 0; row < localOutFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < localOutFaceMatrix.n(); ++column)
+    //     {
+    //         localOutFaceMatrix(row, column) =  1/2 * (gradBoundaryModesMList[1](column, row) & faceNormal)
+    //                                                * boundaryModesMList[1](row, column)
+    //                                           -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
+    //                                                * (gradBoundaryModesMList[1](row, column) & faceNormal)
+    //                                           +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+    //                                                * boundaryModesMList[1](row, column)
+    //                                           +xigema1/Foam::pow(elementVol, beta1) * (gradBoundaryModesMList[1](column, row) 
+    //                                                & gradBoundaryModesMList[1](row, column));
+    //     }
+    // }
 
-    for (label row = 0; row < localOIFaceMatrix.m(); ++row)
-    {
-        for (label column = 0; column < localOIFaceMatrix.n(); ++column)
-        {
-            localOIFaceMatrix(row, column) =  1/2 * (lapBoundaryModesMList[0](column, row) & faceNormal) 
-                                                  * boundaryModesMList[1](row, column)
-                                             +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
-                                                  * (lapBoundaryModesMList[1](row, column) & faceNormal)
-                                             -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-                                                  * boundaryModesMList[1](row, column)
-                                             -xigema1/Foam::pow(elementVol, beta1) * (lapBoundaryModesMList[0](column, row) 
-                                                  & lapBoundaryModesMList[1](row, column));
-        }
-    }
+    // // M12
+    // RectangularMatrix<scalar> localIOFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // boundary penalty terms
-    // Min
-    RectangularMatrix<scalar> bounInFaceMatrix(modesNum, modesNum, Foam::Zero);
+    // for (label row = 0; row < localIOFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < localIOFaceMatrix.n(); ++column)
+    //     {
+    //         localIOFaceMatrix(row, column) = -1/2 * (gradBoundaryModesMList[1](column, row) & faceNormal) 
+    //                                               * boundaryModesMList[0](row, column)
+    //                                          -1/2 * epsilonPara * boundaryModesMList[1](column, row) 
+    //                                               * (gradBoundaryModesMList[0](row, column) & faceNormal)
+    //                                          -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+    //                                               * boundaryModesMList[0](row, column)
+    //                                          -xigema1/Foam::pow(elementVol, beta1) * (gradBoundaryModesMList[1](column, row) 
+    //                                               & gradBoundaryModesMList[0](row, column));
+    //     }
+    // }
 
-    for (label row = 0; row < bounInFaceMatrix.m(); ++row)
-    {
-        for (label column = 0; column < bounInFaceMatrix.n(); ++column)
-        {
-            bounInFaceMatrix(row, column) = -(lapBoundaryModesMList[0](column, row) & faceNormal) 
-                                                * boundaryModesMList[0](row, column)
-                                            +epsilonPara * boundaryModesMList[0](column, row) 
-                                                * (lapBoundaryModesMList[0](row, column) & faceNormal)
-                                            +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-                                                * boundaryModesMList[0](row, column);
-        }
-    }
+    // // M21
+    // RectangularMatrix<scalar> localOIFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // Mout
-    RectangularMatrix<scalar> bounOutFaceMatrix(modesNum, modesNum, Foam::Zero);
+    // for (label row = 0; row < localOIFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < localOIFaceMatrix.n(); ++column)
+    //     {
+    //         localOIFaceMatrix(row, column) =  1/2 * (gradBoundaryModesMList[0](column, row) & faceNormal) 
+    //                                               * boundaryModesMList[1](row, column)
+    //                                          +1/2 * epsilonPara * boundaryModesMList[0](column, row) 
+    //                                               * (gradBoundaryModesMList[1](row, column) & faceNormal)
+    //                                          -xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+    //                                               * boundaryModesMList[1](row, column)
+    //                                          -xigema1/Foam::pow(elementVol, beta1) * (gradBoundaryModesMList[0](column, row) 
+    //                                               & gradBoundaryModesMList[1](row, column));
+    //     }
+    // }
 
-    for (label row = 0; row < bounOutFaceMatrix.m(); ++row)
-    {
-        for (label column = 0; column < bounOutFaceMatrix.n(); ++column)
-        {
-            bounOutFaceMatrix(row, column) = -(lapBoundaryModesMList[1](column, row) & faceNormal) 
-                                                * boundaryModesMList[1](row, column)
-                                            +epsilonPara * boundaryModesMList[1](column, row) 
-                                                * (lapBoundaryModesMList[1](row, column) & faceNormal)
-                                            +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
-                                                * boundaryModesMList[1](row, column);
-        }
-    }
+    // // boundary penalty terms
+    // // Min
+    // RectangularMatrix<scalar> bounInFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // Fin
-    scalar Tin(273.0);
-    RectangularMatrix<scalar> bouninPenaltyMatrix(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < bouninPenaltyMatrix.m(); ++row)
-    {
-        bouninPenaltyMatrix(row, 0) =   (lapBoundaryModesMList[0](column, row) & faceNormal) * Tin
-                                      + +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
-    }
+    // for (label row = 0; row < bounInFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < bounInFaceMatrix.n(); ++column)
+    //     {
+    //         bounInFaceMatrix(row, column) = -(gradBoundaryModesMList[0](column, row) & faceNormal) 
+    //                                             * boundaryModesMList[0](row, column)
+    //                                         +epsilonPara * boundaryModesMList[0](column, row) 
+    //                                             * (gradBoundaryModesMList[0](row, column) & faceNormal)
+    //                                         +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](column, row) 
+    //                                             * boundaryModesMList[0](row, column);
+    //     }
+    // }
 
-    // Fout
-    scalar Tout(573.0);
-    RectangularMatrix<scalar> bouninPenaltyMatrix(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < bouninPenaltyMatrix.m(); ++row)
-    {
-        bouninPenaltyMatrix(row, 0) =   (lapBoundaryModesMList[1](column, row) & faceNormal) * Tout
-                                      + +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
-    }
+    // // Mout
+    // RectangularMatrix<scalar> bounOutFaceMatrix(modesNum, modesNum, Foam::Zero);
 
-    // global matrix
+    // for (label row = 0; row < bounOutFaceMatrix.m(); ++row)
+    // {
+    //     for (label column = 0; column < bounOutFaceMatrix.n(); ++column)
+    //     {
+    //         bounOutFaceMatrix(row, column) = -(gradBoundaryModesMList[1](column, row) & faceNormal) 
+    //                                             * boundaryModesMList[1](row, column)
+    //                                         +epsilonPara * boundaryModesMList[1](column, row) 
+    //                                             * (gradBoundaryModesMList[1](row, column) & faceNormal)
+    //                                         +xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](column, row) 
+    //                                             * boundaryModesMList[1](row, column);
+    //     }
+    // }
 
+    // // Fin
+    // scalar Tin(273.0);
+    // RectangularMatrix<scalar> bounInPenaltyMatrix(modesNum, 1, Foam::Zero);
+    // for (label row = 0; row < bounInPenaltyMatrix.m(); ++row)
+    // {
+        
+        
+        
+    //     for(label column = 0; column < gradBoundaryModesMList.n(); ++column)
+    //     bounInPenaltyMatrix(row, 0) =  (gradBoundaryModesMList[0](0, row) & faceNormal) * Tin
+    //                                   + xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[0](0, row);
+    // }
+
+    // // Fout
+    // scalar Tout(573.0);
+    // RectangularMatrix<scalar> bounOutPenaltyMatrix(modesNum, 1, Foam::Zero);
+    // for (label row = 0; row < bounOutPenaltyMatrix.m(); ++row)
+    // {
+    //     // for(label column = 0; column < bounOutFaceMatrix.n(); ++column)
+    //     bounOutPenaltyMatrix(row, 0) =   (gradBoundaryModesMList[1](0, row) & faceNormal) * Tout
+    //                                   + xigema0/Foam::pow(elementVol, beta0) * boundaryModesMList[1](0, row);
+    // }
+
+    // // global matrix
+    // // global phi matrix
+    // for (label row = 0; row < modesNum; ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         globalphiMatrix(row, column) = localphiMatrix(row, column) + localInFaceMatrix(row, column) 
+    //                                         + bounInFaceMatrix(row, column);
+    //     }
+    // }
+
+    // for(label elementI = 1; elementI < 4 ; ++elementI)
+    // {
+    //     for (label row = 0; row < modesNum; ++row)
+    //     {
+    //         for (label column = 0; column < modesNum; ++column)
+    //         {
+    //             globalphiMatrix(row+elementI*modesNum, column+elementI*modesNum) =  localphiMatrix(row, column) 
+    //                                                                     + localOutFaceMatrix(row, column) 
+    //                                                                     + bounInFaceMatrix(row, column);
+    //         }
+    //     }
+    // }
+
+    // for (label row = 0; row < modesNum; ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         globalphiMatrix((modesNum-1)*modesNum, (modesNum-1)*modesNum) =  localphiMatrix(row, column) 
+    //                                                                        + localOutFaceMatrix(row, column) 
+    //                                                                        + bounOutFaceMatrix(row, column);
+    //     }
+    // }
+
+
+    // global F matrix
+
+    
     
 
     // solve matrix system
