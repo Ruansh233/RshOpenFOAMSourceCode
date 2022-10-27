@@ -287,6 +287,8 @@ int main(int argc, char *argv[])
         fieldModesList[0] * fieldModesList[1]
     );
 
+    Info << gSum(volScalarField (fieldModesList[0] * fieldModesList[1]))<< endl;
+
     // create Matrix system
     // initial global matrix
     RectangularMatrix<scalar> globalphiMatrix(modesNum * modesNum, modesNum * modesNum, Foam::Zero);
