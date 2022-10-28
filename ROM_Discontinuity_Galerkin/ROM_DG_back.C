@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
 
     // read boundary patch modes matrix and matchPatchID
     PtrList<RectangularMatrix<scalar>> boundaryModesMList;
+    PtrList<RectangularMatrix<vector>> gradBoundaryModesMList;
     List<fileName> boundaryModesName({dataPath/"boundaryModes0", dataPath/"boundaryModes1"});
     RectangularMatrix<scalar> boundaryModesM(mesh.C().size(), modesNum);            
 
@@ -212,11 +213,11 @@ int main(int argc, char *argv[])
         fieldModesList.append(fieldValueMode.clone());
     }
 
-    PtrList<FieldField<Foam::fvPatchField, scalar>> fieldBundaryModesList;
-    forAll(fieldModesList, ListI)
-    {
-        fieldBundaryModesList.append(fieldModesList[ListI].boundaryField().clone());
-    }
+    // the ptrlist for matchpatch matrix 
+    gradBoundaryModesMList.append(gradModesM.clone());
+    gradBoundaryModesMList.append(gradModesM.clone());
+    gradBoundaryModesMList[0].resize(mesh.boundary()[matchPatchID[0]].size(), modesNum);
+    gradBoundaryModesMList[1].resize(mesh.boundary()[matchPatchID[1]].size(), modesNum);
 
     // calculate gradModesM and gradBoundaryModesM
     forAll(modeNames, No_)
@@ -251,6 +252,20 @@ int main(int argc, char *argv[])
         fieldValueModegrad.write();
         gradfieldModesList.append(fieldValueModegrad.clone());
 
+        forAll(mesh.C(), cellI)
+        {
+            gradModesM[cellI][No_] = fieldValueModegrad[cellI];
+        }
+
+        forAll(matchPatchID, patchID)
+        {
+            forAll(fieldValueModegrad.boundaryField()[matchPatchID[patchID]], faceI)
+            {
+                gradBoundaryModesMList[patchID](faceI, No_) = 
+                    fieldValueModegrad.boundaryField()[matchPatchID[patchID]][faceI];
+            }
+        }
+
         // // create mode field by copying T
         // volScalarField fieldValueModelap
         // (
@@ -266,6 +281,16 @@ int main(int argc, char *argv[])
         // );
         // fieldValueModelap.write();
     }
+
+    // for (label row = 0; row < gradfieldModesList[0].m(); ++row)
+    // {
+    //     for (label column = 0; column < gradfieldModesList[1].n(); ++column)
+    //     {
+    //         // localphiMatrix(row, column) = gSum(fieldModesList[row] * fieldModesList[column]);
+    //     }
+    // }
+
+    // Info << gradModesM.subColumn(0).T() & gradModesM.subColumn(1) << endl; 
 
     // // The following two statement are equal
     // // ---1 is matrix multiplation
