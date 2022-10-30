@@ -829,5 +829,6 @@ $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCase.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/foamDlOpenLibs.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createTime.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/createMesh.H \
+readDGdict.H \
 
 #END

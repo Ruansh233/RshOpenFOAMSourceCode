@@ -44,15 +44,8 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
 
     fileName dataPath (mesh.time().path()/"SVD");
-    label modesNum(5);
-    scalar heatConductivity(1.0);
 
-    // Discontinuity galerkin method parameters, add to dict reading later
-    scalar epsilonPara(-1.0);
-    scalar xigema0(100.0);
-    scalar xigema1(0.0);
-    scalar beta0(1.0);
-    scalar beta1(1.0);
+    #include "readDGdict.H"
 
     // element volume
     scalar elementVol(gSum(mesh.V()));
@@ -270,6 +263,21 @@ int main(int argc, char *argv[])
         //     fvc::laplacian(fieldValueModeTest)
         // );
         // fieldValueModelap.write();
+
+        // create mode field by copying T
+        volScalarField fieldValueModegradz
+        (
+            IOobject
+            (
+                "gradz_" + modeNames[No_],
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fieldValueModegrad.component(vector::Z)
+        );
+        fieldValueModegradz.write();
     }
 
     // // The following two statement are equal
@@ -299,8 +307,8 @@ int main(int argc, char *argv[])
 
     // create Matrix system
     // initial global matrix
-    RectangularMatrix<scalar> globalphiMatrix(modesNum * modesNum, modesNum * modesNum, Foam::Zero);
-    RectangularMatrix<scalar> globalFMmatrix(modesNum * modesNum, 1, Foam::Zero);
+    RectangularMatrix<scalar> globalphiMatrix(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<scalar> globalFMmatrix(modesNum * elementNum, 1, Foam::Zero);
 
     List<scalar> tempList;
     tempList.resize(mesh.C().size());
@@ -332,7 +340,7 @@ int main(int argc, char *argv[])
 
 
     // interface contribution
-    vector faceNormal(0, 0, 1);
+    vector interfaceNormal(0, 0, 1);
 
     // M11
     RectangularMatrix<scalar> M11(modesNum, modesNum, Foam::Zero);
@@ -344,8 +352,8 @@ int main(int argc, char *argv[])
         {
             M11(row, column) = gSum(scalarField (
                                             - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & faceNormal) 
-                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & faceNormal) 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
+                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
                                                 * fieldBundaryModesList[column][bundaryPatch1]
                                             + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
                                                 * fieldBundaryModesList[column][bundaryPatch1]
@@ -367,8 +375,8 @@ int main(int argc, char *argv[])
         {
             M22(row, column) = gSum(scalarField (
                                               0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & faceNormal) 
-                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & faceNormal) 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
+                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
                                                 * fieldBundaryModesList[column][bundaryPatch2]
                                             + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
                                                 * fieldBundaryModesList[column][bundaryPatch2]
@@ -388,8 +396,8 @@ int main(int argc, char *argv[])
         {
             M12(row, column) = gSum(scalarField (
                                             - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & faceNormal) 
-                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & faceNormal) 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
+                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
                                                 * fieldBundaryModesList[column][bundaryPatch2]
                                             - xigema0 * fieldBundaryModesList[row][bundaryPatch1]
                                                 * fieldBundaryModesList[column][bundaryPatch2]
@@ -409,8 +417,8 @@ int main(int argc, char *argv[])
         {
             M21(row, column) = gSum(scalarField (
                                               0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & faceNormal) 
-                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & faceNormal) 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
+                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
                                                 * fieldBundaryModesList[column][bundaryPatch1]
                                             - xigema0 * fieldBundaryModesList[row][bundaryPatch2]
                                                 * fieldBundaryModesList[column][bundaryPatch1]
@@ -424,6 +432,7 @@ int main(int argc, char *argv[])
     // boundary penalty terms
     // Min
     RectangularMatrix<scalar> Min(modesNum, modesNum, Foam::Zero);
+    vector inletfaceNormal(0, 0, -1);
 
     for (label row = 0; row < Min.m(); ++row)
     {
@@ -431,8 +440,8 @@ int main(int argc, char *argv[])
         {
             Min(row, column) = gSum(scalarField (
                                 - heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                    * (gradfieldBundaryModesList[column][bundaryPatch1] & faceNormal) 
-                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & faceNormal) 
+                                    * (gradfieldBundaryModesList[column][bundaryPatch1] & inletfaceNormal) 
+                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
                                     * fieldBundaryModesList[column][bundaryPatch1]
                                 + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
                                     * fieldBundaryModesList[column][bundaryPatch1]));
@@ -443,6 +452,7 @@ int main(int argc, char *argv[])
 
     // Mout
     RectangularMatrix<scalar> Mout(modesNum, modesNum, Foam::Zero);
+    vector outletfaceNormal(0, 0, 1);
 
     for (label row = 0; row < Mout.m(); ++row)
     {
@@ -450,8 +460,8 @@ int main(int argc, char *argv[])
         {
             Mout(row, column) = gSum(scalarField (
                                 - heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                    * (gradfieldBundaryModesList[column][bundaryPatch2] & faceNormal) 
-                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & faceNormal) 
+                                    * (gradfieldBundaryModesList[column][bundaryPatch2] & outletfaceNormal) 
+                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
                                     * fieldBundaryModesList[column][bundaryPatch2]
                                 + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
                                     * fieldBundaryModesList[column][bundaryPatch2]));
@@ -466,7 +476,7 @@ int main(int argc, char *argv[])
     for (label row = 0; row < Fin.m(); ++row)
     {
         Fin(row, 0) = gSum(scalarField (
-                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & faceNormal) 
+                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
                             * Tin
                             + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
                             * Tin));
@@ -478,7 +488,7 @@ int main(int argc, char *argv[])
     for (label row = 0; row < Fout.m(); ++row)
     {
         Fout(row, 0) = gSum(scalarField (
-                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & faceNormal) 
+                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
                             * Tout
                             + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
                             * Tout));
@@ -495,7 +505,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    for(label elementI = 1; elementI < 4 ; ++elementI)
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
     {
         for (label row = 0; row < modesNum; ++row)
         {
@@ -511,12 +521,12 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < modesNum; ++column)
         {
-            globalphiMatrix(row+(modesNum-1)*modesNum, column+(modesNum-1)*modesNum) =  localphiMatrix(row, column) 
+            globalphiMatrix(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  localphiMatrix(row, column) 
                                                                            + M22(row, column) + Mout(row, column);
         }
     }
 
-    for(label elementI = 0; elementI < 4 ; ++elementI)
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
     {
         for (label row = 0; row < modesNum; ++row)
         {
@@ -527,7 +537,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    for(label elementI = 0; elementI < 4 ; ++elementI)
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
     {
         for (label row = 0; row < modesNum; ++row)
         {
@@ -549,16 +559,32 @@ int main(int argc, char *argv[])
 
     for (label row = 0; row < modesNum; ++row)
     {
-        globalFMmatrix(row+(modesNum-1)*modesNum, 0) = Fout(row, 0);
+        globalFMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0);
     }
+    dataFile = mesh.time().path()/"SVD"/"globalFMmatrix";
+    writeMatrix(globalFMmatrix, dataFile);
 
 
     // solve matrix system
-    RectangularMatrix<scalar> calCoefficientM;
-    calCoefficientM = SVDinv(globalphiMatrix) * globalFMmatrix;
+    RectangularMatrix<scalar> tempCalCoefficientM;
+    RectangularMatrix<scalar> calCoefficientM(modesNum, elementNum);
+    tempCalCoefficientM = SVDinv(globalphiMatrix) * globalFMmatrix;
+    for (label row = 0; row < calCoefficientM.m(); ++row)
+    {
+        for (label column = 0; column < calCoefficientM.n(); ++column)
+        {
+            calCoefficientM(row, column) =  tempCalCoefficientM(row+column*modesNum, 0);
+        }
+    }
     dataFile = mesh.time().path()/"SVD"/"calCoefficientM";
     writeMatrix(calCoefficientM, dataFile);
 
+
+    // calculate snapshots
+    RectangularMatrix<scalar> calSnapshotsM;
+    calSnapshotsM = modesM * calCoefficientM;
+    dataFile = mesh.time().path()/"SVD"/"calSnapshotsM";
+    writeMatrix(calSnapshotsM, dataFile);
 
     return 0;
 }
