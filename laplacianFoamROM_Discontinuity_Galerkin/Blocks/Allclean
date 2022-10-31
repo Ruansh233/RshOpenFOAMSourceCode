@@ -5,11 +5,11 @@ cd "${0%/*}" || exit                                # Run from this directory
 
 cleanTimeDirectories
 
-if [ "$(ls -A SVD)" ]; 
-    then
-    rm -r SVD/*
-	else
-    echo "SVD is Empty"
-fi
+# if [ "$(ls -A SVD)" ]; 
+#     then
+#     rm -r SVD/*
+# 	else
+#     echo "SVD is Empty"
+# fi
 
 #------------------------------------------------------------------------------

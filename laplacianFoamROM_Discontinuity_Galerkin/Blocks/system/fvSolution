@@ -25,10 +25,10 @@ solvers
     }
 }
 
-SIMPLE
-{
-    nNonOrthogonalCorrectors 2;
-}
+// SIMPLE
+// {
+//     nNonOrthogonalCorrectors 2;
+// }
 
 
 // ************************************************************************* //
