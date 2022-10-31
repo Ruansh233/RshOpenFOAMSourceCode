@@ -583,6 +583,47 @@ int main(int argc, char *argv[])
     dataFile = mesh.time().path()/"SVD"/"calSnapshotsM";
     writeMatrix(calSnapshotsM, dataFile);
 
+
+    // The error matrix
+    dataFile = dataPath/"snapshotsM";
+    RectangularMatrix<scalar> snapshotsM(mesh.C().size(), elementNum);
+    if(isFile(dataFile))
+    {                
+        IFstream dataStream(dataFile);
+        word dataLine;
+        label row(0);
+
+        while(dataStream.getLine(dataLine) && dataLine != word::null)
+        {
+            IStringStream dataString (dataLine);
+            token singleData;  // token stores the data read from IFstream 
+
+            for(label elementI = 0; elementI < elementNum; ++elementI)
+            {
+                dataString.read(singleData);    
+                snapshotsM(row, elementI) = singleData.scalarToken();
+            }   
+            ++row;
+        }                       
+    }  
+    else
+    {
+        Info << "file: " << dataFile << " is not exist!" << endl;
+        // break;
+    }
+
+    RectangularMatrix<scalar> errorM(mesh.C().size(), elementNum);
+    for (label row = 0; row < errorM.m(); ++row)
+    {
+        for (label column = 0; column < errorM.n(); ++column)
+        {
+            errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column))/snapshotsM(row, column);
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"errorM";
+    writeMatrix(errorM, dataFile);    
+
+
     return 0;
 }
 

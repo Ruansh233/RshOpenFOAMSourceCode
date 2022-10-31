@@ -17,7 +17,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 // system parameter
-modesNum                3;
+modesNum                2;
 elementNum              5;
 
 // Discontinuity galerkin method parameters, add to dict reading later
