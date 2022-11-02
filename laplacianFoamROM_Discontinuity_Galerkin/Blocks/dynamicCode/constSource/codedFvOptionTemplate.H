@@ -131,7 +131,7 @@ class constSourceFvOptionscalarSource
 public:
 
     //- SHA1 representation of the code content
-    static constexpr const char* const SHA1sum = "4371f14db72d9e067daf63d1ef80a24ac303d2a8";
+    static constexpr const char* const SHA1sum = "1270e31d939fb5c5f582428782dce9c90bf3cbb1";
 
     //- Runtime type information
     TypeName("constSource");

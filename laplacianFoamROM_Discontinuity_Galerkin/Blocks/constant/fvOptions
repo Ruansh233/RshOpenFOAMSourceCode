@@ -44,26 +44,9 @@ codedSource
 
             // heSource[cellI] = 10.0*(sin(relx) + sin(rely) + sin(relz))*V[cellI] + 100.0*V[cellI];
 
-            heSource[cellI] = 1.0e3*(sin(relz) + 0.1)*V[cellI];
+            heSource[cellI] = 5.0e2*cos(relz)*V[cellI];
 
         };
-        
-        volScalarField addedSource
-        (
-            IOobject
-            (
-                "addedSource",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh_,
-            dimless,
-            heSource
-        );
-        addedSource.write();
-
     #};
 
     codeCorrect

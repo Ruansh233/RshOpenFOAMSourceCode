@@ -56,11 +56,11 @@ namespace fv
 // * * * * * * * * * * * * * * * Global Functions  * * * * * * * * * * * * * //
 
 // dynamicCode:
-// SHA1 = 4371f14db72d9e067daf63d1ef80a24ac303d2a8
+// SHA1 = 1270e31d939fb5c5f582428782dce9c90bf3cbb1
 //
 // unique function name that can be checked if the correct library version
 // has been loaded
-extern "C" void constSource_4371f14db72d9e067daf63d1ef80a24ac303d2a8(bool load)
+extern "C" void constSource_1270e31d939fb5c5f582428782dce9c90bf3cbb1(bool load)
 {
     if (load)
     {
@@ -167,25 +167,9 @@ const scalarField& V = mesh_.V();
 
             // heSource[cellI] = 10.0*(sin(relx) + sin(rely) + sin(relz))*V[cellI] + 100.0*V[cellI];
 
-            heSource[cellI] = 1.0e3*(cos(relz) + 0.1)*V[cellI];
+            heSource[cellI] = 5.0e2*cos(relz)*V[cellI];
 
         };
-        
-        volScalarField addedSource
-        (
-            IOobject
-            (
-                "addedSource",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh_,
-            dimless,
-            heSource
-        );
-        addedSource.write();
 //}}} end code
 }
 
@@ -223,25 +207,9 @@ const scalarField& V = mesh_.V();
 
             // heSource[cellI] = 10.0*(sin(relx) + sin(rely) + sin(relz))*V[cellI] + 100.0*V[cellI];
 
-            heSource[cellI] = 1.0e3*(cos(relz) + 0.1)*V[cellI];
+            heSource[cellI] = 5.0e2*cos(relz)*V[cellI];
 
         };
-        
-        volScalarField addedSource
-        (
-            IOobject
-            (
-                "addedSource",
-                mesh_.time().timeName(),
-                mesh_,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh_,
-            dimless,
-            heSource
-        );
-        addedSource.write();
 //}}} end code
 }
 
