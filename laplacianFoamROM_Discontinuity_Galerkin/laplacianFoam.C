@@ -121,6 +121,67 @@ int main(int argc, char *argv[])
 
     Info<< "\nThe solver is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
+    // // ------------------------------------------------------------------------
+    // // Rsh, very important, access field value data from other cases
+
+    // Info<< "\ntest:\n" << endl;
+
+    // // create new time object for other cases
+    // Foam::Time runTimeTest
+    // (
+    //     Foam::Time::controlDictName,
+    //     args.rootPath(),
+    //     // args.caseName(),
+    //     "Block1",
+    //     "system",
+    //     "constant"
+    // );
+
+    // // create new mesh object for other cases
+    // fvMesh  refElementMesh
+    // (
+    //     IOobject
+    //     (
+    //         polyMesh::defaultRegion,
+    //         args.rootPath()/"Block1"/"constant",
+    //         runTimeTest,
+    //         IOobject::MUST_READ
+    //     ),
+    //     false
+    // );
+
+    // // create test modes
+    // volScalarField testFieldValue
+    // (
+    //     IOobject
+    //     (
+    //         "T",
+    //         runTimeTest.timeName(),
+    //         refElementMesh,
+    //         IOobject::MUST_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     refElementMesh
+    // );
+
+    // // laplacian of test field value
+    // volScalarField testlap
+    // (
+    //     IOobject
+    //     (
+    //         "testlap",
+    //         runTimeTest.timeName(),
+    //         refElementMesh,
+    //         IOobject::MUST_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     fvc::laplacian(testFieldValue)
+    // );
+
+    // // write the field to new cases folder
+    // testlap.write();
+    // // ------------------------------------------------------------------------
+
     return 0;
 }
 
