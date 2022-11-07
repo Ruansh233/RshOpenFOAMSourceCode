@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
 
     fileName dataPath (mesh.time().path()/"SVD");
 
-    label elementNum (5);
+    label elementNum (mesh.cellZones().size());
 
     // read the matrix
     // read cell modes matrix
