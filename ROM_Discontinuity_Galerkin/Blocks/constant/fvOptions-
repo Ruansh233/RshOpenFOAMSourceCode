@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.7.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+codedSource
+{
+    type            scalarCodedSource;
+    selectionMode   all;
+
+    fields          (T);
+    name            constSource;
+
+    codeAddSup
+    #{
+        const scalarField& V = mesh_.V();
+        scalarField& heSource = eqn.source();
+
+        // Retrieve the x component of the cell centres
+        const scalarField& cellx = mesh_.C().component(0);
+        const scalarField& celly = mesh_.C().component(1);
+        const scalarField& cellz = mesh_.C().component(2);
+
+        // Apply the source
+        forAll(mesh_.C(), cellI)
+        {
+            // // cell volume specific source
+            // scalar relx = cellx[cellI]*constant::mathematical::pi;
+            // scalar rely = celly[cellI]*constant::mathematical::pi;
+            scalar relz = cellz[cellI]/(gMax(cellz)-gMin(cellz))*constant::mathematical::pi;
+
+            // heSource[cellI] = 10.0*(sin(relx) + sin(rely) + sin(relz))*V[cellI] + 100.0*V[cellI];
+
+            heSource[cellI] = 5.0e2*cos(relz)*V[cellI];
+
+        };
+    #};
+
+    codeCorrect
+    #{
+    #};
+
+    codeConstrain
+    #{
+    #};   
+}
+
+// ************************************************************************* //

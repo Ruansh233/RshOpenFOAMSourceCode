@@ -17,13 +17,13 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 // system parameter
-modesNum                2;
+modesNum                3;
 elementNum              5;
 
 // Discontinuity galerkin method parameters, add to dict reading later
 epsilonPara             1.0;
-xigema0                 100000.0;
-xigema1                 10000.0;
+xigema0                 100000000.0;
+xigema1                 100000.0;
 beta0                   1.0;
 beta1                   1.0;
 
@@ -31,6 +31,7 @@ beta1                   1.0;
 heatConductivity        2.5e-3;
 Tin                     273.0;
 Tout                    573.0;
+qn                      2.0e3;
 
 
 // ************************************************************************* //

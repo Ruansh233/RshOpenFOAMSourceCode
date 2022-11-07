@@ -1,0 +1,142 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// General m4 macros
+
+  
+
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// geometric parameters defined by the user
+
+scale 0.001;
+
+// input parameter
+
+                                
+
+// point coordinate
+
+
+
+
+
+
+
+
+
+
+
+
+// Number of nodes
+;
+;                                          
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// parametric description of the geometry
+
+vertices
+(
+    //in
+    (-5  -5  0) // Vertex q01 = 0 
+    (5  -5  0) // Vertex q02 = 1 
+
+    (5  5  0) // Vertex q03 = 2 
+    (-5  5  0) // Vertex q04 = 3 
+
+    //out
+    (-5  -5  20) // Vertex q05 = 4 
+    (5  -5  20) // Vertex q06 = 5  
+
+    (5  5  20) // Vertex q07 = 6 
+    (-5  5  20) // Vertex q08 = 7 
+
+);
+
+
+blocks
+( 
+    // x y z of the block must equal to the coordinate of points
+    hex (0 1 2 3 4 5 6 7) (10 10 20) simpleGrading (1 1 1)
+);
+
+
+// edges 
+// (
+// );  
+
+boundary
+(
+    block1_in
+    {
+       type patch;
+       faces    
+       (
+        (0 1 2 3) 
+       );
+    }
+
+    block1_out
+    {
+       type patch;
+       faces    
+       (
+        (4 5 6 7) 
+       );
+    }
+
+    block1_wall1
+    {
+       type wall;
+       faces    
+       (
+        (0 4 7 3) 
+       );
+    }
+
+    block1_wall2
+    {
+       type wall;
+       faces    
+       (
+        (3 7 6 2) 
+       );
+    }
+
+    block1_wall3
+    {
+       type wall;
+       faces    
+       (
+        (2 6 5 1) 
+       );
+    }
+
+    block1_wall4
+    {
+       type wall;
+       faces    
+       (
+        (0 4 5 1) 
+       );
+    }
+
+
+);
+
+// ************************************************************************* //
+

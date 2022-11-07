@@ -1,0 +1,255 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2106                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       polyBoundaryMesh;
+    location    "1/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+30
+(
+    block1_in
+    {
+        type            patch;
+        nFaces          300;
+        startFace       84500;
+    }
+    block1_wall1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       84800;
+    }
+    block1_wall2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       85400;
+    }
+    block1_wall3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       85600;
+    }
+    block1_wall4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       86200;
+    }
+    block2_wall1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       86400;
+    }
+    block2_wall2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       87000;
+    }
+    block2_wall3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       87200;
+    }
+    block2_wall4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       87800;
+    }
+    block3_wall1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       88000;
+    }
+    block3_wall2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       88600;
+    }
+    block3_wall3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       88800;
+    }
+    block3_wall4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       89400;
+    }
+    block4_wall1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       89600;
+    }
+    block4_wall2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       90200;
+    }
+    block4_wall3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       90400;
+    }
+    block4_wall4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       91000;
+    }
+    block5_out
+    {
+        type            patch;
+        nFaces          300;
+        startFace       91200;
+    }
+    block5_wall1
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       91500;
+    }
+    block5_wall2
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       92100;
+    }
+    block5_wall3
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          600;
+        startFace       92300;
+    }
+    block5_wall4
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          200;
+        startFace       92900;
+    }
+    interface_block1_out
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       93100;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block2_in;
+    }
+    interface_block2_in
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       93400;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block1_out;
+    }
+    interface_block2_out
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       93700;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block3_in;
+    }
+    interface_block3_in
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       94000;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block2_out;
+    }
+    interface_block3_out
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       94300;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block4_in;
+    }
+    interface_block4_in
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       94600;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block3_out;
+    }
+    interface_block4_out
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       94900;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block5_in;
+    }
+    interface_block5_in
+    {
+        type            cyclic;
+        inGroups        1(cyclic);
+        nFaces          300;
+        startFace       95200;
+        matchTolerance  0.0001;
+        transform       coincidentFullMatch;
+        neighbourPatch  interface_block4_out;
+    }
+)
+
+// ************************************************************************* //

@@ -86,13 +86,14 @@ int main(int argc, char *argv[])
 
     // read boundary patch modes matrix and matchPatchID
     PtrList<RectangularMatrix<scalar>> boundaryModesMList;
-    List<fileName> boundaryModesName({dataPath/"boundaryModes0", dataPath/"boundaryModes1"});
+    List<fileName> boundaryModesName({dataPath/"boundaryModes0", dataPath/"boundaryModes1", dataPath/"boundaryModes3"});
     RectangularMatrix<scalar> boundaryModesM(mesh.C().size(), modesNum);            
 
     forAll(boundaryModesName, patchI)
     {
         dataFile = boundaryModesName[patchI];
         label row(0);
+        boundaryModesM.resize(mesh.C().size(), modesNum);
 
         if(isFile(dataFile))
         {                
@@ -119,6 +120,7 @@ int main(int argc, char *argv[])
         boundaryModesM.resize(row, modesNum);
         boundaryModesMList.append(boundaryModesM.clone());
     }
+
     // forAll(boundaryModesMList, matrixI)
     // {
     //     dataFile = mesh.time().path()/"SVD"/"test" + name(matrixI);
@@ -133,7 +135,7 @@ int main(int argc, char *argv[])
     }
 
     // set patch value
-    List<word> boundaryWordRe ({".*_in", ".*_out"});
+    List<word> boundaryWordRe ({".*_in", ".*_out", ".*_wall2"});
     List<label> matchPatchID(mesh.boundaryMesh().size());
     wordRe matchPatch;            
     label countNumber(0);
@@ -346,6 +348,8 @@ int main(int argc, char *argv[])
     RectangularMatrix<scalar> M11(modesNum, modesNum, Foam::Zero);
     label bundaryPatch1(matchPatchID[0]);
     label bundaryPatch2(matchPatchID[1]);
+    label bundaryPatch3(matchPatchID[2]);
+
 
     for (label row = 0; row < M11.m(); ++row)
     {
@@ -491,6 +495,14 @@ int main(int argc, char *argv[])
                             * Tout));
     }
 
+    // Fn
+    RectangularMatrix<scalar> Fn(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < Fn.m(); ++row)
+    {
+        Fn(row, 0) = gSum(scalarField (
+                            heatConductivity * fieldBundaryModesList[row][bundaryPatch3] * qn));
+    }
+
 
     // global matrix
     // global phi matrix
@@ -551,11 +563,21 @@ int main(int argc, char *argv[])
     // global F matrix
     for (label row = 0; row < modesNum; ++row)
     {
+        // globalFMmatrix(row, 0) = Fin(row, 0) + Fn(row, 0);
         globalFMmatrix(row, 0) = Fin(row, 0);
+    }
+
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            globalFMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
+        }
     }
 
     for (label row = 0; row < modesNum; ++row)
     {
+        // globalFMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0) + Fn(row, 0);
         globalFMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0);
     }
     dataFile = mesh.time().path()/"SVD"/"globalFMmatrix";

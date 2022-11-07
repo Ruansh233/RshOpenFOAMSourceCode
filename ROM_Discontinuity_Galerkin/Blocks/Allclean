@@ -4,6 +4,7 @@ cd "${0%/*}" || exit                                # Run from this directory
 #------------------------------------------------------------------------------
 
 cleanTimeDirectories
+rm -r log.*
 
 # if [ "$(ls -A SVD)" ]; 
 #     then

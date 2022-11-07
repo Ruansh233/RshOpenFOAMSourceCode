@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     laplacianFoamDiscGalk;
+application     ROMDiscGalk;
 
 // startFrom       latestTime;
 startFrom       startTime;

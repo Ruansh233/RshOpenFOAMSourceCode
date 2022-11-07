@@ -28,3 +28,4 @@
     scalar heatConductivity (DGdict.getScalar("heatConductivity"));
     scalar Tin (DGdict.getScalar("Tin"));
     scalar Tout (DGdict.getScalar("Tout"));
+    scalar qn (DGdict.getScalar("qn"));

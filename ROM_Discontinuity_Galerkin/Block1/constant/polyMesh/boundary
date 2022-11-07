@@ -21,42 +21,42 @@ FoamFile
     block1_in
     {
         type            patch;
-        nFaces          100;
-        startFace       5500;
+        nFaces          300;
+        startFace       16900;
     }
     block1_out
     {
         type            patch;
-        nFaces          100;
-        startFace       5600;
+        nFaces          300;
+        startFace       17200;
     }
     block1_wall1
     {
         type            wall;
         inGroups        1(wall);
-        nFaces          200;
-        startFace       5700;
+        nFaces          600;
+        startFace       17500;
     }
     block1_wall2
     {
         type            wall;
         inGroups        1(wall);
         nFaces          200;
-        startFace       5900;
+        startFace       18100;
     }
     block1_wall3
     {
         type            wall;
         inGroups        1(wall);
-        nFaces          200;
-        startFace       6100;
+        nFaces          600;
+        startFace       18300;
     }
     block1_wall4
     {
         type            wall;
         inGroups        1(wall);
         nFaces          200;
-        startFace       6300;
+        startFace       18900;
     }
 )
 
