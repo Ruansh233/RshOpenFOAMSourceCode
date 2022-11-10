@@ -18,7 +18,7 @@
 List<scalarField> outputData_(cellZonesName_.size());    
 OFstream outputFile_(outputDir/fileName_);
 
-if (cellZonesName_[0] == "allZone")
+if (cellZonesName_[0] == "allZone"  || cellZonesName_.size() == 0)
 {
     
     // outputFile_.width(10);

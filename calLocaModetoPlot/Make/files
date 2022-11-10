@@ -1,3 +1,3 @@
-calGlobalModePlot.C
+calLocalModePlot.C
 
-EXE = $(FOAM_USER_APPBIN)/calGlobalModePlot
+EXE = $(FOAM_USER_APPBIN)/calLocalModePlot
