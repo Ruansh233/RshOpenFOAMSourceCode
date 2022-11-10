@@ -152,6 +152,7 @@ Foam::mirrorFvMesh::mirrorFvMesh
 
     Info<< "Mirroring faces. Old faces: " << oldFaces.size();
 
+    // Rsh, 2022-11-10
     // Algorithm:
     // During mirroring, the faces that were previously boundary faces
     // in the mirror plane may become internal faces. In order to
