@@ -1,18 +1,25 @@
     // Get access to a custom dictionary
     // dictionary customDict;
-    const word dictName("mergeMultipleMeshesDict");
+    // const word dictName("mergeMultipleMeshesDict");
 
-    // Create and input-output object - this holds the path to the dict and its name
-    IOdictionary customDict
-    (
-        IOobject
-        (
-            dictName, // name of the file
-            mesh.time().system(), // path to where the file is
-            mesh, // reference to the mesh needed by the constructor
-            IOobject::MUST_READ // indicate that reading this dictionary is compulsory
-        )
-    );
+    // // Create and input-output object - this holds the path to the dict and its name
+    // IOdictionary customDict
+    // (
+    //     IOobject
+    //     (
+    //         dictName, // name of the file
+    //         mesh.time().system(), // path to where the file is
+    //         mesh, // reference to the mesh needed by the constructor
+    //         IOobject::MUST_READ // indicate that reading this dictionary is compulsory
+    //     )
+    // );
+
+    // Rsh, 22.11.22
+    // --- add dict option
+    const word dictName("mergeMultipleMeshesDict");
+    #include "setSystemMeshDictionaryIO.H"
+    Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
+    IOdictionary customDict(dictIO);
 
     fileName masterCase(customDict.lookup("masterCase"));
     List<fileName> addCaseListTemp(customDict.lookup("addCase"));    

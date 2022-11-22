@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     );
 
     #include "addOverwriteOption.H"
+    argList::addOption("dict", "file", "Alternative mergeMultipleMeshesDict");
 
     // argList::addArgument("masterCase");
     // argList::addOption
