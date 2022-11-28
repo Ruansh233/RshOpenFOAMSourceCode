@@ -39,6 +39,15 @@ word replaceStringPart(word& str, const word& sub, const word& mod)
 
 int main(int argc, char *argv[])
 {
+    // Rsh, add toleranceOfDistance
+    // --- the option will be shown on -help page if being put before setRootCase
+    argList::addOption // string variable
+    (
+        "tolerance",
+        "scalar",
+        "tolerance Of patch center Distance, meter\n default 1.0e-8"
+    );
+    
     #include "setRootCase.H"
 
 	// These two create the time system (instance called runTime) and fvMesh (instance called mesh).
@@ -69,6 +78,8 @@ int main(int argc, char *argv[])
     label interfacePairNumber(0);
 
     scalar toleranceOfDistance(1.0e-8);
+    args.readIfPresent("toleranceOfDistance", toleranceOfDistance);
+    
     scalar distanceOfPatchCenter(0.0);
     List<label> patchCenterChoosed;
     bool choosedFlag;
