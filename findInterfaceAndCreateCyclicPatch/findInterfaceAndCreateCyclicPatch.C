@@ -47,6 +47,13 @@ int main(int argc, char *argv[])
         "scalar",
         "tolerance Of patch center Distance, meter\n default 1.0e-8"
     );
+
+    argList::addOption // string variable
+    (
+        "dictName",
+        "word",
+        "Name of interface createPatchDict"
+    );
     
     #include "setRootCase.H"
 
@@ -152,11 +159,14 @@ int main(int argc, char *argv[])
     }
     
     // Rsh, write file head
+    fileName outputFile("createPatchDict");
+    args.readIfPresent("dictName", outputFile);
+
     IOdictionary createPatchDict
     (
         IOobject
         (
-            "createPatchDict_interfaces",
+            outputFile,
             runTime.system(),
             runTime,
             IOobject::NO_READ,
@@ -165,7 +175,6 @@ int main(int argc, char *argv[])
     );
     createPatchDict.regIOobject::write();
     
-    fileName outputFile("createPatchDict_interfaces");
     OFstream writeFile(runTime.path()/runTime.system()/outputFile, IOstreamOption(), true);
 
     writeFile << "\npointSync false;\npatches\n(";
@@ -178,7 +187,8 @@ int main(int argc, char *argv[])
         {
             type            cyclic;
             neighbourPatch  interface_pair2;
-            transform       coincidentFullMatch;
+            transform       noOrdering;
+            // transform       coincidentFullMatch;
         }
         constructFrom patches;
         patches (pair1);
@@ -190,7 +200,8 @@ int main(int argc, char *argv[])
         {
             type            cyclic;
             neighbourPatch  interface_pair1;
-            transform       coincidentFullMatch;
+            transform       noOrdering;
+            // transform       coincidentFullMatch;
         }
         constructFrom patches;
         patches (pair2);
@@ -206,17 +217,17 @@ int main(int argc, char *argv[])
     }
 
     const word endOfFile = R"deli(
-);
+    );
 
-// ************************************************************************* //
-    )deli";
+    // ************************************************************************* //
+        )deli";
 
-    writeFile << "\n);"
-              << "\n// ************************************************************************* //"; 
-    // writeFile.close();
+        writeFile << "\n);"
+                << "\n// ************************************************************************* //"; 
+        // writeFile.close();
 
-//     // system("cat system/createPatchDict");
-//     // system("createPatch");
+    //     // system("cat system/createPatchDict");
+    //     // system("createPatch");
 
 }
 
