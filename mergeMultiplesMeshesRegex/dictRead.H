@@ -46,4 +46,9 @@
         }
     }
 
-    // Info << "\nfolders: " << foldersList << endl;
+    List<scalar> testList1 ({1.0, 2.0, 3.0});
+
+    SortableList<scalar> testList2(List<scalar> (testList1));
+    // testList2.clean ();  
+
+    Info << "\nfolders: " << testList2 << endl;
