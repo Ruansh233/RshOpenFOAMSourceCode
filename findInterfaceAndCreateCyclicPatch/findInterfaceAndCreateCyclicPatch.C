@@ -54,6 +54,13 @@ int main(int argc, char *argv[])
         "word",
         "Name of interface createPatchDict"
     );
+
+    argList::addOption // string variable
+    (
+        "patchName",
+        "word",
+        "patch name for interfaces, regular express is supported"
+    );
     
     #include "setRootCase.H"
 
@@ -62,19 +69,34 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
 
     // Rsh, test code to find the center of boundary faces
-    // label patchI(0);
-    List<vector> patchCenterList(mesh.boundaryMesh().size());
+    // read the patch regular expression
+    wordRe patchName;
+    args.readIfPresent("patchName", patchName);
+    Info << "patchName is " << patchName << endl;
+    if(patchName.empty())
+    {
+        Info << "you don't input the regular expression of patchName, the default is all patchs\n";
+    }
+    patchName.compile();
+
+    List<label> patchNoList;
+    List<vector> patchCenterList;
     
     forAll(mesh.boundaryMesh(), patchI)
     {
         vector patchCenterSum = vector::zero;
         vector patchCenterCoordinate = vector::zero;
-        forAll(mesh.boundaryMesh()[patchI], patchFaceI)
+
+        if(patchName.match(mesh.boundaryMesh()[patchI].name())||patchName.empty())
         {
-            patchCenterSum += mesh.boundary()[patchI].Cf()[patchFaceI];
+            forAll(mesh.boundaryMesh()[patchI], patchFaceI)
+            {
+                patchCenterSum += mesh.boundary()[patchI].Cf()[patchFaceI];
+            }
+            patchCenterCoordinate = patchCenterSum / mesh.boundary()[patchI].Cf().size(); 
+            patchCenterList.append(patchCenterCoordinate);
+            patchNoList.append(patchI);
         }
-        patchCenterCoordinate = patchCenterSum / mesh.boundary()[patchI].Cf().size(); 
-        patchCenterList[patchI] = patchCenterCoordinate;
     }
     Info << endl;
 
@@ -82,6 +104,8 @@ int main(int argc, char *argv[])
     // Rsh, compare the center distance
     List<word> interfacePatchListA(mesh.boundaryMesh().size());
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
+    List<label> interfacePatchListNoA;
+    List<label> interfacePatchListNoB;
     label interfacePairNumber(0);
 
     scalar toleranceOfDistance(1.0e-8);
@@ -123,19 +147,21 @@ int main(int argc, char *argv[])
                 {
                     patchCenterChoosed.append(patchCenterSecondI);
 
-                    interfacePatchListA[interfacePairNumber] = mesh.boundary()[patchCenterFirstI].name();
-                    interfacePatchListB[interfacePairNumber] = mesh.boundary()[patchCenterSecondI].name();
+                    // interfacePatchListA[interfacePairNumber] = mesh.boundary()[patchCenterFirstI].name();
+                    // interfacePatchListB[interfacePairNumber] = mesh.boundary()[patchCenterSecondI].name();
+                    interfacePatchListA[interfacePairNumber] = 
+                        mesh.boundary()[patchNoList[patchCenterFirstI]].name();
+                    interfacePatchListB[interfacePairNumber] = 
+                        mesh.boundary()[patchNoList[patchCenterSecondI]].name();
+                    interfacePatchListNoA.append(patchCenterFirstI);
+                    interfacePatchListNoB.append(patchCenterSecondI);
 
                     interfacePairNumber += 1;
                     
-                    continue;
-                    
+                    continue;                    
                 }
-
-            }
-                              
-        }
-        
+            }                              
+        }        
     }
 
     // Rsh, write interface pair file
@@ -148,12 +174,12 @@ int main(int argc, char *argv[])
     {
         writePairFile << std::setw(30) << interfacePatchListA[patchListI]
                       << std::setw(30) << interfacePatchListB[patchListI]
-                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].x()
-                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].x())
-                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].y()
-                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].y())
-                      << std::setw(16) << mag(patchCenterList[mesh.boundary().findPatchID(interfacePatchListA[patchListI])].z()
-                           - patchCenterList[mesh.boundary().findPatchID(interfacePatchListB[patchListI])].z())
+                      << std::setw(16) << mag(patchCenterList[interfacePatchListNoA[patchListI]].x()
+                           - patchCenterList[interfacePatchListNoB[patchListI]].x())
+                      << std::setw(16) << mag(patchCenterList[interfacePatchListNoA[patchListI]].y()
+                           - patchCenterList[interfacePatchListNoB[patchListI]].y())
+                      << std::setw(16) << mag(patchCenterList[interfacePatchListNoA[patchListI]].z()
+                           - patchCenterList[interfacePatchListNoB[patchListI]].z())
                       << nl;
 
     }
