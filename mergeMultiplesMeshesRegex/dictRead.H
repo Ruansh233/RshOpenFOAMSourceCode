@@ -27,6 +27,22 @@
     List<fileName> foldersList(readDir(mesh.time().rootPath(), fileName::DIRECTORY));
     wordRe fileNameRex;
 
+    // Rsh, 2022-12-17
+    // --- add sort of the folder name list
+    // --- since sortableList in openfoam doesn't work, sort of std::list is employed
+    std::list<std::string> testsortList;
+    forAll(foldersList, listI)
+    {
+        testsortList.push_back(foldersList[listI]);
+    }
+    testsortList.sort();
+    label indexI = 0;
+    for (std::string n : testsortList)
+    {
+        foldersList[indexI] = n;
+        ++indexI;
+    }        
+
     forAll(addCaseListTemp, listI)
     {
         fileNameRex = addCaseListTemp[listI];
@@ -47,8 +63,3 @@
     }
 
     List<scalar> testList1 ({1.0, 2.0, 3.0});
-
-    SortableList<scalar> testList2(List<scalar> (testList1));
-    // testList2.clean ();  
-
-    Info << "\nfolders: " << testList2 << endl;

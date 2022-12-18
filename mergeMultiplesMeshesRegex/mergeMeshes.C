@@ -41,6 +41,7 @@ Description
 #include "topoSet.H"
 #include "processorMeshes.H"
 #include "fvCFD.H"
+#include <list>
 
 using namespace Foam;
 
