@@ -1,5 +1,4 @@
-template <class Form, class Type>
-void writeMatrix(Matrix< Form, Type > matrixProc,
+void writeMatrix(RectangularMatrix<scalar> matrixProc,
                 fileName dataFile,
                 label rows,
                 label columns)
@@ -16,8 +15,7 @@ void writeMatrix(Matrix< Form, Type > matrixProc,
     }
 }
 
-template <class Form, class Type>
-void writeMatrix(Matrix< Form, Type > matrixProc,
+void writeMatrix(RectangularMatrix<scalar> matrixProc,
                 fileName dataFile)
 {
     return writeMatrix(matrixProc, dataFile,
@@ -26,8 +24,7 @@ void writeMatrix(Matrix< Form, Type > matrixProc,
     );
 }
 
-template <class Type>
-void writeMatrix(List<Type> matrixProc,
+void writeMatrix(scalarDiagonalMatrix matrixProc,
                 fileName dataFile,
                 label rows)
 {
@@ -39,8 +36,29 @@ void writeMatrix(List<Type> matrixProc,
     }
 }
 
-template <class Type>
-void writeMatrix(List<Type> matrixProc,
+void writeMatrix(scalarDiagonalMatrix matrixProc,
+                fileName dataFile)
+{
+    return writeMatrix(matrixProc, dataFile,
+                        matrixProc.size()
+    );
+}
+
+template <class T>
+void writeMatrix(T matrixProc,
+                fileName dataFile,
+                label rows)
+{
+    OFstream writeOF(dataFile);
+    for (label row = 0; row < rows; ++row)
+    {
+        writeOF << matrixProc[row];
+        writeOF << endl;
+    }
+}
+
+template <class T>
+void writeMatrix(T matrixProc,
                 fileName dataFile)
 {
     return writeMatrix(matrixProc, dataFile,

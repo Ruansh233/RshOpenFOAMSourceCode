@@ -71,6 +71,10 @@ Description
 
 #include "fvCFD.H"
 #include "pisoControl.H"
+#include "writeMatrix.H"
+#include "wordRe.H"
+#include "cpuTimeCxx.H"
+#include "SVD.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -95,6 +99,9 @@ int main(int argc, char *argv[])
     #include "initContinuityErrs.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    // Rsh, 2022-12-19, addd read svdDict funtion from head file
+    #include "readSVDDict.H"
 
     Info<< "\nStarting time loop\n" << endl;
 
@@ -165,6 +172,17 @@ int main(int argc, char *argv[])
 
         runTime.printExecutionTime(Info);
     }
+
+    // Rsh, 2022-12-19, svd of steady-state results and output modes and snapshots 
+    Info<< "\nThe simulation of FOM is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
+
+    // file location and OF pointer of the file
+    fileName dataFile;
+    autoPtr<OFstream> outputFilePtr;
+
+    #include "svdSnapshots.H"
+
+    Info<< "\nThe solver is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
     Info<< "End\n" << endl;
 
