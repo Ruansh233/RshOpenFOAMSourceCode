@@ -1,7 +1,11 @@
     // create the SVD folder if it is not exist.
-    if(!isDir(mesh.time().path()/"SVD"))
-        mkDir(mesh.time().path()/"SVD");
+    if(!isDir(runTime.globalPath()/"SVD"))
+        mkDir(runTime.globalPath()/"SVD");
     
+    // ===========================================================
+    // ------ some modification to parallel cases are need -------
+    // ===========================================================
+
     // -----------------------------------------------------------
     // --------------------- SVD of p and U ----------------------
     // -----------------------------------------------------------
@@ -107,10 +111,10 @@
 
     forAll(pBoundarySnapshotsMList, listI)
     {
-        dataFile = mesh.time().path()/"SVD"/"pBoundarySnapshots" + name(listI);
+        dataFile = runTime.globalPath()/"SVD"/"pBoundarySnapshots" + name(listI);
         writeMatrix(pBoundarySnapshotsMList[listI], dataFile);
 
-        dataFile = mesh.time().path()/"SVD"/"pBoundaryModes" + name(listI);
+        dataFile = runTime.globalPath()/"SVD"/"pBoundaryModes" + name(listI);
         writeMatrix(pBoundaryModesMList[listI], dataFile);
     }
 
@@ -141,10 +145,10 @@
 
     forAll(uBoundarySnapshotsMList, listI)
     {
-        dataFile = mesh.time().path()/"SVD"/"uBoundarySnapshots" + name(listI);
+        dataFile = runTime.globalPath()/"SVD"/"uBoundarySnapshots" + name(listI);
         writeMatrix(uBoundarySnapshotsMList[listI], dataFile);
 
-        dataFile = mesh.time().path()/"SVD"/"uBoundaryModes" + name(listI);
+        dataFile = runTime.globalPath()/"SVD"/"uBoundaryModes" + name(listI);
         writeMatrix(uBoundaryModesMList[listI], dataFile);
     }
 
@@ -152,14 +156,14 @@
     // --------- create new object for reference cases -----------
     // -----------------------------------------------------------
     // reference case name
-    word refCaseName(svdDict.getWord("refCaseName"));
+    fileName refCaseName(svdDict.getWord("refCaseName"));
     // time object for reference cases
     Foam::Time runTimeTest
     (
         Foam::Time::controlDictName,
         args.rootPath(),
-        // why refCaseName is ambigous
-        "Block1",
+        // refCaseName is ambigous if it type is word, so the fileName used
+        refCaseName,
         "system",
         "constant"
     );
@@ -246,7 +250,7 @@
     }
 
     // set mode field value for velocity
-    forAll(pModeNames, No_)
+    forAll(uModeNames, No_)
     {
         volVectorField uFieldValueMode
         (
@@ -287,27 +291,27 @@
     }  
 
     // write snapshots Matrix
-    dataFile = mesh.time().path()/"SVD"/"pSnapshotsM";
+    dataFile = runTime.globalPath()/"SVD"/"pSnapshotsM";
     writeMatrix(pFieldValue, dataFile);
-    dataFile = mesh.time().path()/"SVD"/"uSnapshotsM";
+    dataFile = runTime.globalPath()/"SVD"/"uSnapshotsM";
     writeMatrix(uFieldValue, dataFile);
 
     // write modes Matrix
-    dataFile = mesh.time().path()/"SVD"/"pModesM";
+    dataFile = runTime.globalPath()/"SVD"/"pModesM";
     writeMatrix(pFieldValueSVD.U(), dataFile);
-    dataFile = mesh.time().path()/"SVD"/"uModesM";
+    dataFile = runTime.globalPath()/"SVD"/"uModesM";
     writeMatrix(pFieldValueSVD.U(), dataFile);
 
     // write eigen value Matrix
-    dataFile = mesh.time().path()/"SVD"/"pEigenValueM";
+    dataFile = runTime.globalPath()/"SVD"/"pEigenValueM";
     writeMatrix(pFieldValueSVD.S(), dataFile);
-    dataFile = mesh.time().path()/"SVD"/"uEigenValueM";
+    dataFile = runTime.globalPath()/"SVD"/"uEigenValueM";
     writeMatrix(pFieldValueSVD.S(), dataFile);
 
     // write eigen value Matrix
-    dataFile = mesh.time().path()/"SVD"/"pCoefficientsM";
+    dataFile = runTime.globalPath()/"SVD"/"pCoefficientsM";
     writeMatrix(pCoefficientsM, dataFile);
-    dataFile = mesh.time().path()/"SVD"/"uCoefficientsM";
+    dataFile = runTime.globalPath()/"SVD"/"uCoefficientsM";
     writeMatrix(uCoefficientsM, dataFile);
 
 

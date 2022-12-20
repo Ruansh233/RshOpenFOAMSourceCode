@@ -43,312 +43,153 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    fileName dataPath (mesh.time().path()/"SVD");
+    fileName dataPath (runTime.globalPath()/"SVD");
 
     #include "readDGdict.H"
 
-    // element volume
-    scalar elementVol(gSum(mesh.V()));
+    // ===========================================================
+    // ------ PtrList for modes, gradModes and ... ---------------
+    // ===========================================================
+    PtrList<volScalarField> pFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, scalar>> pFieldBundaryModesList;
+    PtrList<volVectorField> gradpFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, vector>> gradpFieldBundaryModesList;
 
+    PtrList<volVectorField> uFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, vector>> uFieldBundaryModesList;
+    PtrList<volTensorField> graduFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, tensor>> graduFieldBundaryModesList;
 
     // ===========================================================
-    // ------ read matrix of modesM and boundaryModesM -----------
-    // ------ create mode field ----------------------------------
-    // ------ calculate grad and div of modes --------------------
+    // ------ reading modes, gradModes from the ref case ---------
+    // ------ creating mesh and time object for ref case ---------
     // ===========================================================
+    // reference case name
+    fileName refCaseName(svdDict.getWord("refCaseName"));
+    // time object for reference cases
+    Foam::Time runTimeRef
+    (
+        Foam::Time::controlDictName,
+        args.rootPath(),
+        refCaseName,
+        "system",
+        "constant"
+    );
 
-    // read the matrix
-    // read cell modes matrix
-    fileName dataFile (dataPath/"modesM");
-    RectangularMatrix<scalar> modesM(mesh.C().size(), modesNum);
-    RectangularMatrix<vector> gradModesM(mesh.C().size(), modesNum);
+    // create new mesh object for reference cases
+    fvMesh  refElementMesh
+    (
+        IOobject
+        (
+            polyMesh::defaultRegion,
+            args.rootPath()/refCaseName/"constant",
+            runTimeRef,
+            IOobject::MUST_READ
+        ),
+        false
+    );
 
-    if(isFile(dataFile))
-    {                
-        IFstream dataStream(dataFile);
-        word dataLine;
-        label row(0);
-
-        while(dataStream.getLine(dataLine) && dataLine != word::null)
-        {
-            IStringStream dataString (dataLine);
-            token singleData;  // token stores the data read from IFstream 
-
-            for(label modesNo = 0; modesNo < modesNum; ++modesNo)
-            {
-                dataString.read(singleData);    
-                modesM(row, modesNo) = singleData.scalarToken();
-            }   
-            ++row;
-        }                       
-    }  
-    else
+    // modes name list
+    List<fileName> pModeNames (modesNum);
+    List<fileName> uModeNames (modesNum);
+    forAll(pModeNames, nameI)
     {
-        Info << "file: " << dataFile << " is not exist!" << endl;
-        // break;
-    }
-    // dataFile = mesh.time().path()/"SVD"/"testModes";
-    // writeMatrix(modesM, dataFile);
-
-    // read boundary patch modes matrix and matchPatchID
-    PtrList<RectangularMatrix<scalar>> boundaryModesMList;
-    List<fileName> boundaryModesName({dataPath/"boundaryModes0", dataPath/"boundaryModes1", dataPath/"boundaryModes3"});
-    RectangularMatrix<scalar> boundaryModesM(mesh.C().size(), modesNum);            
-
-    forAll(boundaryModesName, patchI)
-    {
-        dataFile = boundaryModesName[patchI];
-        label row(0);
-        boundaryModesM.resize(mesh.C().size(), modesNum);
-
-        if(isFile(dataFile))
-        {                
-            IFstream dataStream(dataFile);
-            word dataLine;
-            while(dataStream.getLine(dataLine) && dataLine != word::null)
-            {
-                IStringStream dataString (dataLine);
-                token singleData;  // token stores the data read from IFstream 
-
-                for(label modesNo = 0; modesNo < modesNum; ++modesNo)
-                {
-                    dataString.read(singleData);    
-                    boundaryModesM(row, modesNo) = singleData.scalarToken();
-                }   
-                ++row;
-            }                       
-        }  
-        else
-        {
-            Info << "file: " << dataFile << " is not exist!" << endl;
-            // break;
-        }
-        boundaryModesM.resize(row, modesNum);
-        boundaryModesMList.append(boundaryModesM.clone());
+        pModeNames[nameI] = "pMode" + name(nameI + 1);
+        uModeNames[nameI] = "uMode" + name(nameI + 1);
     }
 
-    // forAll(boundaryModesMList, matrixI)
-    // {
-    //     dataFile = mesh.time().path()/"SVD"/"test" + name(matrixI);
-    //     writeMatrix(boundaryModesMList[matrixI], dataFile);
-    // }
-
-    // create field value
-    List<fileName> modeNames (modesNum);
-    for (label iname = 0; iname < modesNum; ++iname)
+    // read pressure modes
+    forAll(pModeNames, No_)
     {
-        modeNames[iname] = "Tmode" + name(iname + 1);
-    }
-
-    // set patch value
-    List<word> boundaryWordRe ({".*_in", ".*_out", ".*_wall2"});
-    List<label> matchPatchID(mesh.boundaryMesh().size());
-    wordRe matchPatch;            
-    label countNumber(0);
-
-    forAll(boundaryWordRe, reI)
-    {
-        matchPatch = boundaryWordRe[reI];
-        matchPatch.compile();
-        forAll(mesh.boundaryMesh(), patchI)
-        {
-            if(matchPatch.match(mesh.boundary()[patchI].name()))
-            {
-                matchPatchID[countNumber] = patchI;
-                ++countNumber;
-                break;
-            }
-        }
-    }
-    matchPatchID.resize(countNumber);
-    Info << "matchPatchID: " << matchPatchID << endl << endl;
-
-    // ptrlist to field value
-    PtrList<volScalarField> fieldModesList;
-    PtrList<FieldField<Foam::fvPatchField, scalar>> fieldBundaryModesList;
-    
-    forAll(modeNames, No_)
-    {
-        volScalarField T
+        // pressure modes
+        volScalarField pFieldValueMode
         (
             IOobject
             (
-                "T",
-                runTime.timeName(),
-                mesh,
+                pModeNames[No_],
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            mesh
+            refElementMesh
         );
-        
-        // create mode field by copying T
-        volScalarField fieldValueMode
+        pFieldModesList.append(pFieldValueMode.clone());
+        pFieldBundaryModesList.append(pFieldValueMode.boundaryField().clone());
+
+        // grad of pressure modes
+        volVectorField pFieldValueModegrad
         (
             IOobject
             (
-                modeNames[No_],
-                mesh.time().timeName(),
-                mesh,
+                "grad" + pModeNames[No_],
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            T
+            fvc::grad(pFieldValueMode)
         );
-
-        // set cell value
-        forAll(mesh.C(), cellI)
-        {
-            fieldValueMode[cellI] = modesM(cellI, No_);
-        }
-
-        // set patch value
-        forAll(matchPatchID, patchID)
-        {
-            forAll(fieldValueMode.boundaryField()[matchPatchID[patchID]], faceI)
-            {
-                fieldValueMode.boundaryFieldRef()[matchPatchID[patchID]][faceI] = boundaryModesMList[patchID](faceI, No_);
-            }
-        }
-
-        fieldValueMode.write();
-        fieldModesList.append(fieldValueMode.clone());
-        fieldBundaryModesList.append(fieldValueMode.boundaryField().clone());
+        gradpFieldModesList.append(pFieldValueModegrad.clone());
+        gradpFieldBundaryModesList.append(pFieldValueModegrad.boundaryField().clone());
     }
-    // Info << "sf: " << gSum(fieldModesList[0]) << endl;
-    // Info << "sf bun: " << gSum(fieldBundaryModesList[0][0]) << endl;
-    // Info << "sf bun2: " << gSum(scalarField (fieldBundaryModesList[0][0])) << endl;
 
-
-    PtrList<volVectorField> gradfieldModesList;
-    PtrList<FieldField<Foam::fvPatchField, vector>> gradfieldBundaryModesList;
-
-    // calculate gradModesM and gradBoundaryModesM
-    forAll(modeNames, No_)
+    // read velocity modes
+    forAll(uModeNames, No_)
     {
-        // create mode field by copying T
-        volScalarField fieldValueModeTest
+        // velocity modes
+        volVectorField uFieldValueMode
         (
             IOobject
             (
-                modeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::READ_IF_PRESENT,
+                uModeNames[No_],
+                runTimeRef.timeName(),
+                refElementMesh,
+                IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            mesh
+            refElementMesh
         );
+        uFieldModesList.append(uFieldValueMode.clone());
+        uFieldBundaryModesList.append(uFieldValueMode.boundaryField().clone());
 
-        // create mode field by copying T
-        volVectorField fieldValueModegrad
+        // grad of velocity modes
+        volTensorField uFieldValueModegrad
         (
             IOobject
             (
-                "grad" + modeNames[No_],
-                mesh.time().timeName(),
-                mesh,
+                "grad" + uModeNames[No_],
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
-            fvc::grad(fieldValueModeTest)
+            fvc::grad(uFieldValueMode)
         );
-        fieldValueModegrad.write();
-        gradfieldModesList.append(fieldValueModegrad.clone());
-        gradfieldBundaryModesList.append(fieldValueModegrad.boundaryField().clone());
 
-        // // create mode field by copying T
-        // volScalarField fieldValueModelap
-        // (
-        //     IOobject
-        //     (
-        //         "lap" + modeNames[No_],
-        //         mesh.time().timeName(),
-        //         mesh,
-        //         IOobject::NO_READ,
-        //         IOobject::AUTO_WRITE
-        //     ),
-        //     fvc::laplacian(fieldValueModeTest)
-        // );
-        // fieldValueModelap.write();
-
-        // create mode field by copying T
-        volScalarField fieldValueModegradz
-        (
-            IOobject
-            (
-                "gradz_" + modeNames[No_],
-                mesh.time().timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            fieldValueModegrad.component(vector::Z)
-        );
-        fieldValueModegradz.write();
+        graduFieldModesList.append(uFieldValueModegrad.clone());
+        graduFieldBundaryModesList.append(uFieldValueMode.boundaryField().clone());
     }
-
-    // // The following two statement are equal
-    // // ---1 is matrix multiplation
-    // List<scalar> testList(gradModesM.m());
-    // for (label row = 0; row < gradModesM.m(); ++row)
-    // {
-    //     testList[row] = gradModesM(row, 0) & gradModesM(row, 1);
-    // }
-    // Info << "matrix: " << gSum(testList) << endl;
-    // // ---2 is field value multiplation
-    // Info << "fvm: " << gSum(volScalarField (gradfieldModesList[0] & gradfieldModesList[0])) << endl;
-    // --- volScalarField is equal to scalarField in the previous code
-
-    // // The following two statement are equal
-    // // ---1 is matrix multiplation
-    // List<scalar> testList(gradBoundaryModesMList[0].m());
-    // for (label row = 0; row < gradBoundaryModesMList[0].m(); ++row)
-    // {
-    //     testList[row] = gradBoundaryModesMList[0](row, 0) & gradBoundaryModesMList[1](row, 0);
-    // }
-    // Info << "matrix: " << gSum(testList) << endl;
-    // // ---2 is field value multiplation
-    // Info << "sf: " << gSum(scalarField (gradfieldModesList[0] & gradfieldModesList[0])) << endl;
-    // Info << "sf bun: " << gSum(scalarField (gradfieldBundaryModesList[0][0] & gradfieldBundaryModesList[0][1])) << endl;
-
 
     // ===========================================================
-    // -------- creating and solving the matrix system -----------
+    // ------ The matrix system ----------------------------------
     // ===========================================================
     // create Matrix system
     // initial global matrix
-    RectangularMatrix<scalar> globalphiMatrix(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
-    RectangularMatrix<scalar> globalFMmatrix(modesNum * elementNum, 1, Foam::Zero);
-
-    List<scalar> tempList;
-    tempList.resize(mesh.C().size());
+    RectangularMatrix<vector> globalAMatrix(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<vector> globalBMmatrix(modesNum * elementNum, 1, Foam::Zero);
 
     // volumtric contribution
-    RectangularMatrix<scalar> localphiMatrix(modesNum, modesNum, Foam::Zero);
-    for (label row = 0; row < localphiMatrix.m(); ++row)
+    RectangularMatrix<vector> localAMatrix(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < localAMatrix.m(); ++row)
     {
-        for (label column = 0; column < localphiMatrix.n(); ++column)
+        for (label column = 0; column < localAMatrix.n(); ++column)
         {
-            localphiMatrix(row, column) = heatConductivity * gSum(scalarField (gradfieldModesList[row] & gradfieldModesList[column]));
+            localAMatrix(row, column) = kineticViscosity * gSum(vectorField (gradfieldModesList[row] && gradfieldModesList[column]));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"localphiMatrix";
-    writeMatrix(localphiMatrix, dataFile);
-
-    
-    // Matrix IO
-    // ---1, matrix write 
-    // dataFile = mesh.time().path()/"SVD"/"localphiMatrixTest";
-    // OFstream writeOF(dataFile);
-    // localphiMatrix.writeMatrix(writeOF);
-    // ---2, matrix read 
-    // dataFile = mesh.time().path()/"SVD"/"localphiMatrixTest";
-    // IFstream readOF(dataFile);
-    // RectangularMatrix<scalar> localphiMatrix2(modesNum, modesNum, Foam::Zero);
-    // localphiMatrix2.readMatrix(readOF);
-    // Info << localphiMatrix2 << endl;
-
+    dataFile = runTime.globalPath()/"SVD"/"localAMatrix";
+    writeMatrix(localAMatrix, dataFile);
 
     // interface contribution
     vector interfaceNormal(0, 0, 1);
@@ -375,7 +216,7 @@ int main(int argc, char *argv[])
                                                 & gradfieldBundaryModesList[column][bundaryPatch2])));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"M11";
+    dataFile = runTime.globalPath()/"SVD"/"M11";
     writeMatrix(M11, dataFile);
 
     // M22
@@ -396,7 +237,7 @@ int main(int argc, char *argv[])
                                                 & gradfieldBundaryModesList[column][bundaryPatch1])));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"M22";
+    dataFile = runTime.globalPath()/"SVD"/"M22";
     writeMatrix(M22, dataFile);
 
     // M12
@@ -417,7 +258,7 @@ int main(int argc, char *argv[])
                                                 & gradfieldBundaryModesList[column][bundaryPatch1])));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"M12";
+    dataFile = runTime.globalPath()/"SVD"/"M12";
     writeMatrix(M12, dataFile);
 
     // M21
@@ -438,7 +279,7 @@ int main(int argc, char *argv[])
                                                 & gradfieldBundaryModesList[column][bundaryPatch2])));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"M21";
+    dataFile = runTime.globalPath()/"SVD"/"M21";
     writeMatrix(M21, dataFile);
 
     // boundary penalty terms
@@ -459,7 +300,7 @@ int main(int argc, char *argv[])
                                     * fieldBundaryModesList[column][bundaryPatch1]));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"Min";
+    dataFile = runTime.globalPath()/"SVD"/"Min";
     writeMatrix(Min, dataFile);
 
     // Mout
@@ -479,7 +320,7 @@ int main(int argc, char *argv[])
                                     * fieldBundaryModesList[column][bundaryPatch2]));
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"Mout";
+    dataFile = runTime.globalPath()/"SVD"/"Mout";
     writeMatrix(Mout, dataFile);
 
     // Fin
@@ -519,7 +360,7 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < modesNum; ++column)
         {
-            globalphiMatrix(row, column) = localphiMatrix(row, column) + Min(row, column) + M11(row, column);
+            globalAMatrix(row, column) = localAMatrix(row, column) + Min(row, column) + M11(row, column);
         }
     }
 
@@ -529,7 +370,7 @@ int main(int argc, char *argv[])
         {
             for (label column = 0; column < modesNum; ++column)
             {
-                globalphiMatrix(row+elementI*modesNum, column+elementI*modesNum) =  localphiMatrix(row, column) 
+                globalAMatrix(row+elementI*modesNum, column+elementI*modesNum) =  localAMatrix(row, column) 
                                                                         + M11(row, column) + M22(row, column);
             }
         }
@@ -539,7 +380,7 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < modesNum; ++column)
         {
-            globalphiMatrix(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  localphiMatrix(row, column) 
+            globalAMatrix(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  localAMatrix(row, column) 
                                                                            + M22(row, column) + Mout(row, column);
         }
     }
@@ -550,7 +391,7 @@ int main(int argc, char *argv[])
         {
             for (label column = 0; column < modesNum; ++column)
             {
-                globalphiMatrix(row+elementI*modesNum, column+(elementI+1)*modesNum) =  M12(row, column);
+                globalAMatrix(row+elementI*modesNum, column+(elementI+1)*modesNum) =  M12(row, column);
             }
         }
     }
@@ -561,42 +402,42 @@ int main(int argc, char *argv[])
         {
             for (label column = 0; column < modesNum; ++column)
             {
-                globalphiMatrix(row+(elementI+1)*modesNum, column+elementI*modesNum) =  M21(row, column);
+                globalAMatrix(row+(elementI+1)*modesNum, column+elementI*modesNum) =  M21(row, column);
             }
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"globalphiMatrix";
-    writeMatrix(globalphiMatrix, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"globalAMatrix";
+    writeMatrix(globalAMatrix, dataFile);
 
 
     // global F matrix
     for (label row = 0; row < modesNum; ++row)
     {
-        // globalFMmatrix(row, 0) = Fin(row, 0) + Fn(row, 0);
-        globalFMmatrix(row, 0) = Fin(row, 0);
+        // globalBMmatrix(row, 0) = Fin(row, 0) + Fn(row, 0);
+        globalBMmatrix(row, 0) = Fin(row, 0);
     }
 
     for(label elementI = 1; elementI < elementNum - 1; ++elementI)
     {
         for (label row = 0; row < modesNum; ++row)
         {
-            globalFMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
+            globalBMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
         }
     }
 
     for (label row = 0; row < modesNum; ++row)
     {
-        // globalFMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0) + Fn(row, 0);
-        globalFMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0);
+        // globalBMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0) + Fn(row, 0);
+        globalBMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0);
     }
-    dataFile = mesh.time().path()/"SVD"/"globalFMmatrix";
-    writeMatrix(globalFMmatrix, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"globalBMmatrix";
+    writeMatrix(globalBMmatrix, dataFile);
 
 
     // solve matrix system
     RectangularMatrix<scalar> tempCalCoefficientM;
     RectangularMatrix<scalar> calCoefficientM(modesNum, elementNum);
-    tempCalCoefficientM = SVDinv(globalphiMatrix) * globalFMmatrix;
+    tempCalCoefficientM = SVDinv(globalAMatrix) * globalBMmatrix;
     for (label row = 0; row < calCoefficientM.m(); ++row)
     {
         for (label column = 0; column < calCoefficientM.n(); ++column)
@@ -604,14 +445,14 @@ int main(int argc, char *argv[])
             calCoefficientM(row, column) =  tempCalCoefficientM(row+column*modesNum, 0);
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"calCoefficientM";
+    dataFile = runTime.globalPath()/"SVD"/"calCoefficientM";
     writeMatrix(calCoefficientM, dataFile);
 
 
     // calculate snapshots
     RectangularMatrix<scalar> calSnapshotsM;
     calSnapshotsM = modesM * calCoefficientM;
-    dataFile = mesh.time().path()/"SVD"/"calSnapshotsM";
+    dataFile = runTime.globalPath()/"SVD"/"calSnapshotsM";
     writeMatrix(calSnapshotsM, dataFile);
 
 
@@ -651,7 +492,7 @@ int main(int argc, char *argv[])
             errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column))/snapshotsM(row, column);
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"errorM";
+    dataFile = runTime.globalPath()/"SVD"/"errorM";
     writeMatrix(errorM, dataFile);    
 
 
