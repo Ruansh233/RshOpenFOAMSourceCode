@@ -52,11 +52,11 @@ int main(int argc, char *argv[])
     // ===========================================================
     PtrList<volScalarField> pFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, scalar>> pFieldBundaryModesList;
-    PtrList<volVectorField> gradpFieldModesList;
-    PtrList<FieldField<Foam::fvPatchField, vector>> gradpFieldBundaryModesList;
 
     PtrList<volVectorField> uFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, vector>> uFieldBundaryModesList;
+    PtrList<volTensorField> divuFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, tensor>> divuFieldBundaryModesList;
     PtrList<volTensorField> graduFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, tensor>> graduFieldBundaryModesList;
 
@@ -116,22 +116,6 @@ int main(int argc, char *argv[])
         );
         pFieldModesList.append(pFieldValueMode.clone());
         pFieldBundaryModesList.append(pFieldValueMode.boundaryField().clone());
-
-        // grad of pressure modes
-        volVectorField pFieldValueModegrad
-        (
-            IOobject
-            (
-                "grad" + pModeNames[No_],
-                runTimeRef.timeName(),
-                refElementMesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            fvc::grad(pFieldValueMode)
-        );
-        gradpFieldModesList.append(pFieldValueModegrad.clone());
-        gradpFieldBundaryModesList.append(pFieldValueModegrad.boundaryField().clone());
     }
 
     // read velocity modes
@@ -169,51 +153,73 @@ int main(int argc, char *argv[])
 
         graduFieldModesList.append(uFieldValueModegrad.clone());
         graduFieldBundaryModesList.append(uFieldValueMode.boundaryField().clone());
+
+        // div of velocity modes
+        volTensorField uFieldValueModediv
+        (
+            IOobject
+            (
+                "grad" + uModeNames[No_],
+                runTimeRef.timeName(),
+                refElementMesh,
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            fvc::div(uFieldValueMode)
+        );
+        divuFieldModesList.append(uFieldValueModediv.clone());
+        divuFieldBundaryModesList.append(uFieldValueModediv.boundaryField().clone());
     }
 
     // ===========================================================
-    // ------ The matrix system ----------------------------------
+    // ------ The matrix system for momentum equation ------------
     // ===========================================================
     // create Matrix system
     // initial global matrix
-    RectangularMatrix<vector> globalAMatrix(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
-    RectangularMatrix<vector> globalBMmatrix(modesNum * elementNum, 1, Foam::Zero);
+    RectangularMatrix<scalar> MomGlobalAMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<scalar> MomGlobalBMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<scalar> MomGlobalFMat(modesNum * elementNum, 1, Foam::Zero);
 
-    // volumtric contribution
-    RectangularMatrix<vector> localAMatrix(modesNum, modesNum, Foam::Zero);
-    for (label row = 0; row < localAMatrix.m(); ++row)
+    // ===========================================================
+    // ------ The diffusion term ---------------------------------
+    // ===========================================================
+    // volumtric contribution, diffusion term
+    RectangularMatrix<scalar> MomLocalAMat(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < MomLocalAMat.m(); ++row)
     {
-        for (label column = 0; column < localAMatrix.n(); ++column)
+        for (label column = 0; column < MomLocalAMat.n(); ++column)
         {
-            localAMatrix(row, column) = kineticViscosity * gSum(vectorField (gradfieldModesList[row] && gradfieldModesList[column]));
+            MomLocalAMat(row, column) = gSum(scalarField (graduFieldModesList[row] && graduFieldModesList[column]));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"localAMatrix";
-    writeMatrix(localAMatrix, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"MomLocalAMat";
+    writeMatrix(MomLocalAMat, dataFile);
+
+
+    // patch ID for reference mesh of different interface
+    label bundaryPatch1 (refElementMesh.boundary().findPatchID("block1_out"));
+    label bundaryPatch2 (refElementMesh.boundary().findPatchID("block1_in"));
+
 
     // interface contribution
     vector interfaceNormal(0, 0, 1);
 
+
     // M11
     RectangularMatrix<scalar> M11(modesNum, modesNum, Foam::Zero);
-    label bundaryPatch1(matchPatchID[0]);
-    label bundaryPatch2(matchPatchID[1]);
-    label bundaryPatch3(matchPatchID[2]);
-
-
     for (label row = 0; row < M11.m(); ++row)
     {
         for (label column = 0; column < M11.n(); ++column)
         {
             M11(row, column) = gSum(scalarField (
-                                            - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
-                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            + xigema1 * (gradfieldBundaryModesList[row][bundaryPatch2]
-                                                & gradfieldBundaryModesList[column][bundaryPatch2])));
+                                            - 0.5 * (uFieldBundaryModesList[row][bundaryPatch1] 
+                                                & graduFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            + 0.5 * epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal
+                                                & uFieldBundaryModesList[column][bundaryPatch1])
+                                            + xigema0 * (uFieldBundaryModesList[row][bundaryPatch1]
+                                                & uFieldBundaryModesList[column][bundaryPatch1])
+                                            + xigema1 * (graduFieldBundaryModesList[row][bundaryPatch1]
+                                                && graduFieldBundaryModesList[column][bundaryPatch1])));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"M11";
@@ -226,15 +232,17 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < M22.n(); ++column)
         {
-            M22(row, column) = gSum(scalarField (
-                                              0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
-                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
-                                                * fieldBundaryModesList[column][bundaryPatch1]
-                                            + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
-                                                * fieldBundaryModesList[column][bundaryPatch1]
-                                            + xigema1 * (gradfieldBundaryModesList[row][bundaryPatch1]
-                                                & gradfieldBundaryModesList[column][bundaryPatch1])));
+            M22(row, column) = 
+
+                                gSum(scalarField (
+                                            + 0.5 * (uFieldBundaryModesList[row][bundaryPatch2] 
+                                                & graduFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            - 0.5 * epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal
+                                                & uFieldBundaryModesList[column][bundaryPatch2])
+                                            + xigema0 * (uFieldBundaryModesList[row][bundaryPatch2]
+                                                & uFieldBundaryModesList[column][bundaryPatch2])
+                                            + xigema1 * (graduFieldBundaryModesList[row][bundaryPatch2]
+                                                && graduFieldBundaryModesList[column][bundaryPatch2])));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"M22";
@@ -248,14 +256,14 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M12.n(); ++column)
         {
             M12(row, column) = gSum(scalarField (
-                                            - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
-                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
-                                                * fieldBundaryModesList[column][bundaryPatch1]
-                                            - xigema0 * fieldBundaryModesList[row][bundaryPatch2]
-                                                * fieldBundaryModesList[column][bundaryPatch1]
-                                            - xigema1 * (gradfieldBundaryModesList[row][bundaryPatch2]
-                                                & gradfieldBundaryModesList[column][bundaryPatch1])));
+                                            - 0.5 * (uFieldBundaryModesList[row][bundaryPatch1] 
+                                                & graduFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            - 0.5 * epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal
+                                                & uFieldBundaryModesList[column][bundaryPatch2])
+                                            - xigema0 * (uFieldBundaryModesList[row][bundaryPatch1]
+                                                & uFieldBundaryModesList[column][bundaryPatch2])
+                                            - xigema1 * (graduFieldBundaryModesList[row][bundaryPatch1]
+                                                && graduFieldBundaryModesList[column][bundaryPatch2])));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"M12";
@@ -269,232 +277,283 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M21.n(); ++column)
         {
             M21(row, column) = gSum(scalarField (
-                                              0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
-                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            - xigema0 * fieldBundaryModesList[row][bundaryPatch1]
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            - xigema1 * (gradfieldBundaryModesList[row][bundaryPatch1]
-                                                & gradfieldBundaryModesList[column][bundaryPatch2])));
+                                            + 0.5 * (uFieldBundaryModesList[row][bundaryPatch2] 
+                                                & graduFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            + 0.5 * epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal
+                                                & uFieldBundaryModesList[column][bundaryPatch1])
+                                            - xigema0 * (uFieldBundaryModesList[row][bundaryPatch2]
+                                                & uFieldBundaryModesList[column][bundaryPatch1])
+                                            - xigema1 * (graduFieldBundaryModesList[row][bundaryPatch2]
+                                                && graduFieldBundaryModesList[column][bundaryPatch1])));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"M21";
     writeMatrix(M21, dataFile);
 
     // boundary penalty terms
-    // Min
-    RectangularMatrix<scalar> Min(modesNum, modesNum, Foam::Zero);
+    // MtaoD, patch-inlet, bundaryPatch2
+    RectangularMatrix<scalar> MtaoD(modesNum, modesNum, Foam::Zero);
     vector inletfaceNormal(0, 0, -1);
 
-    for (label row = 0; row < Min.m(); ++row)
+    for (label row = 0; row < MtaoD.m(); ++row)
     {
-        for (label column = 0; column < Min.n(); ++column)
+        for (label column = 0; column < MtaoD.n(); ++column)
         {
-            Min(row, column) = gSum(scalarField (
-                                - heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
-                                    * (gradfieldBundaryModesList[column][bundaryPatch1] & inletfaceNormal) 
-                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
-                                    * fieldBundaryModesList[column][bundaryPatch1]
-                                + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
-                                    * fieldBundaryModesList[column][bundaryPatch1]));
+            MtaoD(row, column) = gSum(scalarField (
+                                - (uFieldBundaryModesList[row][bundaryPatch2] 
+                                    & graduFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)
+                                + epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch2] & inletfaceNormal
+                                    & uFieldBundaryModesList[column][bundaryPatch2])
+                                + xigema0 * (uFieldBundaryModesList[row][bundaryPatch2]
+                                    & uFieldBundaryModesList[column][bundaryPatch2])));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"Min";
-    writeMatrix(Min, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"MtaoD";
+    writeMatrix(MtaoD, dataFile);
 
-    // Mout
-    RectangularMatrix<scalar> Mout(modesNum, modesNum, Foam::Zero);
-    vector outletfaceNormal(0, 0, 1);
-
-    for (label row = 0; row < Mout.m(); ++row)
+    // FtaoD, patch-inlet, bundaryPatch2
+    RectangularMatrix<scalar> FtaoD(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < FtaoD.m(); ++row)
     {
-        for (label column = 0; column < Mout.n(); ++column)
+        FtaoD(row, 0) = gSum(scalarField (
+                            epsilonPara * (graduFieldBundaryModesList[row][bundaryPatch2] & inletfaceNormal
+                            & Uin)
+                            + xigema0 * (uFieldBundaryModesList[row][bundaryPatch2]
+                            & Uin)));
+    }
+    dataFile = runTime.globalPath()/"SVD"/"FtaoD";
+    writeMatrix(FtaoD, dataFile);
+
+    // ===========================================================
+    // ------ The pressure gradient term -------------------------
+    // ===========================================================
+    // volumtric contribution, \nabla p
+    RectangularMatrix<scalar> ConLocalBMat(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < ConLocalBMat.m(); ++row)
+    {
+        for (label column = 0; column < ConLocalBMat.n(); ++column)
         {
-            Mout(row, column) = gSum(scalarField (
-                                - heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                    * (gradfieldBundaryModesList[column][bundaryPatch2] & outletfaceNormal) 
-                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
-                                    * fieldBundaryModesList[column][bundaryPatch2]
-                                + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
-                                    * fieldBundaryModesList[column][bundaryPatch2]));
+            ConLocalBMat(row, column) = gSum(scalarField (pFieldModesList[column] * divuFieldModesList[row]));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"Mout";
-    writeMatrix(Mout, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"ConLocalBMat";
+    writeMatrix(ConLocalBMat, dataFile);
 
-    // Fin
-    RectangularMatrix<scalar> Fin(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < Fin.m(); ++row)
+    // N11
+    RectangularMatrix<scalar> N11(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < N11.m(); ++row)
     {
-        Fin(row, 0) = gSum(scalarField (
-                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
-                            * Tin
-                            + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
-                            * Tin));
-    }
-
-    // Fout
-    RectangularMatrix<scalar> Fout(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < Fout.m(); ++row)
-    {
-        Fout(row, 0) = gSum(scalarField (
-                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
-                            * Tout
-                            + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
-                            * Tout));
-    }
-
-    // Fn
-    RectangularMatrix<scalar> Fn(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < Fn.m(); ++row)
-    {
-        Fn(row, 0) = gSum(scalarField (
-                            heatConductivity * fieldBundaryModesList[row][bundaryPatch3] * qn));
-    }
-
-
-    // global matrix
-    // global phi matrix
-    for (label row = 0; row < modesNum; ++row)
-    {
-        for (label column = 0; column < modesNum; ++column)
+        for (label column = 0; column < N11.n(); ++column)
         {
-            globalAMatrix(row, column) = localAMatrix(row, column) + Min(row, column) + M11(row, column);
+            // N11(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)
+            //                                 + 0.5 * epsilonPara * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)));
+            
+            N11(row, column) = gSum(scalarField ( + 0.5 * pFieldBundaryModesList[column][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)));                                    
         }
     }
+    dataFile = runTime.globalPath()/"SVD"/"N11";
+    writeMatrix(N11, dataFile);
 
-    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    // N22
+    RectangularMatrix<scalar> N22(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N22.m(); ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < N22.n(); ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                globalAMatrix(row+elementI*modesNum, column+elementI*modesNum) =  localAMatrix(row, column) 
-                                                                        + M11(row, column) + M22(row, column);
-            }
+            // N22(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));
+
+            N22(row, column) = gSum(scalarField ( - 0.5 * pFieldBundaryModesList[column][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));
         }
     }
+    dataFile = runTime.globalPath()/"SVD"/"N22";
+    writeMatrix(N22, dataFile);
 
-    for (label row = 0; row < modesNum; ++row)
+    // N12
+    RectangularMatrix<scalar> N12(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N12.m(); ++row)
     {
-        for (label column = 0; column < modesNum; ++column)
+        for (label column = 0; column < N12.n(); ++column)
         {
-            globalAMatrix(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  localAMatrix(row, column) 
-                                                                           + M22(row, column) + Mout(row, column);
+            // N12(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[column][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)));
+
+            N12(row, column) = gSum(scalarField ( + 0.5 * pFieldBundaryModesList[column][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[row][bundaryPatch1] & interfaceNormal)));
         }
     }
+    dataFile = runTime.globalPath()/"SVD"/"N12";
+    writeMatrix(N12, dataFile);
 
-    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    // N21
+    RectangularMatrix<scalar> N21(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N21.m(); ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < N21.n(); ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                globalAMatrix(row+elementI*modesNum, column+(elementI+1)*modesNum) =  M12(row, column);
-            }
+            // N21(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[column][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));
+
+            N21(row, column) = gSum(scalarField ( - 0.5 * pFieldBundaryModesList[column][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));                                    
         }
     }
+    dataFile = runTime.globalPath()/"SVD"/"N21";
+    writeMatrix(N21, dataFile);
 
-    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    // boundary penalty terms
+    // NtaoD, patch-inlet, bundaryPatch2
+    RectangularMatrix<scalar> NtaoD(modesNum, modesNum, Foam::Zero);
+    vector inletfaceNormal(0, 0, -1);
+
+    for (label row = 0; row < NtaoD.m(); ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < NtaoD.n(); ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                globalAMatrix(row+(elementI+1)*modesNum, column+elementI*modesNum) =  M21(row, column);
-            }
+            NtaoD(row, column) = gSum(scalarField (pFieldBundaryModesList[column][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"globalAMatrix";
-    writeMatrix(globalAMatrix, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"NtaoD";
+    writeMatrix(NtaoD, dataFile);
 
 
-    // global F matrix
-    for (label row = 0; row < modesNum; ++row)
+    // ===========================================================
+    // ------ The divergence of velocity -------------------------
+    // ===========================================================
+    // volumtric contribution, \nabla \cdot v
+    RectangularMatrix<scalar> ConLocalBMat(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < ConLocalBMat.m(); ++row)
     {
-        // globalBMmatrix(row, 0) = Fin(row, 0) + Fn(row, 0);
-        globalBMmatrix(row, 0) = Fin(row, 0);
-    }
-
-    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
-    {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < ConLocalBMat.n(); ++column)
         {
-            globalBMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
+            ConLocalBMat(row, column) = gSum(scalarField (pFieldModesList[row] * divuFieldModesList[column]));
         }
     }
+    dataFile = runTime.globalPath()/"SVD"/"ConLocalBMat";
+    writeMatrix(ConLocalBMat, dataFile);
 
-    for (label row = 0; row < modesNum; ++row)
+    // K11
+    RectangularMatrix<scalar> K11(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < K11.m(); ++row)
     {
-        // globalBMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0) + Fn(row, 0);
-        globalBMmatrix(row+(elementNum-1)*modesNum, 0) = Fout(row, 0);
-    }
-    dataFile = runTime.globalPath()/"SVD"/"globalBMmatrix";
-    writeMatrix(globalBMmatrix, dataFile);
-
-
-    // solve matrix system
-    RectangularMatrix<scalar> tempCalCoefficientM;
-    RectangularMatrix<scalar> calCoefficientM(modesNum, elementNum);
-    tempCalCoefficientM = SVDinv(globalAMatrix) * globalBMmatrix;
-    for (label row = 0; row < calCoefficientM.m(); ++row)
-    {
-        for (label column = 0; column < calCoefficientM.n(); ++column)
+        for (label column = 0; column < K11.n(); ++column)
         {
-            calCoefficientM(row, column) =  tempCalCoefficientM(row+column*modesNum, 0);
+            K11(row, column) = gSum(scalarField (
+                                            + 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            + 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));                                          
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"calCoefficientM";
-    writeMatrix(calCoefficientM, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"K11";
+    writeMatrix(K11, dataFile);
 
+    // K22
+    RectangularMatrix<scalar> K22(modesNum, modesNum, Foam::Zero);
 
-    // calculate snapshots
-    RectangularMatrix<scalar> calSnapshotsM;
-    calSnapshotsM = modesM * calCoefficientM;
-    dataFile = runTime.globalPath()/"SVD"/"calSnapshotsM";
-    writeMatrix(calSnapshotsM, dataFile);
-
-
-    // The error matrix
-    dataFile = dataPath/"snapshotsM";
-    RectangularMatrix<scalar> snapshotsM(mesh.C().size(), elementNum);
-    if(isFile(dataFile))
-    {                
-        IFstream dataStream(dataFile);
-        word dataLine;
-        label row(0);
-
-        while(dataStream.getLine(dataLine) && dataLine != word::null)
-        {
-            IStringStream dataString (dataLine);
-            token singleData;  // token stores the data read from IFstream 
-
-            for(label elementI = 0; elementI < elementNum; ++elementI)
-            {
-                dataString.read(singleData);    
-                snapshotsM(row, elementI) = singleData.scalarToken();
-            }   
-            ++row;
-        }                       
-    }  
-    else
+    for (label row = 0; row < K22.m(); ++row)
     {
-        Info << "file: " << dataFile << " is not exist!" << endl;
-        // break;
-    }
-
-    RectangularMatrix<scalar> errorM(mesh.C().size(), elementNum);
-    for (label row = 0; row < errorM.m(); ++row)
-    {
-        for (label column = 0; column < errorM.n(); ++column)
+        for (label column = 0; column < K22.n(); ++column)
         {
-            errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column))/snapshotsM(row, column);
+            K22(row, column) = gSum(scalarField (
+                                            - 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"errorM";
-    writeMatrix(errorM, dataFile);    
+    dataFile = runTime.globalPath()/"SVD"/"K22";
+    writeMatrix(K22, dataFile);
 
+    // K12
+    RectangularMatrix<scalar> K12(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < K12.m(); ++row)
+    {
+        for (label column = 0; column < K12.n(); ++column)
+        {
+            K12(row, column) = gSum(scalarField (
+                                            + 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+                                            - xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"K12";
+    writeMatrix(K12, dataFile);
+
+    // K21
+    RectangularMatrix<scalar> K21(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < K21.m(); ++row)
+    {
+        for (label column = 0; column < K21.n(); ++column)
+        {
+            K21(row, column) = gSum(scalarField (
+                                            - 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            - xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));                                  
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"K21";
+    writeMatrix(K21, dataFile);
+
+    // boundary penalty terms
+    // KtaoD, patch-inlet, bundaryPatch2
+    RectangularMatrix<scalar> KtaoD(modesNum, modesNum, Foam::Zero);
+    vector inletfaceNormal(0, 0, -1);
+
+    for (label row = 0; row < KtaoD.m(); ++row)
+    {
+        for (label column = 0; column < KtaoD.n(); ++column)
+        {
+            KtaoD(row, column) = gSum(scalarField (epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"KtaoD";
+    writeMatrix(KtaoD, dataFile);
+
+    
+
+    Info<< "End\n"
 
     return 0;
 }
