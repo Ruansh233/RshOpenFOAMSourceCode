@@ -55,17 +55,17 @@ int main(int argc, char *argv[])
 
     PtrList<volVectorField> uFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, vector>> uFieldBundaryModesList;
-    PtrList<volTensorField> divuFieldModesList;
-    PtrList<FieldField<Foam::fvPatchField, tensor>> divuFieldBundaryModesList;
     PtrList<volTensorField> graduFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, tensor>> graduFieldBundaryModesList;
+    PtrList<volScalarField> divuFieldModesList;
+    PtrList<FieldField<Foam::fvPatchField, scalar>> divuFieldBundaryModesList;
 
     // ===========================================================
     // ------ reading modes, gradModes from the ref case ---------
     // ------ creating mesh and time object for ref case ---------
     // ===========================================================
     // reference case name
-    fileName refCaseName(svdDict.getWord("refCaseName"));
+    fileName refCaseName(DGdict.getWord("refCaseName"));
     // time object for reference cases
     Foam::Time runTimeRef
     (
@@ -152,10 +152,10 @@ int main(int argc, char *argv[])
         );
 
         graduFieldModesList.append(uFieldValueModegrad.clone());
-        graduFieldBundaryModesList.append(uFieldValueMode.boundaryField().clone());
+        graduFieldBundaryModesList.append(uFieldValueModegrad.boundaryField().clone());
 
         // div of velocity modes
-        volTensorField uFieldValueModediv
+        volScalarField uFieldValueModediv
         (
             IOobject
             (
@@ -179,6 +179,7 @@ int main(int argc, char *argv[])
     RectangularMatrix<scalar> MomGlobalAMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
     RectangularMatrix<scalar> MomGlobalBMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
     RectangularMatrix<scalar> MomGlobalFMat(modesNum * elementNum, 1, Foam::Zero);
+    fileName dataFile;
 
     // ===========================================================
     // ------ The diffusion term ---------------------------------
@@ -328,16 +329,16 @@ int main(int argc, char *argv[])
     // ------ The pressure gradient term -------------------------
     // ===========================================================
     // volumtric contribution, \nabla p
-    RectangularMatrix<scalar> ConLocalBMat(modesNum, modesNum, Foam::Zero);
-    for (label row = 0; row < ConLocalBMat.m(); ++row)
+    RectangularMatrix<scalar> MomLocalBMat(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < MomLocalBMat.m(); ++row)
     {
-        for (label column = 0; column < ConLocalBMat.n(); ++column)
+        for (label column = 0; column < MomLocalBMat.n(); ++column)
         {
-            ConLocalBMat(row, column) = gSum(scalarField (pFieldModesList[column] * divuFieldModesList[row]));
+            MomLocalBMat(row, column) = gSum(scalarField (pFieldModesList[column] * divuFieldModesList[row]));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"ConLocalBMat";
-    writeMatrix(ConLocalBMat, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"MomLocalBMat";
+    writeMatrix(MomLocalBMat, dataFile);
 
     // N11
     RectangularMatrix<scalar> N11(modesNum, modesNum, Foam::Zero);
@@ -429,14 +430,13 @@ int main(int argc, char *argv[])
     // boundary penalty terms
     // NtaoD, patch-inlet, bundaryPatch2
     RectangularMatrix<scalar> NtaoD(modesNum, modesNum, Foam::Zero);
-    vector inletfaceNormal(0, 0, -1);
 
     for (label row = 0; row < NtaoD.m(); ++row)
     {
         for (label column = 0; column < NtaoD.n(); ++column)
         {
             NtaoD(row, column) = gSum(scalarField (pFieldBundaryModesList[column][bundaryPatch2] 
-                                                * (uFieldBundaryModesList[row][bundaryPatch2] & interfaceNormal)));
+                                                * (uFieldBundaryModesList[row][bundaryPatch2] & inletfaceNormal)));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"NtaoD";
@@ -536,16 +536,15 @@ int main(int argc, char *argv[])
     // boundary penalty terms
     // KtaoD, patch-inlet, bundaryPatch2
     RectangularMatrix<scalar> KtaoD(modesNum, modesNum, Foam::Zero);
-    vector inletfaceNormal(0, 0, -1);
 
     for (label row = 0; row < KtaoD.m(); ++row)
     {
         for (label column = 0; column < KtaoD.n(); ++column)
         {
             KtaoD(row, column) = gSum(scalarField (epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)
                                             + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"KtaoD";
@@ -553,7 +552,7 @@ int main(int argc, char *argv[])
 
     
 
-    Info<< "End\n"
+    Info<< "\nEnd\n";
 
     return 0;
 }
