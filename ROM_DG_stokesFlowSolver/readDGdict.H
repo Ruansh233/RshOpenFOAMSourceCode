@@ -29,3 +29,9 @@
     scalar Tin (DGdict.getScalar("Tin"));
     scalar Tout (DGdict.getScalar("Tout"));
     scalar qn (DGdict.getScalar("qn"));
+    vector Uin (DGdict.lookup("Uin"));
+
+    // The following is same to the lookup function
+    // vector UinTest (DGdict.get<vector>("Uin"));
+
+
