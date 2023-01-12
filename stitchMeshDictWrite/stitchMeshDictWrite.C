@@ -28,6 +28,13 @@ License
 
 int main(int argc, char *argv[])
 {
+    argList::addOption // string variable
+    (
+        "interfaceFile",
+        "word",
+        "the interface file name(directory)"
+    );
+
     #include "setRootCase.H"
 
 	// These two create the time system (instance called runTime) and fvMesh (instance called mesh).
@@ -37,21 +44,40 @@ int main(int argc, char *argv[])
     // Rsh, read interfaces patch pair
     List<word> interfacePatchListA(mesh.boundaryMesh().size());
     List<word> interfacePatchListB(mesh.boundaryMesh().size());
-    scalar junk(0.0);
     label interfacePairNumber(0);
 
-    fileName interfacedataFile (runTime.path()/runTime.system()/"patchPair");
-    IFstream dataStream(interfacedataFile);
-    while (! dataStream.eof())
-    {
-        dataStream >> interfacePatchListA[interfacePairNumber];
-        dataStream >> interfacePatchListB[interfacePairNumber];
-        dataStream.read(junk);
-        dataStream.read(junk);
-        dataStream.read(junk);
+    word interfaceFile;
+    if(args.readIfPresent("interfaceFile", interfaceFile, word ("patchPair")))
+        Info<< "no interfaceFile inputed, default file is patchPair.\n";
+    fileName interfacedataFile (runTime.path()/runTime.system()/interfaceFile);
 
+    IFstream dataStream(interfacedataFile);
+    word dataLine;
+    token readToken;
+
+    while(dataStream.getLine(dataLine) && !isNull(dataLine))
+    {
+        IStringStream dataString (dataLine);
+        dataString.read(readToken);
+        interfacePatchListA[interfacePairNumber] = readToken.wordToken();
+        dataString.read(readToken);
+        interfacePatchListB[interfacePairNumber] = readToken.wordToken();
+
+        // dataString >> interfacePatchListA[interfacePairNumber];
+        // dataString >> interfacePatchListB[interfacePairNumber];
         interfacePairNumber += 1;
-    }
+    }     
+
+    // while (! dataStream.eof())
+    // {
+    //     dataStream >> interfacePatchListA[interfacePairNumber];
+    //     dataStream >> interfacePatchListB[interfacePairNumber];
+    //     dataStream.read(junk);
+    //     dataStream.read(junk);
+    //     dataStream.read(junk);
+
+    //     interfacePairNumber += 1;
+    // }
 
     interfacePatchListA.resize(interfacePairNumber);
     interfacePatchListB.resize(interfacePairNumber);
@@ -81,17 +107,6 @@ int main(int argc, char *argv[])
     }
 
     stitchMeshDict.regIOobject::write();
-
-
-    // stitchPair
-    // {
-    //     match   perfect;
-    //     master  patchMaster;
-    //     slave   patchSlave;
-    // }
-    // })deli";
-
-
 }
 
 // ************************************************************************* //
