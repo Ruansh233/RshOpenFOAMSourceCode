@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
     // ------ The matrix system for momentum equation ------------
     // ===========================================================
     // create Matrix system
-    // initial global matrix
+    // initial global matrix of momentum equations
     RectangularMatrix<scalar> MomGlobalAMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
     RectangularMatrix<scalar> MomGlobalBMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
     RectangularMatrix<scalar> MomGlobalFMat(modesNum * elementNum, 1, Foam::Zero);
@@ -442,6 +442,146 @@ int main(int argc, char *argv[])
     dataFile = runTime.globalPath()/"SVD"/"NtaoD";
     writeMatrix(NtaoD, dataFile);
 
+    // ===========================================================
+    // ------ Assign value for global momentum matrix ------------
+    // ===========================================================
+    // create Matrix system
+    // initial global matrix of momentum equations
+    // RectangularMatrix<scalar> MomGlobalAMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    // RectangularMatrix<scalar> MomGlobalBMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    // RectangularMatrix<scalar> MomGlobalFMat(modesNum * elementNum, 1, Foam::Zero);
+
+    // ===========================================================
+    // --------------- MomGlobalAMat assignment ------------------
+    // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalAMat(row, column) = MomLocalAMat(row, column) + MtaoD(row, column) + M11(row, column);
+        }
+    }
+
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalAMat(row+elementI*modesNum, column+elementI*modesNum) =  MomLocalAMat(row, column) 
+                                                                        + M11(row, column) + M22(row, column);
+            }
+        }
+    }
+
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalAMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  MomLocalAMat(row, column) 
+                                                                           + M22(row, column);
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalAMat(row+elementI*modesNum, column+(elementI+1)*modesNum) =  M12(row, column);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalAMat(row+(elementI+1)*modesNum, column+elementI*modesNum) =  M21(row, column);
+            }
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"MomGlobalAMat";
+    writeMatrix(MomGlobalAMat, dataFile);
+
+    // ===========================================================
+    // --------------- MomGlobalBMat assignment ------------------
+    // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalBMat(row, column) = MomLocalBMat(row, column) + N11(row, column);
+        }
+    }
+
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalBMat(row+elementI*modesNum, column+elementI*modesNum) =  MomLocalBMat(row, column) 
+                                                                        + N11(row, column) + N22(row, column);
+            }
+        }
+    }
+
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalBMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  MomLocalBMat(row, column) 
+                                                                           + N22(row, column);
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalBMat(row+elementI*modesNum, column+(elementI+1)*modesNum) =  N12(row, column);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalBMat(row+(elementI+1)*modesNum, column+elementI*modesNum) =  N21(row, column);
+            }
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"MomGlobalBMat";
+    writeMatrix(MomGlobalBMat, dataFile);
+
+    // ===========================================================
+    // --------------- MomGlobalFMat assignment ------------------
+    // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        MomGlobalFMat(row, 0) = FtaoD(row, 0);
+    }
+
+    dataFile = mesh.time().path()/"SVD"/"MomGlobalFMat";
+    writeMatrix(MomGlobalFMat, dataFile);
+    
+
+    // ===========================================================
+    // ------ The matrix system for continuous equation ------------
+    // ===========================================================
+    // create Matrix system
+    // initial global matrix of continuous equations
+    RectangularMatrix<scalar> ConGlobalBMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<scalar> ConGlobalFMat(modesNum * elementNum, 1, Foam::Zero);
 
     // ===========================================================
     // ------ The divergence of velocity -------------------------
@@ -549,6 +689,11 @@ int main(int argc, char *argv[])
     }
     dataFile = runTime.globalPath()/"SVD"/"KtaoD";
     writeMatrix(KtaoD, dataFile);
+
+
+    // ===========================================================
+    // ------ The matrix system for momentum equation ------------
+    // ===========================================================
 
     
 
