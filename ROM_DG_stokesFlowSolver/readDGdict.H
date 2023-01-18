@@ -21,14 +21,14 @@
     scalar epsilonPara (DGdict.getScalar("epsilonPara"));
     scalar xigema0 (DGdict.getScalar("xigema0"));
     scalar xigema1 (DGdict.getScalar("xigema1"));
-    scalar beta0 (DGdict.getScalar("beta0"));
-    scalar beta1 (DGdict.getScalar("beta1"));
+    // scalar beta0 (DGdict.getScalar("beta0"));
+    // scalar beta1 (DGdict.getScalar("beta1"));
 
     // phiscal parameter    
     scalar kineticViscosity (DGdict.getScalar("kineticViscosity"));
-    scalar Tin (DGdict.getScalar("Tin"));
-    scalar Tout (DGdict.getScalar("Tout"));
-    scalar qn (DGdict.getScalar("qn"));
+    // scalar Tin (DGdict.getScalar("Tin"));
+    // scalar Tout (DGdict.getScalar("Tout"));
+    // scalar qn (DGdict.getScalar("qn"));
     vector Uin (DGdict.lookup("Uin"));
 
     // The following is same to the lookup function

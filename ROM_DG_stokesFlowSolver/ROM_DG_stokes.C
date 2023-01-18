@@ -196,15 +196,12 @@ int main(int argc, char *argv[])
     dataFile = runTime.globalPath()/"SVD"/"MomLocalAMat";
     writeMatrix(MomLocalAMat, dataFile);
 
-
     // patch ID for reference mesh of different interface
     label bundaryPatch1 (refElementMesh.boundary().findPatchID("block1_out"));
     label bundaryPatch2 (refElementMesh.boundary().findPatchID("block1_in"));
 
-
     // interface contribution
     vector interfaceNormal(0, 0, 1);
-
 
     // M11
     RectangularMatrix<scalar> M11(modesNum, modesNum, Foam::Zero);
@@ -504,6 +501,9 @@ int main(int argc, char *argv[])
             }
         }
     }
+
+    // MomGlobalAMat should contain kineticViscosity
+    MomGlobalAMat = kineticViscosity * MomGlobalAMat;
     dataFile = mesh.time().path()/"SVD"/"MomGlobalAMat";
     writeMatrix(MomGlobalAMat, dataFile);
 
@@ -604,13 +604,15 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K11.n(); ++column)
         {
-            K11(row, column) = gSum(scalarField (
-                                            + 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
-                                            + 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
-                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));                                          
+            // K11(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+            //                                 + 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));     
+            K11(row, column) = gSum(scalarField (+ 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));                                        
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"K11";
@@ -623,12 +625,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K22.n(); ++column)
         {
-            K22(row, column) = gSum(scalarField (
-                                            - 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
-                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
-                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+            // K22(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
+            K22(row, column) = gSum(scalarField (- 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
                                                 * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
         }
     }
@@ -642,12 +646,14 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K12.n(); ++column)
         {
-            K12(row, column) = gSum(scalarField (
-                                            + 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
-                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
-                                            - xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+            // K12(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[row][bundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));
+            K12(row, column) = gSum(scalarField (+ 0.5 * pFieldBundaryModesList[row][bundaryPatch2] 
                                                 * (uFieldBundaryModesList[column][bundaryPatch1] & interfaceNormal)));
         }
     }
@@ -661,13 +667,15 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K21.n(); ++column)
         {
-            K21(row, column) = gSum(scalarField (
-                                            - 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
-                                            - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
-                                            - xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));                                  
+            // K21(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));
+            K21(row, column) = gSum(scalarField (- 0.5 * pFieldBundaryModesList[row][bundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & interfaceNormal)));                              
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"K21";
@@ -681,21 +689,345 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < KtaoD.n(); ++column)
         {
-            KtaoD(row, column) = gSum(scalarField (epsilonPara * pFieldBundaryModesList[row][bundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)
-                                            + xigema0 * pFieldBundaryModesList[row][bundaryPatch1] 
+            KtaoD(row, column) = gSum(scalarField (pFieldBundaryModesList[row][bundaryPatch2] 
                                                 * (uFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)));
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"KtaoD";
     writeMatrix(KtaoD, dataFile);
 
+    // boundary penalty terms on the left side
+    // QtaoD, patch-inlet, bundaryPatch2
+    RectangularMatrix<scalar> QtaoD(modesNum, 1, Foam::Zero);
+
+    for (label row = 0; row < QtaoD.m(); ++row)
+    {
+        for (label column = 0; column < QtaoD.n(); ++column)
+        {
+            QtaoD(row, column) = gSum(scalarField (pFieldBundaryModesList[row][bundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][bundaryPatch2] & inletfaceNormal)));
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"QtaoD";
+    writeMatrix(QtaoD, dataFile);
+
 
     // ===========================================================
-    // ------ The matrix system for momentum equation ------------
+    // --------------- ConGlobalBMat assignment ------------------
+    // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            ConGlobalBMat(row, column) = ConLocalBMat(row, column) + K11(row, column);
+        }
+    }
+
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                ConGlobalBMat(row+elementI*modesNum, column+elementI*modesNum) =  ConLocalBMat(row, column) 
+                                                                        + K11(row, column) + K22(row, column);
+            }
+        }
+    }
+
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            ConGlobalBMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  ConLocalBMat(row, column) 
+                                                                           + K22(row, column);
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                ConGlobalBMat(row+elementI*modesNum, column+(elementI+1)*modesNum) =  K12(row, column);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                ConGlobalBMat(row+(elementI+1)*modesNum, column+elementI*modesNum) =  K21(row, column);
+            }
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"ConGlobalBMat";
+    writeMatrix(ConGlobalBMat, dataFile);
+
+
+    // ===========================================================
+    // --------------- ConGlobalFMat assignment ------------------
+    // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        ConGlobalFMat(row, 0) = QtaoD(row, 0);
+    }
+
+    dataFile = mesh.time().path()/"SVD"/"ConGlobalFMat";
+    writeMatrix(ConGlobalFMat, dataFile);
+
+
+    // ===========================================================
+    // ------ The matrix system for stokes flow assignment -------
+    // ------ Momentum equations and continuous equations --------
     // ===========================================================
 
-    
+    RectangularMatrix<scalar> GlobalAMat(modesNum * elementNum * 2, modesNum * elementNum * 2, Foam::Zero);
+    RectangularMatrix<scalar> GlobalFMat(modesNum * elementNum * 2, 1, Foam::Zero);
+
+    for(label elementI = 0; elementI < elementNum; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                GlobalAMat(row+elementI*modesNum, column+elementI*modesNum) =  MomGlobalAMat(row+elementI*modesNum, column+elementI*modesNum);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                GlobalAMat(row+elementI*modesNum, column+(elementNum+elementI)*modesNum) =  MomGlobalBMat(row+elementI*modesNum, column+elementI*modesNum);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                GlobalAMat(row+(elementNum+elementI)*modesNum, column+elementI*modesNum) =  ConGlobalBMat(row+elementI*modesNum, column+elementI*modesNum);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            GlobalFMat(row+elementI*modesNum, 0) =  MomGlobalFMat(row+elementI*modesNum, 0);
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            GlobalFMat(row+(elementNum+elementI)*modesNum, 0) =  ConGlobalFMat(row+elementI*modesNum, 0);
+        }
+    }
+
+
+    // ===========================================================
+    // ---- solve The matrix system for stokes flow --------------
+    // ---- output the calculated coefficient and snapshots ------
+    // ===========================================================
+
+    // solve matrix system
+    RectangularMatrix<scalar> tempCalCoefficientM;
+    RectangularMatrix<scalar> uCalCoefficientM(modesNum, elementNum);
+    RectangularMatrix<scalar> pCalCoefficientM(modesNum, elementNum);
+    tempCalCoefficientM = SVDinv(GlobalAMat) * GlobalFMat;
+
+    for (label row = 0; row < uCalCoefficientM.m(); ++row)
+    {
+        for (label column = 0; column < uCalCoefficientM.n(); ++column)
+        {
+            uCalCoefficientM(row, column) = tempCalCoefficientM(row+column*modesNum, 0);
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"uCalCoefficientM";
+    writeMatrix(uCalCoefficientM, dataFile);
+
+    for (label row = 0; row < pCalCoefficientM.m(); ++row)
+    {
+        for (label column = 0; column < pCalCoefficientM.n(); ++column)
+        {
+            pCalCoefficientM(row, column) = tempCalCoefficientM(row+(column+elementNum)*modesNum, 0);
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"pCalCoefficientM";
+    writeMatrix(pCalCoefficientM, dataFile);
+
+    // ===========================================================
+    // ------------ error of pressure field ----------------------
+    // =========================================================== 
+    // read the matrix
+    // read cell pressure modes matrix
+    dataFile = dataPath/"pModesM";
+    RectangularMatrix<scalar> pModesM(mesh.C().size(), modesNum);
+
+    if(isFile(dataFile))
+    {                
+        IFstream dataStream(dataFile);
+        word dataLine;
+        label row(0);
+
+        while(dataStream.getLine(dataLine) && dataLine != word::null)
+        {
+            IStringStream dataString (dataLine);
+            token singleData;  // token stores the data read from IFstream 
+
+            for(label modesNo = 0; modesNo < modesNum; ++modesNo)
+            {
+                dataString.read(singleData);    
+                pModesM(row, modesNo) = singleData.scalarToken();
+            }   
+            ++row;
+        }                       
+    }  
+    else
+    {
+        Info << "file: " << dataFile << " is not exist!" << endl;
+        // break;
+    }
+
+    // calculate pressure snapshots
+    RectangularMatrix<scalar> pCalSnapshotsM;
+    pCalSnapshotsM = pModesM * pCalCoefficientM;
+    dataFile = mesh.time().path()/"SVD"/"pCalSnapshotsM";
+    writeMatrix(pCalSnapshotsM, dataFile);
+
+    // The snapshots matrix of pressure
+    dataFile = dataPath/"pSnapshotsM";
+    RectangularMatrix<scalar> pSnapshotsM(mesh.C().size(), elementNum);
+    if(isFile(dataFile))
+    {                
+        IFstream dataStream(dataFile);
+        word dataLine;
+        label row(0);
+
+        while(dataStream.getLine(dataLine) && dataLine != word::null)
+        {
+            IStringStream dataString (dataLine);
+            token singleData;  // token stores the data read from IFstream 
+
+            for(label elementI = 0; elementI < elementNum; ++elementI)
+            {
+                dataString.read(singleData);    
+                pSnapshotsM(row, elementI) = singleData.scalarToken();
+            }   
+            ++row;
+        }                       
+    }  
+    else
+    {
+        Info << "file: " << dataFile << " is not exist!" << endl;
+        // break;
+    }
+
+    // pressure error matrix
+    RectangularMatrix<scalar> pErrorM(mesh.C().size(), elementNum);
+    for (label row = 0; row < pErrorM.m(); ++row)
+    {
+        for (label column = 0; column < pErrorM.n(); ++column)
+        {
+            pErrorM(row, column) =  (pCalSnapshotsM(row, column) - pSnapshotsM(row, column))/pSnapshotsM(row, column);
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"pErrorM";
+    writeMatrix(pErrorM, dataFile);    
+
+
+    // ===========================================================
+    // ------------ error of velocity field ----------------------
+    // =========================================================== 
+    // read cell velocity modes matrix
+    dataFile = dataPath/"uModesM";
+    RectangularMatrix<scalar> uModesM(mesh.C().size() * 3, modesNum);
+
+    if(isFile(dataFile))
+    {                
+        IFstream dataStream(dataFile);
+        word dataLine;
+        label row(0);
+
+        while(dataStream.getLine(dataLine) && dataLine != word::null)
+        {
+            IStringStream dataString (dataLine);
+            token singleData;  // token stores the data read from IFstream 
+
+            for(label modesNo = 0; modesNo < modesNum; ++modesNo)
+            {
+                dataString.read(singleData);    
+                uModesM(row, modesNo) = singleData.scalarToken();
+            }   
+            ++row;
+        }                       
+    }  
+    else
+    {
+        Info << "file: " << dataFile << " is not exist!" << endl;
+        // break;
+    }
+
+    // calculate velocity snapshots
+    RectangularMatrix<scalar> uCalSnapshotsM;
+    uCalSnapshotsM = uModesM * uCalCoefficientM;
+    dataFile = mesh.time().path()/"SVD"/"uCalSnapshotsM";
+    writeMatrix(uCalSnapshotsM, dataFile);
+
+    // The snapshots matrix of pressure
+    dataFile = dataPath/"uSnapshotsM";
+    RectangularMatrix<scalar> uSnapshotsM(mesh.C().size()*3, elementNum);
+    if(isFile(dataFile))
+    {                
+        IFstream dataStream(dataFile);
+        word dataLine;
+        label row(0);
+
+        while(dataStream.getLine(dataLine) && dataLine != word::null)
+        {
+            IStringStream dataString (dataLine);
+            token singleData;  // token stores the data read from IFstream 
+
+            for(label elementI = 0; elementI < elementNum; ++elementI)
+            {
+                dataString.read(singleData);    
+                uSnapshotsM(row, elementI) = singleData.scalarToken();
+            }   
+            ++row;
+        }                       
+    }  
+    else
+    {
+        Info << "file: " << dataFile << " is not exist!" << endl;
+        // break;
+    }
+
+    // pressure error matrix
+    RectangularMatrix<scalar> uErrorM(mesh.C().size() * 3, elementNum);
+    for (label row = 0; row < uErrorM.m(); ++row)
+    {
+        for (label column = 0; column < uErrorM.n(); ++column)
+        {
+            uErrorM(row, column) =  (uCalSnapshotsM(row, column) - uSnapshotsM(row, column))/uSnapshotsM(row, column);
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"uErrorM";
+    writeMatrix(uErrorM, dataFile);    
+
 
     Info<< "\nEnd\n";
 
