@@ -504,13 +504,13 @@ int main(int argc, char *argv[])
                             * Tout));
     }
 
-    // Fn
-    RectangularMatrix<scalar> Fn(modesNum, 1, Foam::Zero);
-    for (label row = 0; row < Fn.m(); ++row)
-    {
-        Fn(row, 0) = gSum(scalarField (
-                            heatConductivity * fieldBundaryModesList[row][bundaryPatch3] * qn));
-    }
+    // // Fn
+    // RectangularMatrix<scalar> Fn(modesNum, 1, Foam::Zero);
+    // for (label row = 0; row < Fn.m(); ++row)
+    // {
+    //     Fn(row, 0) = gSum(scalarField (
+    //                         heatConductivity * fieldBundaryModesList[row][bundaryPatch3] * qn));
+    // }
 
 
     // global matrix
@@ -576,13 +576,13 @@ int main(int argc, char *argv[])
         globalFMmatrix(row, 0) = Fin(row, 0);
     }
 
-    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
-    {
-        for (label row = 0; row < modesNum; ++row)
-        {
-            globalFMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
-        }
-    }
+    // for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    // {
+    //     for (label row = 0; row < modesNum; ++row)
+    //     {
+    //         globalFMmatrix(row+elementI*modesNum, 0) = Fn(row, 0);
+    //     }
+    // }
 
     for (label row = 0; row < modesNum; ++row)
     {
@@ -648,12 +648,12 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < errorM.n(); ++column)
         {
-            errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column))/snapshotsM(row, column);
+            // errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column))/snapshotsM(row, column);
+            errorM(row, column) =  (calSnapshotsM(row, column) - snapshotsM(row, column));
         }
     }
     dataFile = mesh.time().path()/"SVD"/"errorM";
     writeMatrix(errorM, dataFile);    
-
 
     return 0;
 }
