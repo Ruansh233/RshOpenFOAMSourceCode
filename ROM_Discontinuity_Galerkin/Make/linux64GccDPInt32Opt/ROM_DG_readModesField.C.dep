@@ -1,5 +1,5 @@
-$(OBJECTS_DIR)/ROM_DG.C.dep: \
-ROM_DG.C \
+$(OBJECTS_DIR)/ROM_DG_readModesField.C.dep: \
+ROM_DG_readModesField.C \
 $(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/fvCFD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/parRun.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/Pstream.H \

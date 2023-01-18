@@ -1,4 +1,4 @@
 SOURCE = \
-ROM_DG.C \
+ROM_DG_readModesField.C \
 
 # sources
