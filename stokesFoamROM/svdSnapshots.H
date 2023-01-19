@@ -300,13 +300,13 @@
     dataFile = runTime.globalPath()/"SVD"/"pModesM";
     writeMatrix(pFieldValueSVD.U(), dataFile);
     dataFile = runTime.globalPath()/"SVD"/"uModesM";
-    writeMatrix(pFieldValueSVD.U(), dataFile);
+    writeMatrix(uFieldValueSVD.U(), dataFile);
 
     // write eigen value Matrix
     dataFile = runTime.globalPath()/"SVD"/"pEigenValueM";
     writeMatrix(pFieldValueSVD.S(), dataFile);
     dataFile = runTime.globalPath()/"SVD"/"uEigenValueM";
-    writeMatrix(pFieldValueSVD.S(), dataFile);
+    writeMatrix(uFieldValueSVD.S(), dataFile);
 
     // write eigen value Matrix
     dataFile = runTime.globalPath()/"SVD"/"pCoefficientsM";
