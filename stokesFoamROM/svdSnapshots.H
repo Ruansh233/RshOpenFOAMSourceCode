@@ -109,14 +109,14 @@
         pBoundaryModesMList.append(RectangularMatrix<scalar> (pPatchSnapshots * pInvCoefficientsM).clone());
     }
 
-    forAll(pBoundarySnapshotsMList, listI)
-    {
-        dataFile = runTime.globalPath()/"SVD"/"pBoundarySnapshots" + name(listI);
-        writeMatrix(pBoundarySnapshotsMList[listI], dataFile);
+    // forAll(pBoundarySnapshotsMList, listI)
+    // {
+    //     dataFile = runTime.globalPath()/"SVD"/"pBoundarySnapshots" + name(listI);
+    //     writeMatrix(pBoundarySnapshotsMList[listI], dataFile);
 
-        dataFile = runTime.globalPath()/"SVD"/"pBoundaryModes" + name(listI);
-        writeMatrix(pBoundaryModesMList[listI], dataFile);
-    }
+    //     dataFile = runTime.globalPath()/"SVD"/"pBoundaryModes" + name(listI);
+    //     writeMatrix(pBoundaryModesMList[listI], dataFile);
+    // }
 
 
     // modes value for each boundary of U, vector field
@@ -143,14 +143,14 @@
         uBoundaryModesMList.append(RectangularMatrix<scalar> (uPatchSnapshots * uInvCoefficientsM).clone());
     }
 
-    forAll(uBoundarySnapshotsMList, listI)
-    {
-        dataFile = runTime.globalPath()/"SVD"/"uBoundarySnapshots" + name(listI);
-        writeMatrix(uBoundarySnapshotsMList[listI], dataFile);
+    // forAll(uBoundarySnapshotsMList, listI)
+    // {
+    //     dataFile = runTime.globalPath()/"SVD"/"uBoundarySnapshots" + name(listI);
+    //     writeMatrix(uBoundarySnapshotsMList[listI], dataFile);
 
-        dataFile = runTime.globalPath()/"SVD"/"uBoundaryModes" + name(listI);
-        writeMatrix(uBoundaryModesMList[listI], dataFile);
-    }
+    //     dataFile = runTime.globalPath()/"SVD"/"uBoundaryModes" + name(listI);
+    //     writeMatrix(uBoundaryModesMList[listI], dataFile);
+    // }
 
     // -----------------------------------------------------------
     // --------- create new object for reference cases -----------
