@@ -1,4 +1,4 @@
 SOURCE = \
-stokesFoam.C \
+ROM_DG_stokes.C \
 
 # sources

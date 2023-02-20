@@ -100,7 +100,7 @@
         IOobject
         (
             polyMesh::defaultRegion,
-            args.rootPath()/"Block1"/"constant",
+            args.rootPath()/refCaseName/"constant",
             runTimeTest,
             IOobject::MUST_READ
         ),

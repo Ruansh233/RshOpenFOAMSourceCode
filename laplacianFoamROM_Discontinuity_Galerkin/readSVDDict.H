@@ -15,4 +15,5 @@
     );
     
     label modesNum (svdDict.lookupOrDefault<label>("modeExtract", mesh.cellZones().size()));
+    fileName refCaseName(svdDict.lookupOrDefault<fileName>("modeExtract", "Block1"));
     

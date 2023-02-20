@@ -21,6 +21,10 @@
     scalar epsilonPara (DGdict.getScalar("epsilonPara"));
     scalar xigema0 (DGdict.getScalar("xigema0"));
     scalar xigema1 (DGdict.getScalar("xigema1"));
+    scalar xigema2 (xigema0);
+    scalar xigema3 (xigema1);
+    scalar xigema4 (xigema0);
+    scalar xigema5 (xigema1);
     // scalar beta0 (DGdict.getScalar("beta0"));
     // scalar beta1 (DGdict.getScalar("beta1"));
 
