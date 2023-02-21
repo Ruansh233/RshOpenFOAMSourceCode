@@ -62,6 +62,7 @@ Description
 #include "wordRe.H"
 #include "cpuTimeCxx.H"
 #include "SVD.H"
+#include "wallDist.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

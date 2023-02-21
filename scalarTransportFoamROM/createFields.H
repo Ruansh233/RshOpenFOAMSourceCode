@@ -14,7 +14,22 @@ volScalarField T
 );
 
 
-Info<< "Reading field U\n" << endl;
+// Info<< "Reading field U\n" << endl;
+
+// volVectorField U
+// (
+//     IOobject
+//     (
+//         "U",
+//         runTime.timeName(),
+//         mesh,
+//         IOobject::MUST_READ,
+//         IOobject::AUTO_WRITE
+//     ),
+//     mesh
+// );
+
+Info<< "Creating field U\n" << endl;
 
 volVectorField U
 (
@@ -23,12 +38,18 @@ volVectorField U
         "U",
         runTime.timeName(),
         mesh,
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
     mesh
 );
 
+wallDist wallDistance_(mesh);
+
+forAll(U, cellI)
+{
+    U[cellI] = vector(0,0,wallDistance_.y()[cellI]);
+}
 
 Info<< "Reading transportProperties\n" << endl;
 

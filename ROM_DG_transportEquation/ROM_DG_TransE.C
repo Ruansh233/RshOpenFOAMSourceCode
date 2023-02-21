@@ -33,6 +33,7 @@ License
 #include "wordRe.H"
 #include "IFstream.H"
 #include "stringOps.H"
+#include "wallDist.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -47,6 +48,7 @@ int main(int argc, char *argv[])
     fileName dataFile;
 
     #include "readDGdict.H"
+    #include "createFields.H"
 
     // element volume
     scalar elementVol(gSum(mesh.V()));
@@ -141,6 +143,9 @@ int main(int argc, char *argv[])
     tempList.resize(mesh.C().size());
 
 
+    // ===========================================================
+    // ----------------- diffusion term --------------------------
+    // ===========================================================
     // volumtric contribution
     RectangularMatrix<scalar> localAMatrix(modesNum, modesNum, Foam::Zero);
     for (label row = 0; row < localAMatrix.m(); ++row)
@@ -306,6 +311,10 @@ int main(int argc, char *argv[])
     dataFile = mesh.time().path()/"SVD"/"Mout";
     writeMatrix(Mout, dataFile);
 
+
+    // ===========================================================
+    // -------------- diffusion term right side ------------------
+    // ===========================================================
     // Fin
     RectangularMatrix<scalar> Fin(modesNum, 1, Foam::Zero);
     for (label row = 0; row < Fin.m(); ++row)
@@ -340,6 +349,201 @@ int main(int argc, char *argv[])
     }
 
 
+    // ===========================================================
+    // ----------------- convection term -------------------------
+    // ===========================================================
+    // volumtric contribution
+    RectangularMatrix<scalar> localBMatrix(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < localBMatrix.m(); ++row)
+    {
+        for (label column = 0; column < localBMatrix.n(); ++column)
+        {
+            localBMatrix(row, column) = - gSum(scalarField ( (U & gradfieldModesList[row]) * fieldModesList[column]
+                                                                               * mesh.V()));
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"localBMatrix";
+    writeMatrix(localBMatrix, dataFile);
+
+    // interface contribution
+    vector interfaceNormal(0, 0, 1);
+
+    // N11
+    RectangularMatrix<scalar> N11(modesNum, modesNum, Foam::Zero);
+    label bundaryPatch1(matchPatchID[0]);
+    label bundaryPatch2(matchPatchID[1]);
+    label bundaryPatch3(matchPatchID[2]);
+
+
+    for (label row = 0; row < N11.m(); ++row)
+    {
+        for (label column = 0; column < N11.n(); ++column)
+        {
+            N11(row, column) = gSum(scalarField (
+                                            - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
+                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
+                                                * fieldBundaryModesList[column][bundaryPatch2]
+                                            + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
+                                                * fieldBundaryModesList[column][bundaryPatch2]
+                                            + xigema1 * (gradfieldBundaryModesList[row][bundaryPatch2]
+                                                & gradfieldBundaryModesList[column][bundaryPatch2]))
+                                                * mesh.boundary()[bundaryPatch2].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"N11";
+    writeMatrix(N11, dataFile);
+
+    // N22
+    RectangularMatrix<scalar> N22(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N22.m(); ++row)
+    {
+        for (label column = 0; column < N22.n(); ++column)
+        {
+            N22(row, column) = gSum(scalarField (
+                                              0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
+                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
+                                                * fieldBundaryModesList[column][bundaryPatch1]
+                                            + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
+                                                * fieldBundaryModesList[column][bundaryPatch1]
+                                            + xigema1 * (gradfieldBundaryModesList[row][bundaryPatch1]
+                                                & gradfieldBundaryModesList[column][bundaryPatch1]))
+                                                * mesh.boundary()[bundaryPatch1].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"N22";
+    writeMatrix(N22, dataFile);
+
+    // N12
+    RectangularMatrix<scalar> N12(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N12.m(); ++row)
+    {
+        for (label column = 0; column < N12.n(); ++column)
+        {
+            N12(row, column) = gSum(scalarField (
+                                            - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch1] & interfaceNormal) 
+                                            - 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
+                                                * fieldBundaryModesList[column][bundaryPatch1]
+                                            - xigema0 * fieldBundaryModesList[row][bundaryPatch2]
+                                                * fieldBundaryModesList[column][bundaryPatch1]
+                                            - xigema1 * (gradfieldBundaryModesList[row][bundaryPatch2]
+                                                & gradfieldBundaryModesList[column][bundaryPatch1]))
+                                                * mesh.boundary()[bundaryPatch1].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"N12";
+    writeMatrix(N12, dataFile);
+
+    // N21
+    RectangularMatrix<scalar> N21(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N21.m(); ++row)
+    {
+        for (label column = 0; column < N21.n(); ++column)
+        {
+            N21(row, column) = gSum(scalarField (
+                                              0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
+                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
+                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & interfaceNormal) 
+                                                * fieldBundaryModesList[column][bundaryPatch2]
+                                            - xigema0 * fieldBundaryModesList[row][bundaryPatch1]
+                                                * fieldBundaryModesList[column][bundaryPatch2]
+                                            - xigema1 * (gradfieldBundaryModesList[row][bundaryPatch1]
+                                                & gradfieldBundaryModesList[column][bundaryPatch2]))
+                                                * mesh.boundary()[bundaryPatch2].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"N21";
+    writeMatrix(N21, dataFile);
+
+    // boundary penalty terms
+    // Nin
+    RectangularMatrix<scalar> Nin(modesNum, modesNum, Foam::Zero);
+    vector inletfaceNormal(0, 0, -1);
+
+    for (label row = 0; row < Nin.m(); ++row)
+    {
+        for (label column = 0; column < Nin.n(); ++column)
+        {
+            Nin(row, column) = gSum(scalarField (
+                                - heatConductivity * fieldBundaryModesList[row][bundaryPatch1] 
+                                    * (gradfieldBundaryModesList[column][bundaryPatch1] & inletfaceNormal) 
+                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
+                                    * fieldBundaryModesList[column][bundaryPatch1]
+                                + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
+                                    * fieldBundaryModesList[column][bundaryPatch1])
+                                    * mesh.boundary()[bundaryPatch1].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"Nin";
+    writeMatrix(Nin, dataFile);
+
+    // Nout
+    RectangularMatrix<scalar> Nout(modesNum, modesNum, Foam::Zero);
+    vector outletfaceNormal(0, 0, 1);
+
+    for (label row = 0; row < Nout.m(); ++row)
+    {
+        for (label column = 0; column < Nout.n(); ++column)
+        {
+            Nout(row, column) = gSum(scalarField (
+                                - heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
+                                    * (gradfieldBundaryModesList[column][bundaryPatch2] & outletfaceNormal) 
+                                + epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
+                                    * fieldBundaryModesList[column][bundaryPatch2]
+                                + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
+                                    * fieldBundaryModesList[column][bundaryPatch2])
+                                    * mesh.boundary()[bundaryPatch2].magSf());
+        }
+    }
+    dataFile = mesh.time().path()/"SVD"/"Nout";
+    writeMatrix(Nout, dataFile);
+
+
+    // ===========================================================
+    // -------------- diffusion term right side ------------------
+    // ===========================================================
+    // Fin
+    RectangularMatrix<scalar> Fin(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < Fin.m(); ++row)
+    {
+        Fin(row, 0) = gSum(scalarField (
+                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch1] & inletfaceNormal) 
+                            * Tin
+                            + xigema0 * fieldBundaryModesList[row][bundaryPatch1]
+                            * Tin)
+                            * mesh.boundary()[bundaryPatch1].magSf());
+    }
+
+    // Fout
+    RectangularMatrix<scalar> Fout(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < Fout.m(); ++row)
+    {
+        Fout(row, 0) = gSum(scalarField (
+                            epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & outletfaceNormal) 
+                            * Tout
+                            + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
+                            * Tout)
+                            * mesh.boundary()[bundaryPatch2].magSf());
+    }
+
+    // Fn
+    RectangularMatrix<scalar> Fn(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < Fn.m(); ++row)
+    {
+        Fn(row, 0) = gSum(scalarField (
+                            heatConductivity * fieldBundaryModesList[row][bundaryPatch3] * qn)
+                            * mesh.boundary()[bundaryPatch3].magSf());
+    }   
+
+
+    // ===========================================================
+    // ---------------- assing global matrix ---------------------
+    // ===========================================================
     // global matrix
     // global A matrix
     for (label row = 0; row < modesNum; ++row)

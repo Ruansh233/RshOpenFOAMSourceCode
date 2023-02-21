@@ -828,6 +828,9 @@ writeMatrix.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/cpuTimeCxx.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SVD.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/SVDI.H \
+$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/wallDist.H \
+$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/patchDistMethod.H \
+$(WM_PROJECT_DIR)/src/finiteVolume/lnInclude/patchDistMethodTemplates.C \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/addCheckCaseOptions.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCaseLists.H \
 $(WM_PROJECT_DIR)/src/OpenFOAM/lnInclude/setRootCaseListOptions.H \
