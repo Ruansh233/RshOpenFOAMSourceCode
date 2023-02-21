@@ -58,6 +58,10 @@ Description
 #include "fvCFD.H"
 #include "fvOptions.H"
 #include "simpleControl.H"
+#include "writeMatrix.H"
+#include "wordRe.H"
+#include "cpuTimeCxx.H"
+#include "SVD.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -78,6 +82,9 @@ int main(int argc, char *argv[])
     #include "createFields.H"
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    // Rsh, 2023-02-21, addd read svdDict funtion from head file
+    #include "readSVDDict.H"
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
@@ -106,6 +113,17 @@ int main(int argc, char *argv[])
 
         runTime.write();
     }
+
+    // Rsh, 2023-02-21, svd of steady-state results and output modes and snapshots 
+    Info<< "\nThe simulation of FOM is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
+
+    // file location and OF pointer of the file
+    fileName dataFile;
+    autoPtr<OFstream> outputFilePtr;
+
+    #include "svdSnapshots.H"
+
+    Info<< "\nThe solver is finishing at " << runTime.elapsedCpuTime() << " s.\n" << nl;
 
     Info<< "End\n" << endl;
 
