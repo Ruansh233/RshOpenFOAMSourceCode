@@ -380,8 +380,9 @@ int main(int argc, char *argv[])
         for (label column = 0; column < N11.n(); ++column)
         {
             N11(row, column) = gSum(scalarField (
-                                            - 0.5 * heatConductivity * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * (gradfieldBundaryModesList[column][bundaryPatch2] & interfaceNormal) 
+                                            - 0.5 * fieldBundaryModesList[row][bundaryPatch2] 
+                                                * fieldBundaryModesList[column][bundaryPatch1] 
+                                                * (U & interfaceNormal) 
                                             + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
                                                 * fieldBundaryModesList[column][bundaryPatch2]
                                             + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
