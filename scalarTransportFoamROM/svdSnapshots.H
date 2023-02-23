@@ -11,6 +11,12 @@
     // -----------------------------------------------------------
     // SVD for scalar field, T
     // calculate and write matrix element value of diffusion term
+    if(mesh.cellZones().size() == 0)
+    {
+        FatalErrorInFunction
+           << "no cellzones in your mesh, please check!\n";
+    }
+
     label elementCellSize (mesh.cellZones()[0].size());
     label snapshotsNum (mesh.cellZones().size());
     RectangularMatrix<scalar> TFieldValue(elementCellSize, snapshotsNum);
@@ -34,8 +40,8 @@
     // -----------------------------------------------------------
     // list of boundary type wordRe
     // this list can read from dictionary
-    List<word> boundaryWordRex ({".*_in", ".*_out", ".*_wall1", 
-                                ".*_wall2", ".*_wall3", ".*_wall4"});
+    List<word> boundaryWordRex ({"_in", "_out", "_wall1", 
+                                "_wall2", "_wall3", "_wall4"});
     PtrList<List<label>> matchPatchID;
     List<label> tempList;
     wordRe matchPatch;
@@ -64,6 +70,8 @@
         matchPatchID.append(tempList.clone());
         tempList.clear();
     }
+
+    Info << "matchPatchID: \n" <<  matchPatchID << endl;
    
     // -----------------------------------------------------------
     // ---------- assign modes value for boundaries --------------
@@ -88,6 +96,17 @@
 
         TBoundarySnapshotsMList.append(TPatchSnapshots.clone());
         TBoundaryModesMList.append(RectangularMatrix<scalar> (TPatchSnapshots * TInvCoefficientsM).clone());
+    }
+
+    forAll(TBoundarySnapshotsMList, bounI)
+    {
+        // write snapshots Matrix
+        dataFile = runTime.globalPath()/"SVD"/"TBoundarySnapshots"+name(bounI);
+        writeMatrix(TBoundarySnapshotsMList[bounI], dataFile);
+
+        // write modes Matrix
+        dataFile = runTime.globalPath()/"SVD"/"TBoundaryModes"+name(bounI);
+        writeMatrix(TBoundaryModesMList[bounI], dataFile);
     }
 
 
@@ -138,7 +157,7 @@
 
     forAll(boundaryWordRex, RexI)
     {
-        matchPatch = boundaryWordRex[RexI];
+        matchPatch = ".*" + boundaryWordRex[RexI];
         matchPatch.compile();
 
         forAll(refElementMesh.boundaryMesh(), patchI)
@@ -149,6 +168,8 @@
             }
         }
     }
+
+    Info << "refMatchPatchID: \n" << refMatchPatchID << endl;
 
     // set mode field value for pressure
     forAll(TModeNames, No_)

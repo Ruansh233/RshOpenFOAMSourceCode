@@ -53,8 +53,8 @@
     // -----------------------------------------------------------
     // list of boundary type wordRe
     // this list can read from dictionary
-    List<word> boundaryWordRex ({".*_in", ".*_out", ".*_wall1", 
-                                ".*_wall2", ".*_wall3", ".*_wall4"});
+    List<word> boundaryWordRex ({"_in", "_out", "_wall1", 
+                                "_wall2", "_wall3", "_wall4"});
     PtrList<List<label>> matchPatchID;
     List<label> tempList;
     wordRe matchPatch;
@@ -84,6 +84,8 @@
         tempList.clear();
     }
    
+    Info << "matchPatchID: \n" <<  matchPatchID << endl;
+
     // -----------------------------------------------------------
     // ---------- assign modes value for boundaries --------------
     // -----------------------------------------------------------
@@ -201,7 +203,7 @@
 
     forAll(boundaryWordRex, RexI)
     {
-        matchPatch = boundaryWordRex[RexI];
+        matchPatch = ".*" + boundaryWordRex[RexI];
         matchPatch.compile();
 
         forAll(refElementMesh.boundaryMesh(), patchI)
@@ -212,6 +214,8 @@
             }
         }
     }
+
+    Info << "refMatchPatchID: " << refMatchPatchID << endl;
 
     // set mode field value for pressure
     forAll(pModeNames, No_)

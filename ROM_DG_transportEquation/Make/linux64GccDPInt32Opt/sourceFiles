@@ -1,4 +1,4 @@
 SOURCE = \
-ROM_DG_HE.C \
+ROM_DG_TransE.C \
 
 # sources
