@@ -387,21 +387,9 @@ int main(int argc, char *argv[])
         for (label column = 0; column < N11.n(); ++column)
         {
             N11(row, column) = gSum(scalarField (
-<<<<<<< HEAD
-                                            - 0.5 * fieldBundaryModesList[row][bundaryPatch2] 
-                                                * fieldBundaryModesList[column][bundaryPatch1] 
-                                                * (U & interfaceNormal) 
-                                            + 0.5 * epsilonPara * heatConductivity * (gradfieldBundaryModesList[row][bundaryPatch2] & interfaceNormal) 
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            + xigema0 * fieldBundaryModesList[row][bundaryPatch2]
-                                                * fieldBundaryModesList[column][bundaryPatch2]
-                                            + xigema1 * (gradfieldBundaryModesList[row][bundaryPatch2]
-                                                & gradfieldBundaryModesList[column][bundaryPatch2]))
-=======
                                               0.5 * fieldBundaryModesList[row][bundaryPatch2] 
                                                   * fieldBundaryModesList[column][bundaryPatch2] 
                                                 * (U & interfaceNormal))
->>>>>>> b3337285145f868ed85456e3e55df5a39a0f8057
                                                 * mesh.boundary()[bundaryPatch2].magSf());
         }
     }
