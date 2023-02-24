@@ -306,6 +306,8 @@
     dataFile = runTime.globalPath()/"SVD"/"uModesM";
     writeMatrix(uFieldValueSVD.U(), dataFile);
 
+    Info << uFieldValueSVD.U().sizes() << endl;
+
     // write eigen value Matrix
     dataFile = runTime.globalPath()/"SVD"/"pEigenValueM";
     writeMatrix(pFieldValueSVD.S(), dataFile);

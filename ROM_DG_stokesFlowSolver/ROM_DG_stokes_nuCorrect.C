@@ -200,8 +200,6 @@ int main(int argc, char *argv[])
     // patch ID for reference mesh of different interface
     label boundaryPatch1 (refElementMesh.boundary().findPatchID("block1_out"));
     label boundaryPatch2 (refElementMesh.boundary().findPatchID("block1_in"));
-    vector inletfaceNormal(0, 0, -1);
-    vector outletfaceNormal(0, 0, 1);
 
     // interface contribution
     vector interfaceNormal(0, 0, 1);
@@ -212,10 +210,10 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < M11.n(); ++column)
         {
-            M11(row, column) = heatConductivity * gSum(scalarField (
-                                            - 0.5 * (uFieldBundaryModesList[row][boundaryPatch1] 
+            M11(row, column) = gSum(scalarField (
+                                            - 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch1] 
                                                 & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
-                                            + 0.5 * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                            + 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
                                                 & uFieldBundaryModesList[column][boundaryPatch1])
                                             + xigema0 * (uFieldBundaryModesList[row][boundaryPatch1]
                                                 & uFieldBundaryModesList[column][boundaryPatch1])
@@ -234,10 +232,10 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < M22.n(); ++column)
         {
-            M22(row, column) = heatConductivity * gSum(scalarField (
-                                            + 0.5 * (uFieldBundaryModesList[row][boundaryPatch2] 
+            M22(row, column) = gSum(scalarField (
+                                            + 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
                                                 & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
-                                            - 0.5 * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                            - 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
                                                 & uFieldBundaryModesList[column][boundaryPatch2])
                                             + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
                                                 & uFieldBundaryModesList[column][boundaryPatch2])
@@ -256,10 +254,10 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < M12.n(); ++column)
         {
-            M12(row, column) = heatConductivity * gSum(scalarField (
-                                            - 0.5 * (uFieldBundaryModesList[row][boundaryPatch1] 
+            M12(row, column) = gSum(scalarField (
+                                            - 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch1] 
                                                 & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
-                                            - 0.5 * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                            - 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
                                                 & uFieldBundaryModesList[column][boundaryPatch2])
                                             - xigema0 * (uFieldBundaryModesList[row][boundaryPatch1]
                                                 & uFieldBundaryModesList[column][boundaryPatch2])
@@ -278,10 +276,10 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < M21.n(); ++column)
         {
-            M21(row, column) = heatConductivity * gSum(scalarField (
-                                            + 0.5 * (uFieldBundaryModesList[row][boundaryPatch2] 
+            M21(row, column) = gSum(scalarField (
+                                            + 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
                                                 & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
-                                            + 0.5 * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                            + 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
                                                 & uFieldBundaryModesList[column][boundaryPatch1])
                                             - xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
                                                 & uFieldBundaryModesList[column][boundaryPatch1])
@@ -296,15 +294,16 @@ int main(int argc, char *argv[])
     // boundary penalty terms
     // MtaoD, patch-inlet, boundaryPatch2
     RectangularMatrix<scalar> MtaoD(modesNum, modesNum, Foam::Zero);
+    vector inletfaceNormal(0, 0, -1);
 
     for (label row = 0; row < MtaoD.m(); ++row)
     {
         for (label column = 0; column < MtaoD.n(); ++column)
         {
-            MtaoD(row, column) = heatConductivity * gSum(scalarField (
-                                - (uFieldBundaryModesList[row][boundaryPatch2] 
+            MtaoD(row, column) = gSum(scalarField (
+                                - heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
                                     & graduFieldBundaryModesList[column][boundaryPatch2] & inletfaceNormal)
-                                + epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
+                                + epsilonPara * heatConductivity * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
                                     & uFieldBundaryModesList[column][boundaryPatch2])
                                 + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
                                     & uFieldBundaryModesList[column][boundaryPatch2]))
@@ -318,8 +317,8 @@ int main(int argc, char *argv[])
     RectangularMatrix<scalar> FtaoD(modesNum, 1, Foam::Zero);
     for (label row = 0; row < FtaoD.m(); ++row)
     {
-        FtaoD(row, 0) = heatConductivity * gSum(scalarField (
-                            epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
+        FtaoD(row, 0) = gSum(scalarField (
+                            epsilonPara * heatConductivity * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
                             & Uin)
                             + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
                             & Uin))
@@ -464,6 +463,7 @@ int main(int argc, char *argv[])
 
     // boundary penalty terms
     // NtaoD, patch-outlet (pressure outlet is 0), boundaryPatch1
+    vector outletfaceNormal(0, 0, 1);
     RectangularMatrix<scalar> NtaoD(modesNum, modesNum, Foam::Zero);
 
     for (label row = 0; row < NtaoD.m(); ++row)
@@ -573,8 +573,7 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < modesNum; ++column)
         {
-            MomGlobalBMat(row, column) = MomLocalBMat(row, column) + NtaoN(row, column) + N11(row, column);
-            // MomGlobalBMat(row, column) = MomLocalBMat(row, column) + N11(row, column);
+            MomGlobalBMat(row, column) = MomLocalBMat(row, column) + NtaoN(row, column)  + N11(row, column);
         }
     }
 
@@ -596,8 +595,6 @@ int main(int argc, char *argv[])
         {
             MomGlobalBMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  MomLocalBMat(row, column) 
                                                                            + N22(row, column) + NtaoD(row, column);
-            // MomGlobalBMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  MomLocalBMat(row, column) 
-            //                                                                + N22(row, column);
         }
     }
 
