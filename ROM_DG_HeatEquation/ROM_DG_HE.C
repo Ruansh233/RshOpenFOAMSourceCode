@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
 
     // M11
     RectangularMatrix<scalar> M11(modesNum, modesNum, Foam::Zero);
-    label bundaryPatch1(matchPatchID[0]);
-    label bundaryPatch2(matchPatchID[1]);
-    label bundaryPatch3(matchPatchID[2]);
+    label bundaryPatch1(matchPatchID[0]);  // in
+    label bundaryPatch2(matchPatchID[1]);  // out
+    label bundaryPatch3(matchPatchID[2]);  // wall
 
     // Info<< "test: " << endl
     //     << gSum(scalarField(gradfieldBundaryModesList[0][bundaryPatch2]
