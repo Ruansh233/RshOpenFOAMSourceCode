@@ -919,53 +919,38 @@ int main(int argc, char *argv[])
     RectangularMatrix<scalar> GlobalAMat(modesNum * elementNum * 2, modesNum * elementNum * 2, Foam::Zero);
     RectangularMatrix<scalar> GlobalFMat(modesNum * elementNum * 2, 1, Foam::Zero);
 
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < modesNum * elementNum; ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < modesNum * elementNum; ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                GlobalAMat(row+elementI*modesNum, column+elementI*modesNum) =  MomGlobalAMat(row+elementI*modesNum, column+elementI*modesNum);
-            }
+            GlobalAMat(row, column) =  MomGlobalAMat(row, column);
         }
     }
 
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < modesNum * elementNum; ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < modesNum * elementNum; ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                GlobalAMat(row+elementI*modesNum, column+(elementNum+elementI)*modesNum) =  MomGlobalBMat(row+elementI*modesNum, column+elementI*modesNum);
-            }
+            GlobalAMat(row, column+elementNum*modesNum) =  MomGlobalBMat(row, column);
         }
     }
 
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < modesNum * elementNum; ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
+        for (label column = 0; column < modesNum * elementNum; ++column)
         {
-            for (label column = 0; column < modesNum; ++column)
-            {
-                GlobalAMat(row+(elementNum+elementI)*modesNum, column+elementI*modesNum) =  ConGlobalBMat(row+elementI*modesNum, column+elementI*modesNum);
-            }
+            GlobalAMat(row+elementNum*modesNum, column) =  ConGlobalBMat(row, column);
         }
     }
 
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < elementNum*modesNum; ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
-        {
-            GlobalFMat(row+elementI*modesNum, 0) =  MomGlobalFMat(row+elementI*modesNum, 0);
-        }
+        GlobalFMat(row, 0) =  MomGlobalFMat(row, 0);
     }
 
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < elementNum*modesNum; ++row)
     {
-        for (label row = 0; row < modesNum; ++row)
-        {
-            GlobalFMat(row+(elementNum+elementI)*modesNum, 0) =  ConGlobalFMat(row+elementI*modesNum, 0);
-        }
+        GlobalFMat(row+elementNum*modesNum, 0) =  ConGlobalFMat(row, 0);
     }
     
     dataFile = mesh.time().path()/"SVD"/"GlobalAMat";
@@ -1041,7 +1026,7 @@ int main(int argc, char *argv[])
 
     // calculate pressure snapshots
     RectangularMatrix<scalar> pCalSnapshotsM;
-    pCalSnapshotsM = pModesM * pCalCoefficientM.T();
+    pCalSnapshotsM = pModesM * pCalCoefficientM;
     dataFile = mesh.time().path()/"SVD"/"pCalSnapshotsM";
     writeMatrix(pCalSnapshotsM, dataFile);
 
@@ -1120,7 +1105,7 @@ int main(int argc, char *argv[])
 
     // calculate velocity snapshots
     RectangularMatrix<scalar> uCalSnapshotsM;
-    uCalSnapshotsM = uModesM * uCalCoefficientM.T();
+    uCalSnapshotsM = uModesM * uCalCoefficientM;
     dataFile = mesh.time().path()/"SVD"/"uCalSnapshotsM";
     writeMatrix(uCalSnapshotsM, dataFile);
 
