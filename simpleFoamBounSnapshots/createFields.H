@@ -1,24 +1,3 @@
-Info<< "Reading transportProperties\n" << endl;
-
-IOdictionary transportProperties
-(
-    IOobject
-    (
-        "transportProperties",
-        runTime.constant(),
-        mesh,
-        IOobject::MUST_READ_IF_MODIFIED,
-        IOobject::NO_WRITE
-    )
-);
-
-dimensionedScalar nu
-(
-    "nu",
-    dimViscosity,
-    transportProperties
-);
-
 Info<< "Reading field p\n" << endl;
 volScalarField p
 (
@@ -32,7 +11,6 @@ volScalarField p
     ),
     mesh
 );
-
 
 Info<< "Reading field U\n" << endl;
 volVectorField U
@@ -48,11 +26,21 @@ volVectorField U
     mesh
 );
 
-
 #include "createPhi.H"
 
 
 label pRefCell = 0;
 scalar pRefValue = 0.0;
-setRefCell(p, mesh.solutionDict().subDict("PISO"), pRefCell, pRefValue);
+setRefCell(p, simple.dict(), pRefCell, pRefValue);
 mesh.setFluxRequired(p.name());
+
+
+singlePhaseTransportModel laminarTransport(U, phi);
+
+autoPtr<incompressible::turbulenceModel> turbulence
+(
+    incompressible::turbulenceModel::New(U, phi, laminarTransport)
+);
+
+#include "createMRF.H"
+#include "createFvOptions.H"

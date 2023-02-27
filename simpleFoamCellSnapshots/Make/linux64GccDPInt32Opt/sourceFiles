@@ -1,4 +1,4 @@
 SOURCE = \
-icoFoam.C \
+simpleFoam.C \
 
 # sources
