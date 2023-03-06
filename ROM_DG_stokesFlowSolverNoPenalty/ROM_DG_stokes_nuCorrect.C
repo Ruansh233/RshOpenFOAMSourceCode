@@ -60,34 +60,34 @@ int main(int argc, char *argv[])
     PtrList<volTensorField> graduFieldModesList;
     PtrList<FieldField<Foam::fvPatchField, tensor>> graduFieldBundaryModesList;
 
-    // // ===========================================================
-    // // ------ reading modes, gradModes from the ref case ---------
-    // // ------ creating mesh and time object for ref case ---------
-    // // ===========================================================
-    // // reference case name
-    // fileName refCaseName(DGdict.getWord("refCaseName"));
-    // // time object for reference cases
-    // Foam::Time runTimeRef
-    // (
-    //     Foam::Time::controlDictName,
-    //     args.rootPath(),
-    //     refCaseName,
-    //     "system",
-    //     "constant"
-    // );
+    // ===========================================================
+    // ------ reading modes, gradModes from the ref case ---------
+    // ------ creating mesh and time object for ref case ---------
+    // ===========================================================
+    // reference case name
+    fileName refCaseName(DGdict.getWord("refCaseName"));
+    // time object for reference cases
+    Foam::Time runTimeRef
+    (
+        Foam::Time::controlDictName,
+        args.rootPath(),
+        refCaseName,
+        "system",
+        "constant"
+    );
 
-    // // create new mesh object for reference cases
-    // fvMesh refElementMesh
-    // (
-    //     IOobject
-    //     (
-    //         polyMesh::defaultRegion,
-    //         args.rootPath()/refCaseName/"constant",
-    //         runTimeRef,
-    //         IOobject::MUST_READ
-    //     ),
-    //     false
-    // );
+    // create new mesh object for reference cases
+    fvMesh refElementMesh
+    (
+        IOobject
+        (
+            polyMesh::defaultRegion,
+            args.rootPath()/refCaseName/"constant",
+            runTimeRef,
+            IOobject::MUST_READ
+        ),
+        false
+    );
 
     // modes name list
     List<fileName> pModeNames (modesNum);
@@ -107,12 +107,12 @@ int main(int argc, char *argv[])
             IOobject
             (
                 pModeNames[No_],
-                runTime.timeName(),
-                mesh,
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            mesh
+            refElementMesh
         );
         pFieldModesList.append(pFieldValueMode.clone());
         pFieldBundaryModesList.append(pFieldValueMode.boundaryField().clone());
@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
             IOobject
             (
                 "grad" + pModeNames[No_],
-                runTime.timeName(),
-                mesh,
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
@@ -143,12 +143,12 @@ int main(int argc, char *argv[])
             IOobject
             (
                 uModeNames[No_],
-                runTime.timeName(),
-                mesh,
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            mesh
+            refElementMesh
         );
         uFieldModesList.append(uFieldValueMode.clone());
         uFieldBundaryModesList.append(uFieldValueMode.boundaryField().clone());
@@ -159,8 +159,8 @@ int main(int argc, char *argv[])
             IOobject
             (
                 "grad" + uModeNames[No_],
-                runTime.timeName(),
-                mesh,
+                runTimeRef.timeName(),
+                refElementMesh,
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
             ),
@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < MomLocalAMat.n(); ++column)
         {
-            MomLocalAMat(row, column) = gSum(scalarField (graduFieldModesList[row] && graduFieldModesList[column]
+            MomLocalAMat(row, column) = heatConductivity * gSum(scalarField (graduFieldModesList[row] && graduFieldModesList[column]
                                                             * mesh.V()));
         }
     }
@@ -198,8 +198,8 @@ int main(int argc, char *argv[])
     writeMatrix(MomLocalAMat, dataFile);
 
     // patch ID for reference mesh of different interface
-    label boundaryPatch1 (mesh.boundary().findPatchID("block1_out"));
-    label boundaryPatch2 (mesh.boundary().findPatchID("block1_in"));
+    label boundaryPatch1 (refElementMesh.boundary().findPatchID("block1_out"));
+    label boundaryPatch2 (refElementMesh.boundary().findPatchID("block1_in"));
 
     // interface contribution
     vector interfaceNormal(0, 0, 1);
@@ -211,8 +211,14 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M11.n(); ++column)
         {
             M11(row, column) = gSum(scalarField (
-                                            - 0.5 * (uFieldBundaryModesList[row][boundaryPatch1] 
-                                                & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal))
+                                            - 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch1] 
+                                                & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            + 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                                & uFieldBundaryModesList[column][boundaryPatch1])
+                                            + xigema0 * (uFieldBundaryModesList[row][boundaryPatch1]
+                                                & uFieldBundaryModesList[column][boundaryPatch1])
+                                            + xigema1 * (graduFieldBundaryModesList[row][boundaryPatch1]
+                                                && graduFieldBundaryModesList[column][boundaryPatch1]))
                                                 * mesh.boundary()[boundaryPatch1].magSf());
         }
     }
@@ -227,8 +233,14 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M22.n(); ++column)
         {
             M22(row, column) = gSum(scalarField (
-                                            + 0.5 * (uFieldBundaryModesList[row][boundaryPatch2] 
-                                                & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal))
+                                            + 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
+                                                & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            - 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                                & uFieldBundaryModesList[column][boundaryPatch2])
+                                            + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
+                                                & uFieldBundaryModesList[column][boundaryPatch2])
+                                            + xigema1 * (graduFieldBundaryModesList[row][boundaryPatch2]
+                                                && graduFieldBundaryModesList[column][boundaryPatch2]))
                                                 * mesh.boundary()[boundaryPatch2].magSf());
         }
     }
@@ -243,8 +255,14 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M12.n(); ++column)
         {
             M12(row, column) = gSum(scalarField (
-                                            - 0.5 * (uFieldBundaryModesList[row][boundaryPatch1] 
-                                                & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal))
+                                            - 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch1] 
+                                                & graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            - 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                                & uFieldBundaryModesList[column][boundaryPatch2])
+                                            - xigema0 * (uFieldBundaryModesList[row][boundaryPatch1]
+                                                & uFieldBundaryModesList[column][boundaryPatch2])
+                                            - xigema1 * (graduFieldBundaryModesList[row][boundaryPatch1]
+                                                && graduFieldBundaryModesList[column][boundaryPatch2]))
                                                 * mesh.boundary()[boundaryPatch2].magSf());
         }
     }
@@ -259,8 +277,14 @@ int main(int argc, char *argv[])
         for (label column = 0; column < M21.n(); ++column)
         {
             M21(row, column) = gSum(scalarField (
-                                            + 0.5 * (uFieldBundaryModesList[row][boundaryPatch2] 
-                                                & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal))
+                                            + 0.5 * heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
+                                                & graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            + 0.5 * heatConductivity * epsilonPara * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                                & uFieldBundaryModesList[column][boundaryPatch1])
+                                            - xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
+                                                & uFieldBundaryModesList[column][boundaryPatch1])
+                                            - xigema1 * (graduFieldBundaryModesList[row][boundaryPatch2]
+                                                && graduFieldBundaryModesList[column][boundaryPatch1]))
                                                 * mesh.boundary()[boundaryPatch1].magSf());
         }
     }
@@ -277,13 +301,33 @@ int main(int argc, char *argv[])
         for (label column = 0; column < MtaoD.n(); ++column)
         {
             MtaoD(row, column) = gSum(scalarField (
-                                - (uFieldBundaryModesList[row][boundaryPatch2] 
-                                    & graduFieldBundaryModesList[column][boundaryPatch2] & inletfaceNormal))
+                                - heatConductivity * (uFieldBundaryModesList[row][boundaryPatch2] 
+                                    & graduFieldBundaryModesList[column][boundaryPatch2] & inletfaceNormal)
+                                + epsilonPara * heatConductivity * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
+                                    & uFieldBundaryModesList[column][boundaryPatch2])
+                                + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
+                                    & uFieldBundaryModesList[column][boundaryPatch2]))
                                     * mesh.boundary()[boundaryPatch2].magSf());
         }
     }
     dataFile = runTime.globalPath()/"SVD"/"MtaoD";
     writeMatrix(MtaoD, dataFile);
+
+    // FtaoD, patch-inlet, boundaryPatch2
+    RectangularMatrix<scalar> FtaoD(modesNum, 1, Foam::Zero);
+    for (label row = 0; row < FtaoD.m(); ++row)
+    {
+        FtaoD(row, 0) = gSum(scalarField (
+                            epsilonPara * heatConductivity * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal
+                            & Uin)
+                            + xigema0 * (uFieldBundaryModesList[row][boundaryPatch2]
+                            & Uin))
+                            * mesh.boundary()[boundaryPatch2].magSf());
+    }
+    dataFile = runTime.globalPath()/"SVD"/"FtaoD";
+    writeMatrix(FtaoD, dataFile);
+
+    // FtaoN, patch-outlelt, boundaryPatch1, it is 0
 
 
     // ===========================================================
@@ -301,6 +345,158 @@ int main(int argc, char *argv[])
     }
     dataFile = runTime.globalPath()/"SVD"/"MomLocalBMat";
     writeMatrix(MomLocalBMat, dataFile);
+
+    // N11
+    RectangularMatrix<scalar> N11(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < N11.m(); ++row)
+    {
+        for (label column = 0; column < N11.n(); ++column)
+        {
+            // N11(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+            //                                 + 0.5 * epsilonPara * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)));
+            
+            // N11(row, column) = gSum(scalarField ( + 0.5 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)));   
+
+            N11(row, column) = gSum(scalarField (
+                                            + xigema2 * pFieldBundaryModesList[column][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+                                            + xigema3 * (gradpFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal
+                                                * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal & interfaceNormal)))
+                                                * mesh.boundary()[boundaryPatch1].magSf());                                 
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"N11";
+    writeMatrix(N11, dataFile);
+
+    // N22
+    RectangularMatrix<scalar> N22(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N22.m(); ++row)
+    {
+        for (label column = 0; column < N22.n(); ++column)
+        {
+            // N22(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)));
+
+            // N22(row, column) = gSum(scalarField ( - 0.5 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)));
+
+            N22(row, column) = gSum(scalarField (
+                                            + xigema2 * pFieldBundaryModesList[column][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+                                            + xigema3 * (gradpFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal
+                                                * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal & interfaceNormal)))
+                                                * mesh.boundary()[boundaryPatch2].magSf());    
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"N22";
+    writeMatrix(N22, dataFile);
+
+    // N12
+    RectangularMatrix<scalar> N12(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N12.m(); ++row)
+    {
+        for (label column = 0; column < N12.n(); ++column)
+        {
+            // N12(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)));
+
+            // N12(row, column) = gSum(scalarField ( + 0.5 * pFieldBundaryModesList[column][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)));
+
+            N12(row, column) = gSum(scalarField (
+                                            - xigema2 * pFieldBundaryModesList[column][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal)
+                                            - xigema3 * (gradpFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal
+                                                * (graduFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal & interfaceNormal)))
+                                                * mesh.boundary()[boundaryPatch2].magSf());   
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"N12";
+    writeMatrix(N12, dataFile);
+
+    // N21
+    RectangularMatrix<scalar> N21(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < N21.m(); ++row)
+    {
+        for (label column = 0; column < N21.n(); ++column)
+        {
+            // N21(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)));
+
+            // N21(row, column) = gSum(scalarField ( - 0.5 * pFieldBundaryModesList[column][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal))); 
+
+            N21(row, column) = gSum(scalarField (
+                                            - xigema2 * pFieldBundaryModesList[column][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal)
+                                            - xigema3 * (gradpFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal
+                                                * (graduFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal & interfaceNormal)))
+                                                * mesh.boundary()[boundaryPatch1].magSf());                                
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"N21";
+    writeMatrix(N21, dataFile);
+
+    // boundary penalty terms
+    // NtaoD, patch-outlet (pressure outlet is 0), boundaryPatch1
+    vector outletfaceNormal(0, 0, 1);
+    RectangularMatrix<scalar> NtaoD(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < NtaoD.m(); ++row)
+    {
+        for (label column = 0; column < NtaoD.n(); ++column)
+        {
+            NtaoD(row, column) = gSum(scalarField (xigema2 * pFieldBundaryModesList[column][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[row][boundaryPatch1] & outletfaceNormal))
+                                                * mesh.boundary()[boundaryPatch1].magSf());
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"NtaoD";
+    writeMatrix(NtaoD, dataFile);
+
+    // boundary penalty terms
+    // NtaoN, patch-inlet (zero pressure gradient inlet), boundaryPatch2
+    RectangularMatrix<scalar> NtaoN(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < NtaoN.m(); ++row)
+    {
+        for (label column = 0; column < NtaoN.n(); ++column)
+        {
+            NtaoN(row, column) = gSum(scalarField (xigema3 * (gradpFieldBundaryModesList[column][boundaryPatch2] & inletfaceNormal)
+                                                * (graduFieldBundaryModesList[row][boundaryPatch2] & inletfaceNormal & inletfaceNormal))
+                                                * mesh.boundary()[boundaryPatch2].magSf());
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"NtaoN";
+    writeMatrix(NtaoN, dataFile);
+
+    // GtaoD, patch-outlelt, boundaryPatch1, it is 0
+
+    // GtaoN, patch-inlelt, boundaryPatch2, it is 0
 
     // ===========================================================
     // ------ Assign value for global momentum matrix ------------
@@ -366,20 +562,60 @@ int main(int argc, char *argv[])
     }
 
     // MomGlobalAMat should contain heatConductivity
-    MomGlobalAMat = heatConductivity * MomGlobalAMat;
+    // MomGlobalAMat = heatConductivity * MomGlobalAMat;
     dataFile = mesh.time().path()/"SVD"/"MomGlobalAMat";
     writeMatrix(MomGlobalAMat, dataFile);
 
     // ===========================================================
     // --------------- MomGlobalBMat assignment ------------------
     // ===========================================================
-    for(label elementI = 0; elementI < elementNum; ++elementI)
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalBMat(row, column) = MomLocalBMat(row, column) + NtaoN(row, column)  + N11(row, column);
+        }
+    }
+
+    for(label elementI = 1; elementI < elementNum - 1; ++elementI)
     {
         for (label row = 0; row < modesNum; ++row)
         {
             for (label column = 0; column < modesNum; ++column)
             {
-                MomGlobalBMat(row+elementI*modesNum, column+elementI*modesNum) =  MomLocalBMat(row, column);
+                MomGlobalBMat(row+elementI*modesNum, column+elementI*modesNum) =  MomLocalBMat(row, column) 
+                                                                        + N11(row, column) + N22(row, column);
+            }
+        }
+    }
+
+    for (label row = 0; row < modesNum; ++row)
+    {
+        for (label column = 0; column < modesNum; ++column)
+        {
+            MomGlobalBMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  MomLocalBMat(row, column) 
+                                                                           + N22(row, column) + NtaoD(row, column);
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalBMat(row+elementI*modesNum, column+(elementI+1)*modesNum) =  N12(row, column);
+            }
+        }
+    }
+
+    for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    {
+        for (label row = 0; row < modesNum; ++row)
+        {
+            for (label column = 0; column < modesNum; ++column)
+            {
+                MomGlobalBMat(row+(elementI+1)*modesNum, column+elementI*modesNum) =  N21(row, column);
             }
         }
     }
@@ -389,6 +625,10 @@ int main(int argc, char *argv[])
     // ===========================================================
     // --------------- MomGlobalFMat assignment ------------------
     // ===========================================================
+    for (label row = 0; row < modesNum; ++row)
+    {
+        MomGlobalFMat(row, 0) = FtaoD(row, 0);
+    }
 
     dataFile = mesh.time().path()/"SVD"/"MomGlobalFMat";
     writeMatrix(MomGlobalFMat, dataFile);
@@ -424,9 +664,24 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K11.n(); ++column)
         {
+            // K11(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+            //                                 + 0.5 * epsilonPara * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal))); 
+
+            // K11(row, column) = gSum(scalarField (+ 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)));     
+
             K11(row, column) = gSum(scalarField (
                                             - 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal))
+                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            + xigema4 * pFieldBundaryModesList[row][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            + xigema5 * (gradpFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                                * (graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal & interfaceNormal)))
                                                 * mesh.boundary()[boundaryPatch1].magSf());         
         }
     }
@@ -440,9 +695,24 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K22.n(); ++column)
         {
+            // K22(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+            //                                 + xigema0 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)));
+
+            // K22(row, column) = gSum(scalarField (- 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)));
+
             K22(row, column) = gSum(scalarField (
                                             + 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal))
+                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            + xigema4 * pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            + xigema5 * (gradpFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                                * (graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal & interfaceNormal)))
                                                 * mesh.boundary()[boundaryPatch2].magSf());  
         }
     }
@@ -456,9 +726,24 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K12.n(); ++column)
         {
+            // K12(row, column) = gSum(scalarField (
+            //                                 + 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)));
+
+            // K12(row, column) = gSum(scalarField (+ 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)));
+
             K12(row, column) = gSum(scalarField (
-                                            - 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal))
+                                            + 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            - xigema4 * pFieldBundaryModesList[row][boundaryPatch1] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+                                            - xigema5 * (gradpFieldBundaryModesList[row][boundaryPatch1] & interfaceNormal
+                                                * (graduFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal & interfaceNormal)))
                                                 * mesh.boundary()[boundaryPatch2].magSf());  
         }
     }
@@ -472,9 +757,24 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < K21.n(); ++column)
         {
+            // K21(row, column) = gSum(scalarField (
+            //                                 - 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+            //                                 - 0.5 * epsilonPara * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)
+            //                                 - xigema0 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)));
+
+            // K21(row, column) = gSum(scalarField (- 0.5 * pFieldBundaryModesList[row][boundaryPatch1] 
+            //                                     * (uFieldBundaryModesList[column][boundaryPatch2] & interfaceNormal)));
+
             K21(row, column) = gSum(scalarField (
-                                             0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
-                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal))
+                                            - 0.5 * pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            - xigema4 * pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal)
+                                            - xigema5 * (gradpFieldBundaryModesList[row][boundaryPatch2] & interfaceNormal
+                                                * (graduFieldBundaryModesList[column][boundaryPatch1] & interfaceNormal & interfaceNormal)))
                                                 * mesh.boundary()[boundaryPatch1].magSf());                    
         }
     }
@@ -482,9 +782,24 @@ int main(int argc, char *argv[])
     writeMatrix(K21, dataFile);
 
     // boundary penalty terms
+    // KtaoD, patch-inlet, boundaryPatch2
+    RectangularMatrix<scalar> KtaoD(modesNum, modesNum, Foam::Zero);
+
+    for (label row = 0; row < KtaoD.m(); ++row)
+    {
+        for (label column = 0; column < KtaoD.n(); ++column)
+        {
+            KtaoD(row, column) = gSum(scalarField (xigema4 * pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (uFieldBundaryModesList[column][boundaryPatch2] & inletfaceNormal))
+                                                * mesh.boundary()[boundaryPatch2].magSf());
+        }
+    }
+    dataFile = runTime.globalPath()/"SVD"/"KtaoD";
+    writeMatrix(KtaoD, dataFile);
+
+    // boundary penalty terms
     // KtaoN, patch-outlet, boundaryPatch1
     RectangularMatrix<scalar> KtaoN(modesNum, modesNum, Foam::Zero);
-    vector outletfaceNormal(0, 0, 1);
 
     for (label row = 0; row < KtaoN.m(); ++row)
     {
@@ -492,7 +807,9 @@ int main(int argc, char *argv[])
         {
             KtaoN(row, column) = gSum(scalarField (
                                                 - pFieldBundaryModesList[row][boundaryPatch1] 
-                                                * (uFieldBundaryModesList[column][boundaryPatch1] & outletfaceNormal))
+                                                * (uFieldBundaryModesList[column][boundaryPatch1] & outletfaceNormal)
+                                                + xigema5 * (gradpFieldBundaryModesList[row][boundaryPatch1] & outletfaceNormal
+                                                * (graduFieldBundaryModesList[column][boundaryPatch1] & outletfaceNormal & outletfaceNormal)))
                                                 * mesh.boundary()[boundaryPatch1].magSf());
         }
     }
@@ -505,10 +822,15 @@ int main(int argc, char *argv[])
 
     for (label row = 0; row < QtaoD.m(); ++row)
     {
-        QtaoD(row, 0) = gSum(scalarField (
-                                                pFieldBundaryModesList[row][boundaryPatch2] 
-                                            * (Uin & inletfaceNormal))
-                                            * mesh.boundary()[boundaryPatch2].magSf());
+        for (label column = 0; column < QtaoD.n(); ++column)
+        {
+            QtaoD(row, column) = gSum(scalarField (
+                                                  pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (Uin & inletfaceNormal)
+                                                + xigema4 * pFieldBundaryModesList[row][boundaryPatch2] 
+                                                * (Uin & inletfaceNormal))
+                                                * mesh.boundary()[boundaryPatch2].magSf());
+        }
     }
     dataFile = runTime.globalPath()/"SVD"/"QtaoD";
     writeMatrix(QtaoD, dataFile);
@@ -524,7 +846,7 @@ int main(int argc, char *argv[])
     {
         for (label column = 0; column < modesNum; ++column)
         {
-            ConGlobalBMat(row, column) = ConLocalBMat(row, column) + K11(row, column);
+            ConGlobalBMat(row, column) = ConLocalBMat(row, column) + K11(row, column) + KtaoD(row, column);
         }
     }
 
@@ -642,6 +964,12 @@ int main(int argc, char *argv[])
             GlobalFMat(row+(elementNum+elementI)*modesNum, 0) =  ConGlobalFMat(row+elementI*modesNum, 0);
         }
     }
+    
+    dataFile = mesh.time().path()/"SVD"/"GlobalAMat";
+    writeMatrix(GlobalAMat, dataFile);
+    
+    dataFile = mesh.time().path()/"SVD"/"GlobalFMat";
+    writeMatrix(GlobalFMat, dataFile);
 
 
     // ===========================================================
