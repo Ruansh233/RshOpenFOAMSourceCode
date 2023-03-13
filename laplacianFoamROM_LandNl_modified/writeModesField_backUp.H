@@ -2,79 +2,22 @@
     List<fileName> modeNames (modesNum);
     List<fileName> laplacianModeNames (modesNum);
     List<fileName> gradModeNames (modesNum);
+    List<fileName> gaussGradModeNames (modesNum);
+    List<fileName> sfVectorNames (modesNum);
+
 
     for (label iname = 0; iname < modesNum; ++iname)
     {
         modeNames[iname] = "Tmode" + name(iname);
         laplacianModeNames[iname] = "Tmode_lapla" + name(iname);
         gradModeNames[iname] = "Tmode_grad" + name(iname);
+        gaussGradModeNames[iname] = "Tmode_gaussGrad" + name(iname);
+        sfVectorNames[iname] = "mesh_sf" + name(iname);
     }
 
     // matrix of gradient of mode 
     RectangularMatrix<scalar> laplacianModesMatrix(mesh.C().size(), modesNum);
     RectangularMatrix<vector> gradModesMatrix(mesh.C().size(), modesNum);
-
-    // forAll(T.boundaryField(), patchI)
-    // {
-    //     // for fixedValue, // phibc = Tbc * V * inv(S)
-    //     if(T.boundaryField()[patchI].type() == "fixedValue")
-    //     {
-    //         RectangularMatrix<scalar> boundaryValueM(T.boundaryField()[patchI].size(), 
-    //                                                 snapshotsNo, 
-    //                                                 T.boundaryField()[patchI][0]);
-
-    //         dataFile = mesh.time().path()/"SVD"/"boundaryValueM";
-    //         writeMatrix(boundaryValueM, dataFile);
-    //         Info << "write boundaryValueM Matrix: " << boundaryValueM.sizes() << endl;
-
-    //         RectangularMatrix<scalar> boundaryModeM(boundaryValueM * invCoefficientsM);
-    //         dataFile = mesh.time().path()/"SVD"/"boundaryModeM";
-    //         writeMatrix(boundaryModeM, dataFile);
-    //         Info << "write boundaryModeM Matrix: " << boundaryModeM.sizes() << endl;
-    //     }
-    // }
-
-    PtrList<RectangularMatrix<scalar>> boundaryModesMList;
-
-    forAll(T.boundaryField(), patchI)
-    {
-        // for fixedValue, // phibc = Tbc * V * inv(S)
-        if(T.boundaryField()[patchI].type() == "fixedValue")
-        {
-            RectangularMatrix<scalar> boundaryValueM(T.boundaryField()[patchI].size(), 
-                                                    snapshotsNo, 
-                                                    T.boundaryField()[patchI][0]);
-
-            boundaryModesMList.append(RectangularMatrix<scalar> (boundaryValueM * invCoefficientsM).clone());
-        }
-
-        // for fixedGradient, the face value is equal to the face owner
-        else if(T.boundaryField()[patchI].type() == "fixedGradient")
-        {
-            // the steps to access the gradient of patch
-            // the following line is usable or not
-            // fixedGradientFvPatchField<scalar> (T.boundaryField()[patchI]).gradient
-            // or T.boundaryField()[patchI].snGrad()
-            // Define new patch-field for the variable at the patch (in my case temperature T)
-            fixedGradientFvPatchField<scalar>& Tpatch = refCast<fixedGradientFvPatchField<scalar>>(T.boundaryFieldRef()[patchI]);
-            // Create scalar Field for the gradient at that patch
-            scalarField& gradTpatch = Tpatch.gradient();
-            
-            // phibc = Tbc * V * inv(S)
-            RectangularMatrix<scalar> boundaryValueM(T.boundaryField()[patchI].size(), 
-                                                        snapshotsNo, 
-                                                        gradTpatch[0]);
-
-            boundaryModesMList.append(RectangularMatrix<scalar> (boundaryValueM * invCoefficientsM).clone());
-        }
-
-        // for other type, defined as zeroGradient
-        else
-        {
-            boundaryModesMList.append(RectangularMatrix<scalar> (T.boundaryField()[patchI].size(), 
-                                                    snapshotsNo, 0).clone());
-        }
-    }
 
     // calculate the laplacian of mode
     forAll(modeNames, No_)
@@ -100,6 +43,8 @@
             fieldValueMode[cellI] = fieldValueSVD.U()[cellI][No_];
         }
 
+        scalar eigenValueSqrt (fieldValueSVD.S()[No_]);
+
         // assign boundary value of all boundaries
         // creating the mode field by copying the T, than the setting of patch type is not needed
         forAll(fieldValueMode.boundaryField(), patchI)
@@ -110,10 +55,32 @@
                 fieldValueMode.boundaryFieldRef().set(patchI, 
                     fvPatchField<scalar>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
 
+                // phibc = Tbc * V * inv(S)
+                RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
+                                                         snapshotsNo, 
+                                                         T.boundaryField()[patchI][0]);
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * 
+                                RectangularMatrix<scalar>(fieldValueSVD.V().subColumn(No_, 0, -1)));
+                
+                for(label i = 0; i < boundaryModeM.m(); i++)
+                {
+                    for(label j = 0; j < boundaryModeM.n(); j++)
+                    {
+                        boundaryModeM(i, j) = boundaryModeM(i, j) / eigenValueSqrt;
+                    }
+                }
+
                 forAll(fieldValueMode.boundaryField()[patchI], faceI)
                 {
-                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = boundaryModesMList[patchI](faceI, No_);
+                    fieldValueMode.boundaryFieldRef()[patchI][faceI] = boundaryModeM(faceI, 0);
                 }
+            }
+
+            // for zeroGradient, the face value is equal to the face owner
+            else if(T.boundaryField()[patchI].type() == "zeroGradient")
+            {
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
 
             // for fixedGradient, the face value is equal to the face owner
@@ -121,6 +88,30 @@
             {
                 fieldValueMode.boundaryFieldRef().set(patchI, 
                     fvPatchField<scalar>::New("fixedGradient", mesh.boundary()[patchI], fieldValueMode));
+
+                // the steps to access the gradient of patch
+                // the following line is usable or not
+                // fixedGradientFvPatchField<scalar> (T.boundaryField()[patchI]).gradient
+                // or T.boundaryField()[patchI].snGrad()
+                // Define new patch-field for the variable at the patch (in my case temperature T)
+                fixedGradientFvPatchField<scalar>& Tpatch = refCast<fixedGradientFvPatchField<scalar>>(T.boundaryFieldRef()[patchI]);
+                // Create scalar Field for the gradient at that patch
+                scalarField& gradTpatch = Tpatch.gradient();
+                
+                // phibc = Tbc * V * inv(S)
+                RectangularMatrix<scalar> boundaryValueM(fieldValueMode.boundaryField()[patchI].size(), 
+                                                         snapshotsNo, 
+                                                         gradTpatch[0]);
+                RectangularMatrix<scalar> boundaryModeM(boundaryValueM * 
+                                RectangularMatrix<scalar>(fieldValueSVD.V().subColumn(No_, 0, -1)));
+                
+                for(label i = 0; i < boundaryModeM.m(); i++)
+                {
+                    for(label j = 0; j < boundaryModeM.n(); j++)
+                    {
+                        boundaryModeM(i, j) = boundaryModeM(i, j) / eigenValueSqrt;
+                    }
+                }
 
                 // Define new patch-field for the variable at the patch (in my case temperature T)
                 fixedGradientFvPatchField<scalar>& Mpatch = refCast<fixedGradientFvPatchField<scalar>>(fieldValueMode.boundaryFieldRef()[patchI]);
@@ -132,15 +123,8 @@
                 {
                     // Perform calculations to determine the new gradient "newGrad"
                     // Store the new value in the scalar field
-                    gradMpatch[faceI] = boundaryModesMList[patchI](faceI, No_);
+                    gradMpatch[faceI] = boundaryModeM(faceI, 0);
                 }
-            }
-
-            // for zeroGradient
-            else if(T.boundaryField()[patchI].type() == "zeroGradient")
-            {
-                fieldValueMode.boundaryFieldRef().set(patchI, 
-                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
 
             else
@@ -153,8 +137,6 @@
             }
         }
         fieldValueMode.write();
-
-        Info<< "field of mode " << No_ << " is written" << endl;
 
         // gradient of mode
         volScalarField fieldValueModeRef
@@ -210,8 +192,6 @@
             laplacianModesMatrix[cellI][No_] = lapFieldValueMode[cellI];
         }
     }
-
-    
 
     // // Rsh, write the file and then open it, the value near the boundary face will be correct
     // // T field test

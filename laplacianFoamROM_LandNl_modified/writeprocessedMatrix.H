@@ -7,7 +7,7 @@
 
     // write spatial modeMatrix
     dataFile = mesh.time().path()/"SVD"/"modeMatrix";
-    writeMatrix(fieldValueSVD.U(), dataFile, fieldValueSVD.U().m(), modesNum);
+    writeMatrix(fieldValueSVD.U(), dataFile);
     Info << "write spatial mode Matrix: " << fieldValueSVD.U().sizes() << endl;
 
     // write temporal coefficient Matrix
@@ -15,7 +15,7 @@
     coeff = snapshotsM.T() * fieldValueSVD.U();
 
     dataFile = mesh.time().path()/"SVD"/"coeffMatrix";
-    writeMatrix(coeff, dataFile, coeff.m(), modesNum);
+    writeMatrix(coeff, dataFile);
     Info << "write temporal coefficient Matrix: " << coeff.sizes() << endl;
 
     // write eigenvalue of covariance Matrix

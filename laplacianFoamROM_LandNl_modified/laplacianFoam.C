@@ -124,6 +124,11 @@ int main(int argc, char *argv[])
  
     if(ROMorNot)
     {
+        // file location and OF pointer of the file
+        fileName dataFile;
+        autoPtr<OFstream> outputFilePtr;
+        // autoPtr<OFstream> outputFilePtr(dataFile);
+
         Info<< "snapshots number is: " << snapshotsNo << endl
             << "snapshotsTime is: " << snapshotsTime << endl;
 
@@ -140,15 +145,17 @@ int main(int argc, char *argv[])
         // svd of the snapshots matrix
         SVD fieldValueSVD(snapshotsM);   
 
+        RectangularMatrix<scalar> coefficientsM(snapshotsM.T() * fieldValueSVD.U());
+        RectangularMatrix<scalar> invCoefficientsM(SVDinv(coefficientsM.T()));
+
+        dataFile = mesh.time().path()/"SVD"/"invCoefficientsM";
+        writeMatrix(invCoefficientsM, dataFile);
+        Info << "write invCoefficientsM Matrix: " << invCoefficientsM.sizes() << endl;
+
         Info<< "The SVD process of snapshots are finished in " << runTime.elapsedCpuTime() << " s." << nl;
 
         // write data of modes
         #include "writeModesField.H"
-
-        // file location and OF pointer of the file
-        fileName dataFile;
-        autoPtr<OFstream> outputFilePtr;
-        // autoPtr<OFstream> outputFilePtr(dataFile);
 
         // check whether SVD folder exist or not
         if(!isDir(mesh.time().path()/"SVD"))
