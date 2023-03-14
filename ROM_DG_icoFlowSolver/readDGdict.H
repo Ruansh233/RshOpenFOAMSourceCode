@@ -38,4 +38,8 @@
     // The following is same to the lookup function
     // vector UinTest (DGdict.get<vector>("Uin"));
 
+    // create the SVD folder if it is not exist.
+    if(!isDir(runTime.globalPath()/"SVD"))
+        mkDir(runTime.globalPath()/"SVD");
+
 

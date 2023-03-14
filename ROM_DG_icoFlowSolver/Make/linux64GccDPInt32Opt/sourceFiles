@@ -1,4 +1,4 @@
 SOURCE = \
-ROM_DG_stokes.C \
+ROM_DG_ico.C \
 
 # sources
