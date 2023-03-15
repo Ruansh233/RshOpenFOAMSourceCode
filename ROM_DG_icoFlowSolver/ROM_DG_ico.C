@@ -608,17 +608,17 @@ int main(int argc, char *argv[])
     // ------ The divergence of velocity -------------------------
     // ===========================================================
     // volumtric contribution, \nabla \cdot v
-    RectangularMatrix<scalar> ConLocalBMat(modesNum, modesNum, Foam::Zero);
-    for (label row = 0; row < ConLocalBMat.m(); ++row)
+    RectangularMatrix<scalar> ConLocalEMat(modesNum, modesNum, Foam::Zero);
+    for (label row = 0; row < ConLocalEMat.m(); ++row)
     {
-        for (label column = 0; column < ConLocalBMat.n(); ++column)
+        for (label column = 0; column < ConLocalEMat.n(); ++column)
         {
-            ConLocalBMat(row, column) = gSum(scalarField (gradpFieldModesList[row] & uFieldModesList[column]
+            ConLocalEMat(row, column) = gSum(scalarField (gradpFieldModesList[row] & uFieldModesList[column]
                                                             * mesh.V()));
         }
     }
-    dataFile = runTime.globalPath()/"SVD"/"ConLocalBMat";
-    writeMatrix(ConLocalBMat, dataFile);
+    dataFile = runTime.globalPath()/"SVD"/"ConLocalEMat";
+    writeMatrix(ConLocalEMat, dataFile);
 
     // K11
     RectangularMatrix<scalar> K11(modesNum, modesNum, Foam::Zero);
