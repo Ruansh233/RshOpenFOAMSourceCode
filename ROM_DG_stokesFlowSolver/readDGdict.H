@@ -25,6 +25,7 @@
     scalar xigema3 (DGdict.getScalar("xigema3"));
     scalar xigema4 (DGdict.getScalar("xigema4"));
     scalar xigema5 (DGdict.getScalar("xigema5"));
+    scalar xigema6 (DGdict.getScalar("xigema6"));
     // scalar beta0 (DGdict.getScalar("beta0"));
     // scalar beta1 (DGdict.getScalar("beta1"));
 
