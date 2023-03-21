@@ -756,6 +756,64 @@ int main(int argc, char *argv[])
     // boundary penalty terms on the right side
     // QtaoN, patch-outlet, boundaryPatch1, it is zero
 
+
+    // // ===========================================================
+    // // --------------- ConGlobalBMat assignment ------------------
+    // // ===========================================================
+    // RectangularMatrix<scalar> ConGlobalEMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    // for (label row = 0; row < modesNum; ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         ConGlobalEMat(row, column) = ConLocalEMat(row, column) + K11(row, column) + KtaoD(row, column);
+    //     }
+    // }
+
+    // for(label elementI = 1; elementI < elementNum - 1; ++elementI)
+    // {
+    //     for (label row = 0; row < modesNum; ++row)
+    //     {
+    //         for (label column = 0; column < modesNum; ++column)
+    //         {
+    //             ConGlobalEMat(row+elementI*modesNum, column+elementI*modesNum) =  ConLocalEMat(row, column) 
+    //                                                                     + K11(row, column) + K22(row, column);
+    //         }
+    //     }
+    // }
+
+    // for (label row = 0; row < modesNum; ++row)
+    // {
+    //     for (label column = 0; column < modesNum; ++column)
+    //     {
+    //         ConGlobalEMat(row+(elementNum-1)*modesNum, column+(elementNum-1)*modesNum) =  ConLocalEMat(row, column) 
+    //                                                                        + K22(row, column) + KtaoN(row, column);
+    //     }
+    // }
+
+    // for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    // {
+    //     for (label row = 0; row < modesNum; ++row)
+    //     {
+    //         for (label column = 0; column < modesNum; ++column)
+    //         {
+    //             ConGlobalEMat(row+elementI*modesNum, column+(elementI+1)*modesNum) =  K12(row, column);
+    //         }
+    //     }
+    // }
+
+    // for(label elementI = 0; elementI < elementNum - 1; ++elementI)
+    // {
+    //     for (label row = 0; row < modesNum; ++row)
+    //     {
+    //         for (label column = 0; column < modesNum; ++column)
+    //         {
+    //             ConGlobalEMat(row+(elementI+1)*modesNum, column+elementI*modesNum) =  K21(row, column);
+    //         }
+    //     }
+    // }
+    // dataFile = mesh.time().path()/"SVD"/"ConGlobalEMat";
+    // writeMatrix(ConGlobalEMat, dataFile);
+
     Info<< "\nEnd\n";
 
     return 0;
