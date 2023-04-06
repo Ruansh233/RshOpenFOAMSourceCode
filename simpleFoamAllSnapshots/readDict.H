@@ -1,10 +1,17 @@
     List<word> typesName(customDict.lookup("types"));
-    label caseID(customDict.getLabel("caseID"));
 
     word typeSubDictName;
     word caseSubDictName;
     List<wordRe> includeZones;
     List<wordRe> excludeZones;
+
+    if(! customDict.readIfPresent("caseName", caseSubDictName))
+    {
+        Info<< "The Entry 'caseName' not found in dictionary.\n \
+                caseName of current case name is used." << endl;
+        caseSubDictName = runTime.caseName();
+        Info<< "caseName: " << caseSubDictName << endl;
+    }
 
     List<List<label>> cellZonesType(typesName.size());
     List<List<word>> cellZonesTypeName(typesName.size());
@@ -12,7 +19,7 @@
     forAll(typesName, typeI)
     {
         typeSubDictName = typesName[typeI];
-        caseSubDictName = "case" + name(caseID);
+
         includeZones = customDict.subDict(typeSubDictName).subDict(caseSubDictName).lookup("includeZones");
         excludeZones = customDict.subDict(typeSubDictName).subDict(caseSubDictName).lookup("excludeZones");
 

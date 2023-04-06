@@ -100,26 +100,7 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-    Info<< "\nStarting time loop\n" << endl;
-
-    while (simple.loop())
-    {
-        Info<< "Time = " << runTime.timeName() << nl << endl;
-
-        // --- Pressure-velocity SIMPLE corrector
-        {
-            #include "UEqn.H"
-            #include "pEqn.H"
-        }
-
-        laminarTransport.correct();
-        turbulence->correct();
-
-        runTime.write();
-
-        runTime.printExecutionTime(Info);
-    }
-
+    Info<< "\nStarting snapshots collection\n" << endl;
 
     // add dict Selector option
     const word dictName("cellZoneDict");
