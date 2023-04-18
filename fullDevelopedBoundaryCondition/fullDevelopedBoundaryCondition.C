@@ -84,8 +84,8 @@ int main(int argc, char *argv[])
 
     // Get index of patch
 
-    wordRe matchInlet("block.*_bottom");
-    wordRe matchOutlet("block.*_top");
+    wordRe matchInlet("Block.*_bottom");
+    wordRe matchOutlet("Block.*_top");
 
 
     // wordRe matchInlet("inlet");    
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
              << "outlet patch No: " << patchO_ << ". it's name is " << mesh.boundary()[patchO_].name() << endl;
 
         fvPatchField<vector>& inletU = U.boundaryFieldRef()[patchI_];
-        fvPatchField<vector>& inletU_fd = U_fd.boundaryFieldRef()[patchO_];
+        fvPatchField<vector> inletU_fd = U_fd.boundaryField()[patchO_];
 
         // loop over all hub faces
         forAll(inletU, faceI)
