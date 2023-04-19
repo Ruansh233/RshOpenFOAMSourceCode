@@ -39,6 +39,8 @@ int main(int argc, char *argv[])
 
     volScalarField y_ = wallDist(mesh).y();
 
+    y_.write();
+
     volTensorField volDfield
     (
         IOobject
@@ -56,9 +58,12 @@ int main(int argc, char *argv[])
 
     forAll(volDfield, cellI)
     {
-        volDfield[cellI].xx() = y_[cellI]*1.0e6;
-        volDfield[cellI].yy() = y_[cellI]*1.0e6;
-        volDfield[cellI].zz() = y_[cellI]*1.0e6;
+        if(y_[cellI] > 0.5e-3)
+        {
+            volDfield[cellI].xx() = 1.0e4;
+            volDfield[cellI].yy() = 1.0e4;
+            volDfield[cellI].zz() = 1.0e4;
+        } 
     }
     volDfield.write();
 
@@ -80,9 +85,12 @@ int main(int argc, char *argv[])
 
     forAll(volFfield, cellI)
     {
-        volFfield[cellI].xx() = y_[cellI]*1.0e5;
-        volFfield[cellI].yy() = y_[cellI]*1.0e5;
-        volFfield[cellI].zz() = y_[cellI]*1.0e5;
+        if(y_[cellI] > 0.5e-3)
+        {
+            volFfield[cellI].xx() = 1.0e3;
+            volFfield[cellI].yy() = 1.0e3;
+            volFfield[cellI].zz() = 1.0e3;
+        }   
     }
     volFfield.write();
 
