@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
         IOobject
         (
             "nonUniDcoeff",
-            mesh.time().caseConstant(),
-            // mesh.time().timeName(),
+            // mesh.time().caseConstant(),
+            mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
         IOobject
         (
             "nonUniFcoeff",
-            mesh.time().caseConstant(),
-            // mesh.time().timeName(),
+            // mesh.time().caseConstant(),
+            mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
