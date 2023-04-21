@@ -41,9 +41,8 @@ int main(int argc, char *argv[])
     (
         IOobject
         (
-            "nonUniDcoeff",
+            "nonUniformDF_D",
             mesh.time().caseConstant(),
-            // mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
@@ -58,9 +57,8 @@ int main(int argc, char *argv[])
     (
         IOobject
         (
-            "nonUniFcoeff",
+            "nonUniformDF_F",
             mesh.time().caseConstant(),
-            // mesh.time().timeName(),
             mesh,
             IOobject::NO_READ,
             IOobject::NO_WRITE
@@ -71,57 +69,46 @@ int main(int argc, char *argv[])
     );  
 
 
-    const scalar rodR(8.2e-3);
-    const scalar wireR(2.2e-3);
-    const scalar rodWireP(0.5*(rodR+wireR));
-    const scalar wireH(300.0e-3);
+    const word dictName("fvOptions");
 
-    const scalar x0(0.0);
-    const scalar y0(0.0);
-    
-    scalar xw;
-    scalar yw;
-    scalar theta;
+    // Create and input-output object - this holds the path to the dict and its name
+    IOdictionary customDict
+    (
+        IOobject
+        (
+            dictName, // name of the file
+            mesh.time().caseConstant(), // path to where the file is
+            mesh, // reference to the mesh needed by the constructor
+            IOobject::MUST_READ // indicate that reading this dictionary is compulsory
+        )
+    );
 
-    const scalar D0(500);
-    const scalar F0(200);
+    wordRe zoneName_ (customDict.subDict("blockage").subDict("explicitPorositySourceCoeffs").lookup("cellZone"));
 
-    forAll(mesh.C(), cellI)
+    labelList cellZoneIDs_ = mesh.cellZones().indices(zoneName_);
+
+    forAll(cellZoneIDs_, i)
     {
-        theta = mesh.C()[cellI].z()/wireH*2*3.14;
-
-        scalar cellx = mesh.C()[cellI].x();
-        scalar celly = mesh.C()[cellI].y();
-
-        xw = x0 + rodWireP*Foam::cos(theta);
-        yw = y0 + rodWireP*Foam::sin(theta);
-
-        if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <  wireR/2)
+        forAll(mesh.cellZones()[cellZoneIDs_[i]], j)
         {
-            volDfield[cellI].xx() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volDfield[cellI].yy() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volDfield[cellI].zz() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
+            const label cellI = mesh.cellZones()[cellZoneIDs_[i]][j];
 
-            volFfield[cellI].xx() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volFfield[cellI].yy() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volFfield[cellI].zz() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-        }
-    }
+            if(y_[cellI] > 0.5e-3)
+            {
+                volDfield[cellI].xx() = y_[cellI]*1.0e6;
+                volDfield[cellI].yy() = y_[cellI]*1.0e6;
+                volDfield[cellI].zz() = y_[cellI]*1.0e6;
 
-    forAll(volDfield.boundaryField(), patchI)
-    {
-        if(volDfield.boundaryField()[patchI].type() == "calculated")
-        {
-            volDfield.boundaryFieldRef().set(patchI, 
-            fvPatchField<tensor>::New("zeroGradient", mesh.boundary()[patchI], volDfield));
-
-            volFfield.boundaryFieldRef().set(patchI, 
-                fvPatchField<tensor>::New("zeroGradient", mesh.boundary()[patchI], volFfield));
+                volFfield[cellI].xx() = y_[cellI]*1.0e5;
+                volFfield[cellI].yy() = y_[cellI]*1.0e5;
+                volFfield[cellI].zz() = y_[cellI]*1.0e5;
+            }   
         }
     }
 
     volDfield.write();
     volFfield.write();
+
 
     Info<< "End\n" << endl;
 
