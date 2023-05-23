@@ -70,26 +70,14 @@ int main(int argc, char *argv[])
         tensorField (mesh.C().size(), Zero)
     );  
 
+    #include "readDict.H"
 
-    const scalar rodR(8.2e-3);
-    const scalar wireInfluR(3.3e-3);
-    const scalar rodWireP(0.5*(rodR+wireInfluR));
-    const scalar wireH(300.0e-3);
-
-    const scalar x0(0.0);
-    const scalar y0(0.0);
-    
     scalar xw;
     scalar yw;
     scalar theta;
 
-    const scalar D0(500);
-    const scalar F0(105);
-
-    const scalar xigma = -2.0e6;
-
     scalar wireResistance = 0.0;
-    scalar wireVolume = 0.0;
+    // scalar wireVolume = 0.0;
 
     forAll(mesh.C(), cellI)
     {
@@ -98,22 +86,30 @@ int main(int argc, char *argv[])
         scalar cellx = mesh.C()[cellI].x();
         scalar celly = mesh.C()[cellI].y();
 
-        xw = x0 + rodWireP*Foam::cos(theta);
-        yw = y0 + rodWireP*Foam::sin(theta);
-
-        if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <  wireInfluR/2)
+        forAll(rodCentroids, rodI)
         {
-            volDfield[cellI].xx() = D0*Foam::exp(xigma*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volDfield[cellI].yy() = volDfield[cellI].xx();
-            volDfield[cellI].zz() = volDfield[cellI].xx();
+            // xw = rodCentroids[rodI].x() + 0.5*rodD*Foam::cos(theta);
+            // yw = rodCentroids[rodI].y() + 0.5*rodD*Foam::sin(theta);
+            
+            xw = rodCentroids[rodI].x() + rodWireP*Foam::cos(theta);
+            yw = rodCentroids[rodI].y() + rodWireP*Foam::sin(theta);
 
-            volFfield[cellI].xx() = F0*Foam::exp(xigma*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volFfield[cellI].yy() = volFfield[cellI].xx();
-            volFfield[cellI].zz() = volFfield[cellI].xx();
+            if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <  wireInfluD/2)
+            {
+                volDfield[cellI].xx() = D0*Foam::exp(xigmax*Foam::sqr(cellx-xw) + xigmay*Foam::sqr(celly-yw));
+                volDfield[cellI].yy() = D0*Foam::exp(xigmay*Foam::sqr(cellx-xw) + xigmay*Foam::sqr(celly-yw));
+                volDfield[cellI].zz() = 0.5*(volDfield[cellI].xx()+volDfield[cellI].yy());
 
-            wireResistance += volFfield[cellI].xx() * mesh.V()[cellI];
-            wireVolume += mesh.V()[cellI];
-        }
+                volFfield[cellI].xx() = F0*Foam::exp(xigmax*Foam::sqr(cellx-xw) + xigmax*Foam::sqr(celly-yw));
+                volFfield[cellI].yy() = F0*Foam::exp(xigmay*Foam::sqr(cellx-xw) + xigmay*Foam::sqr(celly-yw));
+                volFfield[cellI].zz() = 0.5*(volFfield[cellI].xx()+volFfield[cellI].yy());
+
+                wireResistance += volFfield[cellI].xx() * mesh.V()[cellI];
+                // wireVolume += mesh.V()[cellI];
+
+                break;
+            }
+        }   
     }
 
     Info << "wireResistance is, " << wireResistance << endl;

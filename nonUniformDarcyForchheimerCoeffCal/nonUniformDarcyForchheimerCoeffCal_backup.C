@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
 
 
     const scalar rodR(8.2e-3);
-    const scalar wireInfluR(3.3e-3);
-    const scalar rodWireP(0.5*(rodR+wireInfluR));
+    const scalar wireR(2.2e-3);
+    const scalar rodWireP(0.5*(rodR+wireR));
     const scalar wireH(300.0e-3);
 
     const scalar x0(0.0);
@@ -84,16 +84,11 @@ int main(int argc, char *argv[])
     scalar theta;
 
     const scalar D0(500);
-    const scalar F0(105);
-
-    const scalar xigma = -2.0e6;
-
-    scalar wireResistance = 0.0;
-    scalar wireVolume = 0.0;
+    const scalar F0(200);
 
     forAll(mesh.C(), cellI)
     {
-        theta = mesh.C()[cellI].z()/wireH*2*constant::mathematical::pi;
+        theta = mesh.C()[cellI].z()/wireH*2*3.14;
 
         scalar cellx = mesh.C()[cellI].x();
         scalar celly = mesh.C()[cellI].y();
@@ -101,22 +96,17 @@ int main(int argc, char *argv[])
         xw = x0 + rodWireP*Foam::cos(theta);
         yw = y0 + rodWireP*Foam::sin(theta);
 
-        if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <  wireInfluR/2)
+        if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <  wireR/2)
         {
-            volDfield[cellI].xx() = D0*Foam::exp(xigma*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volDfield[cellI].yy() = volDfield[cellI].xx();
-            volDfield[cellI].zz() = volDfield[cellI].xx();
+            volDfield[cellI].xx() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
+            volDfield[cellI].yy() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
+            volDfield[cellI].zz() = D0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
 
-            volFfield[cellI].xx() = F0*Foam::exp(xigma*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
-            volFfield[cellI].yy() = volFfield[cellI].xx();
-            volFfield[cellI].zz() = volFfield[cellI].xx();
-
-            wireResistance += volFfield[cellI].xx() * mesh.V()[cellI];
-            wireVolume += mesh.V()[cellI];
+            volFfield[cellI].xx() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
+            volFfield[cellI].yy() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
+            volFfield[cellI].zz() = F0*Foam::exp(-5.0e6*(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)));
         }
     }
-
-    Info << "wireResistance is, " << wireResistance << endl;
 
     forAll(volDfield.boundaryField(), patchI)
     {
