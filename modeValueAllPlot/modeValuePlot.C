@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
             );           
 
             // asign cell value
-            fileName dataFile (dataPath/scalarFieldName[nameNo] + "_mode"); 
+            fileName dataFile (dataPath/scalarFieldName[nameNo]); 
             label cellN (0);
             label modeNo = 0;
 
@@ -139,41 +139,11 @@ int main(int argc, char *argv[])
             } 
             
             // assign boundary value
-            fileName dataFile (dataPath/scalarFieldName[nameNo] + "_mode"); 
-            label cellN (0);
-            label modeNo = 0;
-
-            Info<< "write the mode field: " << scalarFieldName[nameNo] + "_mode" + name(modesNumber[No_]+1) << endl;
-
-            if(isFile(dataFile))
-            {                
-                IFstream dataStream(dataFile);
-                word dataLine;
-                token singleData;   
-
-                while(dataStream.getLine(dataLine) && dataLine != word::null)
-                {
-                    IStringStream dataString (dataLine);
-
-                    while(modeNo <= modesNumber[No_])
-                    {
-                        dataString.read(singleData);   
-                        ++modeNo;                                
-                    }
-                    
-                    fieldValueMode[cellN] = singleData.scalarToken();
-
-                    ++cellN;
-                    modeNo=0;
-                }
-                            
-            }  
-            else
+            forAll(fieldValueMode.boundaryField(), patchI)
             {
-                Info << "file: " << dataFile << " is not exist!" << endl;
-                // break;
+                fieldValueMode.boundaryFieldRef().set(patchI, 
+                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
             }
-
 
             fieldValueMode.write();      
         }        
@@ -192,7 +162,7 @@ int main(int argc, char *argv[])
 
             RectangularMatrix<scalar> vectorMatrix(mesh.C().size()*3, modeNumber, Foam::Zero);       
 
-            fileName dataFile (dataPath/vectorFieldName[nameNo] + "_mode"); 
+            fileName dataFile (dataPath/vectorFieldName[nameNo]); 
             label cellN (0);
             label modeNo = 0;
 
