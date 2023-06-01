@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
            
         forAll(modesNumber, No_)
         {
-            fileName modeFieldName(scalarFieldName[nameNo] + "_mode" + name(modesNumber[No_]+1));
+            fileName modeFieldName(scalarFieldName[nameNo] + name(modesNumber[No_]+1));
 
             volScalarField fieldValueMode
             (
@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
             label cellN (0);
             label modeNo = 0;
 
-            Info<< "write the mode field: " << scalarFieldName[nameNo] + "_mode" + name(modesNumber[No_]+1) << endl;
+            Info<< "write the mode field: " << scalarFieldName[nameNo] + name(modesNumber[No_]+1) << endl;
 
             if(isFile(dataFile))
             {                
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
            
         forAll(modesNumber, No_)
         {
-            fileName modeFieldName(vectorFieldName[nameNo] + "_mode" + name(modesNumber[No_]+1));
+            fileName modeFieldName(vectorFieldName[nameNo] + name(modesNumber[No_]+1));
 
             RectangularMatrix<scalar> vectorMatrix(mesh.C().size()*3, modeNumber, Foam::Zero);       
 
@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
             label cellN (0);
             label modeNo = 0;
 
-            Info<< "write the mode field: " << vectorFieldName[nameNo] + "_mode" + name(modesNumber[No_]+1) << endl;
+            Info<< "write the mode field: " << vectorFieldName[nameNo] + name(modesNumber[No_]+1) << endl;
 
             if(isFile(dataFile))
             {                
