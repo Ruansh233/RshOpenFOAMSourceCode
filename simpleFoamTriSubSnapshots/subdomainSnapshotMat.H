@@ -80,8 +80,6 @@ outputFilePtr.reset(new OFstream(runTime.globalPath()/outputDir/snapshotFileName
 
 forAll(subdomains, domainI)
 {
-    
-
     forAll(subdomains[domainI], zoneI)
     {
         forAll(mesh.cellZones()[subdomains[domainI][zoneI]], cellI)
@@ -89,8 +87,8 @@ forAll(subdomains, domainI)
             label cellN (mesh.cellZones()[subdomains[domainI][zoneI]][cellI]);
             outputFilePtr() << turbKinEnergy[cellN] << " ";
         }
-        outputFilePtr() << endl;  
     } 
+    outputFilePtr() << endl;  
 }
 
 
@@ -112,8 +110,8 @@ forAll(subdomains, domainI)
             label cellN (mesh.cellZones()[subdomains[domainI][zoneI]][cellI]);
             outputFilePtr() << turbEpsilon[cellN] << " ";
         }
-        outputFilePtr() << endl;  
-    } 
+    }
+    outputFilePtr() << endl;  
 }
 
 // ************************************************************************* //

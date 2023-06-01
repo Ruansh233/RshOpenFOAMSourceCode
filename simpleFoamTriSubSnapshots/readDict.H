@@ -1,18 +1,24 @@
     List<List<label>> subdomains(customDict.getLabel("subdomainNum"));
     List<List<word>> subdomainsZoneName(customDict.getLabel("subdomainNum"));
     List<word> subdomainDict;
+    label domainNum (0);
 
     forAll(subdomains, domainI)
     {
-        subdomainDict = customDict.subDict("subdomains").lookup("tri_"+name(domainI+1));
-
-        forAll(subdomainDict, subDI)
+        if(customDict.subDict("subdomains").readIfPresent("sub_"+name(domainI+1), subdomainDict))
         {
-            label zoneID = mesh.cellZones().findZoneID(subdomainDict[subDI]);
-            subdomains[domainI].append(zoneID);
-            subdomainsZoneName[domainI].append(subdomainDict[subDI]);
-        }
+            forAll(subdomainDict, subDI)
+            {
+                label zoneID = mesh.cellZones().findZoneID(subdomainDict[subDI]);
+                subdomains[domainNum].append(zoneID);
+                subdomainsZoneName[domainNum].append(subdomainDict[subDI]);
+            }
+            ++ domainNum; 
+        }   
     }
+
+    subdomains.resize(domainNum);
+    subdomainsZoneName.resize(domainNum);
     
     // output the subdomains List
     IOList<List<label>> subdomainsIO
