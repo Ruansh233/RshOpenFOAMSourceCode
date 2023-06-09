@@ -20,12 +20,13 @@
     subdomains.resize(domainNum);
     subdomainsZoneName.resize(domainNum);
     
+    word subdomainName(customDict.getWord("subdomainName"));
     // output the subdomains List
     IOList<List<label>> subdomainsIO
     (
         IOobject
         (
-            "subdomains",
+            "subdomains_"+subdomainName,
             runTime.caseConstant(),
             mesh,
             IOobject::NO_READ,
@@ -40,7 +41,7 @@
     (
         IOobject
         (
-            "subdomainsZoneName",
+            "subdomainsZoneName_"+subdomainName,
             runTime.caseConstant(),
             mesh,
             IOobject::NO_READ,

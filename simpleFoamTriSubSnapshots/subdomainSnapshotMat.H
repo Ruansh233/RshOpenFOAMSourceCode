@@ -101,8 +101,6 @@ outputFilePtr.reset(new OFstream(runTime.globalPath()/outputDir/snapshotFileName
 
 forAll(subdomains, domainI)
 {
-
-
     forAll(subdomains[domainI], zoneI)
     {
         forAll(mesh.cellZones()[subdomains[domainI][zoneI]], cellI)
