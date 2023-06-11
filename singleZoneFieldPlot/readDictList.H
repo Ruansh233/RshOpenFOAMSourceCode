@@ -22,3 +22,9 @@
     );
 
     // Info<< scalarZoneFieldName << endl;
+
+    Info<< "The input data is shown following, " << endl
+        << "subdomainName: " << subdomainName << endl
+        << "dataPath: " << dataPath << endl
+        << "scalarZoneFieldName: " << scalarZoneFieldName << endl
+        << "vectorZoneFieldName: " << vectorZoneFieldName << endl;

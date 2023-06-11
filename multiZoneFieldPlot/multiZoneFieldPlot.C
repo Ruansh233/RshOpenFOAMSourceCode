@@ -57,6 +57,9 @@ int main(int argc, char *argv[])
     // read data from dictionary
     #include "readDictList.H"
 
+    // declaration of field file dir
+    fileName dataFile;
+
     // write scalar field field
     forAll(scalarZoneFieldName, nameNo)
     {
@@ -77,31 +80,55 @@ int main(int argc, char *argv[])
             Field<scalar> (mesh.C().size(), Foam::zero())
         );        
 
-        // asign cell value
-        fileName dataFile (dataPath/scalarZoneFieldName[nameNo]); 
-
-        if(isFile(dataFile))
-        {                
-            IFstream dataStream(dataFile);
-            
-            forAll(subdomainsIO, domainI)
-            {  
-                forAll(subdomainsIO[domainI], zoneI)
-                {                   
-                    forAll(mesh.cellZones()[subdomainsIO[domainI][zoneI]], cellI)
-                    {
-                        label cellN (mesh.cellZones()[subdomainsIO[domainI][zoneI]][cellI]);
-                        dataStream.read(fieldValueMode[cellN]); 
-                    }
-                }
-            }                        
-        }  
-        else
+        forAll(subdomainZonesList, domainTypeI)
         {
-            Info << "file: " << dataFile << " is not exist!" << endl;
-            // break;
-        } 
-        
+            // file dir of field matrix 
+            if(dataPathList.size() ==1)
+            {
+                dataFile = dataPathList[0]/scalarZoneFieldName[nameNo]; 
+            }
+            else
+            {
+                dataFile = dataPathList[domainTypeI]/scalarZoneFieldName[nameNo]; 
+            }
+            
+            if(isFile(dataFile))
+            {                
+                IFstream dataStream(dataFile);
+
+                // output the subdomains List
+                IOList<List<label>> subdomainsIO
+                (
+                    IOobject
+                    (
+                        subdomainZonesList[domainTypeI],
+                        runTime.caseConstant(),
+                        mesh,
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE
+                    )
+                );
+                
+                // asign cell value
+                forAll(subdomainsIO, subdomainI)
+                {  
+                    forAll(subdomainsIO[subdomainI], zoneI)
+                    {                   
+                        forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                        {
+                            label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                            dataStream.read(fieldValueMode[cellN]); 
+                        }
+                    }
+                }   
+            }  
+            else
+            {
+                Info << "file: " << dataFile << " is not exist!" << endl;
+                // break;
+            }  
+        }                    
+
         // assign boundary value
         forAll(fieldValueMode.boundaryField(), patchI)
         {
@@ -133,48 +160,76 @@ int main(int argc, char *argv[])
             Field<vector> (mesh.C().size(), Foam::zero())
         );        
 
-        // asign cell value
-        fileName dataFile (dataPath/vectorZoneFieldName[nameNo]); 
 
-        if(isFile(dataFile))
-        {                
-            IFstream dataStream(dataFile);
-            
-            forAll(subdomainsIO, domainI)
-            {  
-                forAll(subdomainsIO[domainI], zoneI)
-                {                   
-                    forAll(mesh.cellZones()[subdomainsIO[domainI][zoneI]], cellI)
-                    {
-                        label cellN (mesh.cellZones()[subdomainsIO[domainI][zoneI]][cellI]);
-                        dataStream.read(fieldValueMode[cellN].x()); 
-                    }
-                }
-
-                forAll(subdomainsIO[domainI], zoneI)
-                {                   
-                    forAll(mesh.cellZones()[subdomainsIO[domainI][zoneI]], cellI)
-                    {
-                        label cellN (mesh.cellZones()[subdomainsIO[domainI][zoneI]][cellI]);
-                        dataStream.read(fieldValueMode[cellN].y()); 
-                    }
-                }
-
-                forAll(subdomainsIO[domainI], zoneI)
-                {                   
-                    forAll(mesh.cellZones()[subdomainsIO[domainI][zoneI]], cellI)
-                    {
-                        label cellN (mesh.cellZones()[subdomainsIO[domainI][zoneI]][cellI]);
-                        dataStream.read(fieldValueMode[cellN].z()); 
-                    }
-                }
-            }                        
-        }  
-        else
+        forAll(subdomainZonesList, domainTypeI)
         {
-            Info << "file: " << dataFile << " is not exist!" << endl;
-            // break;
-        } 
+            // file dir of field matrix 
+            if(dataPathList.size() ==1)
+            {
+                dataFile = dataPathList[0]/scalarZoneFieldName[nameNo]; 
+            }
+            else
+            {
+                dataFile = dataPathList[domainTypeI]/scalarZoneFieldName[nameNo]; 
+            }
+
+            if(isFile(dataFile))
+            {                
+                IFstream dataStream(dataFile);
+
+                forAll(subdomainZonesList, domainTypeI)
+                {
+                    // output the subdomains List
+                    IOList<List<label>> subdomainsIO
+                    (
+                        IOobject
+                        (
+                            subdomainZonesList[domainTypeI],
+                            runTime.caseConstant(),
+                            mesh,
+                            IOobject::MUST_READ,
+                            IOobject::NO_WRITE
+                        )
+                    );
+
+                    // asign cell value
+                    forAll(subdomainsIO, subdomainI)
+                    {  
+                        forAll(subdomainsIO[subdomainI], zoneI)
+                        {                   
+                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                            {
+                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                                dataStream.read(fieldValueMode[cellN].x()); 
+                            }
+                        }
+
+                        forAll(subdomainsIO[subdomainI], zoneI)
+                        {                   
+                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                            {
+                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                                dataStream.read(fieldValueMode[cellN].y()); 
+                            }
+                        }
+
+                        forAll(subdomainsIO[subdomainI], zoneI)
+                        {                   
+                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                            {
+                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                                dataStream.read(fieldValueMode[cellN].z()); 
+                            }
+                        }
+                    }           
+                }           
+            }  
+            else
+            {
+                Info << "file: " << dataFile << " is not exist!" << endl;
+                // break;
+            } 
+        }
         
         // assign boundary value
         forAll(fieldValueMode.boundaryField(), patchI)
