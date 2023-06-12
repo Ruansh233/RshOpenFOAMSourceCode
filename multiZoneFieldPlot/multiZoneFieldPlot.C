@@ -166,63 +166,60 @@ int main(int argc, char *argv[])
             // file dir of field matrix 
             if(dataPathList.size() ==1)
             {
-                dataFile = dataPathList[0]/scalarZoneFieldName[nameNo]; 
+                dataFile = dataPathList[0]/vectorZoneFieldName[nameNo]; 
             }
             else
             {
-                dataFile = dataPathList[domainTypeI]/scalarZoneFieldName[nameNo]; 
+                dataFile = dataPathList[domainTypeI]/vectorZoneFieldName[nameNo]; 
             }
 
             if(isFile(dataFile))
             {                
                 IFstream dataStream(dataFile);
 
-                forAll(subdomainZonesList, domainTypeI)
-                {
-                    // output the subdomains List
-                    IOList<List<label>> subdomainsIO
+                // output the subdomains List
+                IOList<List<label>> subdomainsIO
+                (
+                    IOobject
                     (
-                        IOobject
-                        (
-                            subdomainZonesList[domainTypeI],
-                            runTime.caseConstant(),
-                            mesh,
-                            IOobject::MUST_READ,
-                            IOobject::NO_WRITE
-                        )
-                    );
+                        subdomainZonesList[domainTypeI],
+                        runTime.caseConstant(),
+                        mesh,
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE
+                    )
+                );
 
-                    // asign cell value
-                    forAll(subdomainsIO, subdomainI)
-                    {  
-                        forAll(subdomainsIO[subdomainI], zoneI)
-                        {                   
-                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
-                            {
-                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
-                                dataStream.read(fieldValueMode[cellN].x()); 
-                            }
+                // asign cell value
+                forAll(subdomainsIO, subdomainI)
+                {  
+                    forAll(subdomainsIO[subdomainI], zoneI)
+                    {                   
+                        forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                        {
+                            label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                            dataStream.read(fieldValueMode[cellN].x()); 
                         }
+                    }
 
-                        forAll(subdomainsIO[subdomainI], zoneI)
-                        {                   
-                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
-                            {
-                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
-                                dataStream.read(fieldValueMode[cellN].y()); 
-                            }
+                    forAll(subdomainsIO[subdomainI], zoneI)
+                    {                   
+                        forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                        {
+                            label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                            dataStream.read(fieldValueMode[cellN].y()); 
                         }
+                    }
 
-                        forAll(subdomainsIO[subdomainI], zoneI)
-                        {                   
-                            forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
-                            {
-                                label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
-                                dataStream.read(fieldValueMode[cellN].z()); 
-                            }
+                    forAll(subdomainsIO[subdomainI], zoneI)
+                    {                   
+                        forAll(mesh.cellZones()[subdomainsIO[subdomainI][zoneI]], cellI)
+                        {
+                            label cellN (mesh.cellZones()[subdomainsIO[subdomainI][zoneI]][cellI]);
+                            dataStream.read(fieldValueMode[cellN].z()); 
                         }
-                    }           
-                }           
+                    }
+                }                 
             }  
             else
             {
