@@ -1,0 +1,14 @@
+searchableSurfaces/searchableSurface/searchableSurface.C
+
+topoSets = sets/topoSets
+$(topoSets)/faceSet.C
+$(topoSets)/faceZoneSet.C
+$(topoSets)/topoSet.C
+
+sets/topoSetSource/topoSetSource.C
+
+faceZoneSources = sets/faceZoneSources
+$(faceZoneSources)/topoSetFaceZoneSource/topoSetFaceZoneSource.C
+$(faceZoneSources)/extendSearchableSurfaceToFaceZone/extendSearchableSurfaceToFaceZone.C
+
+LIB = $(FOAM_USER_LIBBIN)/libextendSearchableSurfaceToFaceZone
