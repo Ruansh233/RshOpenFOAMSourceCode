@@ -47,17 +47,31 @@ namespace Foam
     );
     addToRunTimeSelectionTable
     (
+        topoSetSource,
+        extendSearchableSurfaceToFaceZone,
+        istream
+    );
+
+    addToRunTimeSelectionTable
+    (
         topoSetFaceZoneSource,
         extendSearchableSurfaceToFaceZone,
         word
     );
-    addNamedToRunTimeSelectionTable
+    addToRunTimeSelectionTable
     (
         topoSetFaceZoneSource,
         extendSearchableSurfaceToFaceZone,
-        word,
-        surface
+        istream
     );
+
+    // addNamedToRunTimeSelectionTable
+    // (
+    //     topoSetFaceZoneSource,
+    //     extendSearchableSurfaceToFaceZone,
+    //     word,
+    //     surface
+    // );
 
 }
 
@@ -192,7 +206,8 @@ void Foam::extendSearchableSurfaceToFaceZone::applyToSet
                     start[facei] = cc[mesh_.faceOwner()[facei]];
                     // Rsh 2023-06-16
                     // end[facei] = nbrCellCentres[facei-mesh_.nInternalFaces()];
-                    end[facei] = 1.1*nbrCellCentres[facei-mesh_.nInternalFaces()]-start[facei];
+                    end[facei] = nbrCellCentres[facei-mesh_.nInternalFaces()]+
+                                0.001*(nbrCellCentres[facei-mesh_.nInternalFaces()]-start[facei]);
                 }
             }
             else
@@ -203,7 +218,8 @@ void Foam::extendSearchableSurfaceToFaceZone::applyToSet
                     start[facei] = cc[mesh_.faceOwner()[facei]];
                     // Rsh 2023-06-16
                     // end[facei] = mesh_.faceCentres()[facei];
-                    end[facei] = 1.1*mesh_.faceCentres()[facei]-start[facei];
+                    end[facei] = mesh_.faceCentres()[facei]+
+                                0.001*(mesh_.faceCentres()[facei]-start[facei]);
                 }
             }
         }
