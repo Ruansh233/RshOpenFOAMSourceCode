@@ -29,12 +29,24 @@ License
 
 int main(int argc, char *argv[])
 {
+    argList::addOption
+    (
+        "fileDir",
+        "word",
+        "Specify the folder to store the hash table"
+    );
+    
     // Initialise OF case
     #include "setRootCase.H"
 
     // These two create the time system (instance called runTime) and fvMesh (instance called mesh).
     #include "createTime.H"
     #include "createMesh.H"   
+
+    fileName dataPath (args.getOrDefault<word>("fileDir", "HashTable"));
+    // create the SVD folder if it is not exist.
+    if(!isDir(runTime.globalPath()/dataPath))
+        mkDir(runTime.globalPath()/dataPath);
     
     const vector subdomainCenter (gAverage(mesh.C()));
 
@@ -43,11 +55,16 @@ int main(int argc, char *argv[])
     
     forAll(mesh.cells(), cellI)
     {
-        const vector distanceToCenter (mesh.C()[cellI] - subdomainCenter);
-        vector truncCellCenter (trunc(distanceToCenter.x()*1e8),
-                                trunc(distanceToCenter.y()*1e8),
-                                trunc(distanceToCenter.z()*1e8));
-        cellCenterTable.insert(truncCellCenter, cellI);
+        vector distanceToCenter (mesh.C()[cellI] - subdomainCenter);
+
+        if(mag(distanceToCenter.x()) < 1e-8)
+            distanceToCenter.x() = 0;
+        if(mag(distanceToCenter.y()) < 1e-8)
+            distanceToCenter.y() = 0;
+        if(mag(distanceToCenter.z()) < 1e-8)
+            distanceToCenter.z() = 0;
+
+        cellCenterTable.insert(distanceToCenter, cellI);
     }
 
     List< HashTable<label, vector> > gatheredcellCenterTable(Pstream::nProcs());
@@ -66,7 +83,7 @@ int main(int argc, char *argv[])
         }
         
         autoPtr<OFstream> outputFilePtr;
-        outputFilePtr.reset(new OFstream("cellHashTable"));
+        outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"cellHashTable"));
 
         outputFilePtr() << globalcellCenterTable;
     }
@@ -75,14 +92,14 @@ int main(int argc, char *argv[])
     // surface hashtable
     forAll(mesh.boundary(), patchI)
     {
-        word patchName = mesh.boundary()[patchI].type();
+        word patchType = mesh.boundary()[patchI].type();
         
         wordRe patchMatch("processor.*");
         patchMatch.compile();
 
-        if (!patchMatch.match(patchName))
+        if (!patchMatch.match(patchType))
         {
-            Info<< "patchName: " << patchName << endl;
+            Info<< "patchType_" << patchI << ": " << patchType << endl;
             
             HashTable<label, vector> faceCenterTable;
 
@@ -113,7 +130,7 @@ int main(int argc, char *argv[])
                 }
                 
                 autoPtr<OFstream> outputFilePtr;
-                outputFilePtr.reset(new OFstream("faceHashTable_"+name(patchI)));
+                outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"faceHashTable_"+name(patchI)));
 
                 outputFilePtr() << globalfaceCenterTable;
             }
