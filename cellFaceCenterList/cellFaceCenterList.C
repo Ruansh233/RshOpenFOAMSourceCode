@@ -35,6 +35,18 @@ int main(int argc, char *argv[])
         "word",
         "Specify the folder to store the list of cell centers and face centers."
     );
+
+    argList::addBoolOption
+    (
+        "no-cell",
+        "whether to store the list of cell centers or not"
+    );
+
+    argList::addBoolOption
+    (
+        "no-face",
+        "whether to store the list of face centers or not"
+    );
     
     // Initialise OF case
     #include "setRootCase.H"
@@ -50,75 +62,81 @@ int main(int argc, char *argv[])
     
     const vector subdomainCenter (gAverage(mesh.C()));
 
-    // the list of cell centers
-    List<vector> cellCenterList;
-    
-    forAll(mesh.cells(), cellI)
+    if(!args.found("no-cell"))
     {
-        vector distanceToCenter (mesh.C()[cellI] - subdomainCenter);
-
-        cellCenterList.append(distanceToCenter);
-    }
-
-    List< List<vector> > gatheredcellCenterList(Pstream::nProcs());
-    gatheredcellCenterList[Pstream::myProcNo()] = cellCenterList;
-    Pstream::gatherList(gatheredcellCenterList);
-    Pstream::scatterList(gatheredcellCenterList);
-
-
-    if (Pstream::master())
-    {
-        List<vector> globalcellCenterList  = 
-        ListListOps::combine<List<vector>> 
-        (gatheredcellCenterList, accessOp<List<vector> >());
+        // the list of cell centers
+        List<vector> cellCenterList;
         
-        autoPtr<OFstream> outputFilePtr;
-        outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"cellCenterList"));
-
-        outputFilePtr() << globalcellCenterList;
-    }
-
-
-    // list of face centers
-    List <List<vector>> faceCenterList(mesh.boundary().size());
-    
-    forAll(mesh.boundary(), patchI)
-    {
-        faceCenterList[patchI].resize(mesh.boundary()[patchI].size());
-
-        word patchType = mesh.boundary()[patchI].type();
-        
-        wordRe patchMatch("processor.*");
-        patchMatch.compile();
-
-        if (!patchMatch.match(patchType))
+        forAll(mesh.cells(), cellI)
         {
-            Info<< "patchType_" << patchI << ": " << patchType << endl;
+            vector distanceToCenter (mesh.C()[cellI] - subdomainCenter);
 
-            forAll(mesh.boundary()[patchI].Cf(), faceI)
-            {
-                const vector distanceToCenter (mesh.boundary()[patchI].Cf()[faceI] - subdomainCenter);
-                
-                faceCenterList[patchI][faceI] = distanceToCenter;
-            }
+            cellCenterList.append(distanceToCenter);
+        }
+
+        List< List<vector> > gatheredcellCenterList(Pstream::nProcs());
+        gatheredcellCenterList[Pstream::myProcNo()] = cellCenterList;
+        Pstream::gatherList(gatheredcellCenterList);
+        Pstream::scatterList(gatheredcellCenterList);
+
+
+        if (Pstream::master())
+        {
+            List<vector> globalcellCenterList  = 
+            ListListOps::combine<List<vector>> 
+            (gatheredcellCenterList, accessOp<List<vector> >());
+            
+            autoPtr<OFstream> outputFilePtr;
+            outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"cellCenterList"));
+
+            outputFilePtr() << globalcellCenterList;
         }
     }
+    
 
-    List< List <List<vector>> > gatheredfaceCenterList(Pstream::nProcs());
-    gatheredfaceCenterList[Pstream::myProcNo()] = faceCenterList;
-    Pstream::gatherList(gatheredfaceCenterList);
-    Pstream::scatterList(gatheredfaceCenterList);
-
-    if (Pstream::master())
+    if(!args.found("no-face"))
     {
-        List <List<vector>> globalfaceCenterList  = 
-        ListListOps::combine<List <List<vector>> > 
-        (gatheredfaceCenterList, accessOp<List <List<vector>> >());
+        // list of face centers
+        List <List<vector>> faceCenterList(mesh.boundary().size());
         
-        autoPtr<OFstream> outputFilePtr;
-        outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"faceCenterList"));
+        forAll(mesh.boundary(), patchI)
+        {
+            faceCenterList[patchI].resize(mesh.boundary()[patchI].size());
 
-        outputFilePtr() << globalfaceCenterList;
+            word patchType = mesh.boundary()[patchI].type();
+            
+            wordRe patchMatch("processor.*");
+            patchMatch.compile();
+
+            if (!patchMatch.match(patchType))
+            {
+                Info<< "patchType_" << patchI << ": " << patchType << endl;
+
+                forAll(mesh.boundary()[patchI].Cf(), faceI)
+                {
+                    const vector distanceToCenter (mesh.boundary()[patchI].Cf()[faceI] - subdomainCenter);
+                    
+                    faceCenterList[patchI][faceI] = distanceToCenter;
+                }
+            }
+        }
+
+        List< List <List<vector>> > gatheredfaceCenterList(Pstream::nProcs());
+        gatheredfaceCenterList[Pstream::myProcNo()] = faceCenterList;
+        Pstream::gatherList(gatheredfaceCenterList);
+        Pstream::scatterList(gatheredfaceCenterList);
+
+        if (Pstream::master())
+        {
+            List <List<vector>> globalfaceCenterList  = 
+            ListListOps::combine<List <List<vector>> > 
+            (gatheredfaceCenterList, accessOp<List <List<vector>> >());
+            
+            autoPtr<OFstream> outputFilePtr;
+            outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"faceCenterList"));
+
+            outputFilePtr() << globalfaceCenterList;
+        }
     }
 }
 

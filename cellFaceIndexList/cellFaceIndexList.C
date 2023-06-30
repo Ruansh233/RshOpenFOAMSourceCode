@@ -36,6 +36,18 @@ int main(int argc, char *argv[])
         "word",
         "Specify the folder to read the center list"
     );
+
+    argList::addBoolOption
+    (
+        "no-cell",
+        "whether to store the list of cell centers or not"
+    );
+
+    argList::addBoolOption
+    (
+        "no-face",
+        "whether to store the list of face centers or not"
+    );
     
     // Initialise OF case
     #include "setRootCase.H"
@@ -46,28 +58,13 @@ int main(int argc, char *argv[])
 
     fileName dataPath (args.getOrDefault<word>("fileDir", "centerList"));
     
-    // find the global cell ID of each cell in each cellZone
-    List<vector> cellCenterList;
-
-    autoPtr<IFstream> inputFilePtr;
-    inputFilePtr.reset(new IFstream(runTime.globalPath()/dataPath/"cellCenterList"));
-    inputFilePtr() >> cellCenterList;
-
-    if (mesh.cellZones().size() == 0)
-    {
-        FatalErrorIn("cellZoneFieldValue")
-            << "There is no cellZone in this mesh"
-            << exit(FatalError);
-    }
-
-
     List<vector> zoneCenterList(mesh.cellZones().size());
     vector zoneCenter (0, 0, 0);
 
     forAll(mesh.cellZones(), zoneI)
     {
         vector zoneCenter (0, 0, 0);
-        
+      
         forAll(mesh.cellZones()[zoneI], cellI)
         {
             label cellID = mesh.cellZones()[zoneI][cellI];
@@ -78,102 +75,130 @@ int main(int argc, char *argv[])
     }
 
 
-    List<List<label>> globalcellIndexList(mesh.cellZones().size());
-
-    forAll(mesh.cellZones(), zoneI)
+    if(!args.found("no-cell"))
     {
-        Info<< "zone_" << zoneI << " center: " << zoneCenterList[zoneI] << endl;
+        // find the global cell ID of each cell in each cellZone
+        List<vector> cellCenterList;
 
-        globalcellIndexList[zoneI].resize(mesh.cellZones()[zoneI].size());
+        autoPtr<IFstream> inputFilePtr;
+        inputFilePtr.reset(new IFstream(runTime.globalPath()/dataPath/"cellCenterList"));
+        inputFilePtr() >> cellCenterList;
 
-        forAll(mesh.cellZones()[zoneI], cellI)
-        {     
-            label cellID = mesh.cellZones()[zoneI][cellI];
-            
-            vector distanceToCenter (mesh.C()[cellID] - zoneCenterList[zoneI]);
-            
-            forAll(cellCenterList, localI)
-            {
-                if (mag(distanceToCenter - cellCenterList[localI]) < 1.0e-8)
-                {
-                    globalcellIndexList[zoneI][localI] = cellID;
-                    break;
-                }        
-            }
+        if (mesh.cellZones().size() == 0)
+        {
+            FatalErrorIn("cellZoneFieldValue")
+                << "There is no cellZone in this mesh"
+                << exit(FatalError);
         }
-    }
 
-    // output the cellZone List
-    IOList<List<label>> globalcellIndexListIO
-    (
-        IOobject
-        (
-            "globalcellIndexList",
-            runTime.caseConstant(),
-            mesh,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        globalcellIndexList
-    );
-    globalcellIndexListIO.write();  
+        List<List<label>> globalcellIndexList(mesh.cellZones().size());
 
+        forAll(mesh.cellZones(), zoneI)
+        {
+            Info<< "zone_" << zoneI << " center: " << zoneCenterList[zoneI] << endl;
 
-    // list of face centers
-    List <List<vector>> faceCenterList(mesh.boundary().size());
+            globalcellIndexList[zoneI].resize(mesh.cellZones()[zoneI].size());
 
-    inputFilePtr.reset(new IFstream(runTime.globalPath()/dataPath/"faceCenterList"));
-    inputFilePtr() >> faceCenterList;
-
-    if (mesh.faceZones().size() == 0)
-    {
-        FatalErrorIn("faceZoneFieldValue")
-            << "There is no faceZone in this mesh"
-            << exit(FatalError);
-    }
-    
-    
-    forAll(faceCenterList, patchI)
-    {
-        Info<< "patch_" << patchI << endl;
-
-        List<List<label>> globalfaceIndexList(mesh.faceZones().size());
-        
-        forAll(mesh.faceZones(), zoneI)
-        {           
-            globalfaceIndexList[zoneI].resize(faceCenterList[patchI].size());
-
-            forAll(mesh.faceZones()[zoneI], faceI)
+            forAll(mesh.cellZones()[zoneI], cellI)
             {     
-                label faceID = mesh.faceZones()[zoneI][faceI];
+                label cellID = mesh.cellZones()[zoneI][cellI];
                 
-                vector distanceToCenter (mesh.Cf()[faceID] - zoneCenterList[zoneI]);
+                vector distanceToCenter (mesh.C()[cellID] - zoneCenterList[zoneI]);
                 
-                forAll(faceCenterList[patchI], localI)
+                forAll(cellCenterList, localI)
                 {
-                    if (mag(distanceToCenter - faceCenterList[patchI][localI]) < 1.0e-8)
+                    if (mag(distanceToCenter - cellCenterList[localI]) < 1.0e-8)
                     {
-                        globalfaceIndexList[zoneI][localI] = faceID;
+                        globalcellIndexList[zoneI][localI] = cellID;
                         break;
                     }        
                 }
             }
         }
 
-        // output the faceZone List
-        IOList<List<label>> globalfaceIndexListIO
-        (
-            IOobject
-            (
-                "globalfaceIndexList_"+name(patchI),
-                runTime.caseConstant(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            globalfaceIndexList
-        );
-        globalfaceIndexListIO.write();  
+        // output the cellZone List
+        List< List<List<label>> > gatheredcellIndexList(Pstream::nProcs());
+        gatheredcellIndexList[Pstream::myProcNo()] = globalcellIndexList;
+        Pstream::gatherList(gatheredcellIndexList);
+        Pstream::scatterList(gatheredcellIndexList);
+
+        if (Pstream::master())
+        {
+            List<List<label>> gatheredglobalcellIndexList  = 
+            ListListOps::combine< List<List<label>> > 
+            (gatheredcellIndexList, accessOp< List<List<label>> >());
+            
+            autoPtr<OFstream> outputFilePtr;
+            outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalcellIndexList"));
+
+            outputFilePtr() << gatheredglobalcellIndexList;
+        }
+    }
+    
+
+    if(!args.found("no-face"))
+    {
+        // list of face centers
+        List <List<vector>> faceCenterList(mesh.boundary().size());
+
+        autoPtr<IFstream> inputFilePtr;
+        inputFilePtr.reset(new IFstream(runTime.globalPath()/dataPath/"faceCenterList"));
+        inputFilePtr() >> faceCenterList;
+
+        if (mesh.faceZones().size() == 0)
+        {
+            FatalErrorIn("faceZoneFieldValue")
+                << "There is no faceZone in this mesh"
+                << exit(FatalError);
+        }
+        
+
+        forAll(faceCenterList, patchI)
+        {
+            Info<< "patch_" << patchI << endl;
+
+            List<List<label>> globalfaceIndexList(mesh.faceZones().size());
+            
+            forAll(mesh.faceZones(), zoneI)
+            {           
+                globalfaceIndexList[zoneI].resize(faceCenterList[patchI].size());
+
+                forAll(mesh.faceZones()[zoneI], faceI)
+                {     
+                    label faceID = mesh.faceZones()[zoneI][faceI];
+                    
+                    vector distanceToCenter (mesh.Cf()[faceID] - zoneCenterList[zoneI]);
+                    
+                    forAll(faceCenterList[patchI], localI)
+                    {
+                        if (mag(distanceToCenter - faceCenterList[patchI][localI]) < 1.0e-8)
+                        {
+                            globalfaceIndexList[zoneI][localI] = faceID;
+                            break;
+                        }        
+                    }
+                }
+            }
+
+            // output the faceZone List
+            List< List<List<label>> > gatheredfaceIndexList(Pstream::nProcs());
+            gatheredfaceIndexList[Pstream::myProcNo()] = globalfaceIndexList;
+            Pstream::gatherList(gatheredfaceIndexList);
+            Pstream::scatterList(gatheredfaceIndexList);
+
+
+            if (Pstream::master())
+            {
+                List<List<label>> gatheredglobalfaceIndexList  = 
+                ListListOps::combine< List<List<label>> > 
+                (gatheredfaceIndexList, accessOp< List<List<label>> >());
+                
+                autoPtr<OFstream> outputFilePtr;
+                outputFilePtr.reset(new OFstream(runTime.caseConstant()/"gatheredfaceIndexList"));
+
+                outputFilePtr() << gatheredglobalfaceIndexList;
+            }
+        }
     }
 }
 
