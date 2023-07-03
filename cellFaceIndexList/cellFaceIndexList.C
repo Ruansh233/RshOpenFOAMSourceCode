@@ -116,23 +116,11 @@ int main(int argc, char *argv[])
             }
         }
 
-        // output the cellZone List
-        List< List<List<label>> > gatheredcellIndexList(Pstream::nProcs());
-        gatheredcellIndexList[Pstream::myProcNo()] = globalcellIndexList;
-        Pstream::gatherList(gatheredcellIndexList);
-        Pstream::scatterList(gatheredcellIndexList);
 
-        if (Pstream::master())
-        {
-            List<List<label>> gatheredglobalcellIndexList  = 
-            ListListOps::combine< List<List<label>> > 
-            (gatheredcellIndexList, accessOp< List<List<label>> >());
-            
-            autoPtr<OFstream> outputFilePtr;
-            outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalcellIndexList"));
+        autoPtr<OFstream> outputFilePtr;
+        outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalcellIndexList"));
 
-            outputFilePtr() << gatheredglobalcellIndexList;
-        }
+        outputFilePtr() << globalcellIndexList;
     }
     
 
@@ -180,24 +168,11 @@ int main(int argc, char *argv[])
                 }
             }
 
-            // output the faceZone List
-            List< List<List<label>> > gatheredfaceIndexList(Pstream::nProcs());
-            gatheredfaceIndexList[Pstream::myProcNo()] = globalfaceIndexList;
-            Pstream::gatherList(gatheredfaceIndexList);
-            Pstream::scatterList(gatheredfaceIndexList);
 
+            autoPtr<OFstream> outputFilePtr;
+            outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalfaceIndexList_"+name(patchI)));
 
-            if (Pstream::master())
-            {
-                List<List<label>> gatheredglobalfaceIndexList  = 
-                ListListOps::combine< List<List<label>> > 
-                (gatheredfaceIndexList, accessOp< List<List<label>> >());
-                
-                autoPtr<OFstream> outputFilePtr;
-                outputFilePtr.reset(new OFstream(runTime.caseConstant()/"gatheredfaceIndexList"));
-
-                outputFilePtr() << gatheredglobalfaceIndexList;
-            }
+            outputFilePtr() << globalfaceIndexList;
         }
     }
 }
