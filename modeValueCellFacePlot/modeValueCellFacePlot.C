@@ -36,6 +36,12 @@ int main(int argc, char *argv[])
         "word",
         "Specify the folder of modes file"
     );
+
+    argList::addBoolOption
+    (
+        "noBoundary",
+        "do not write the boundary value of the field"
+    );
     
     // Initialise OF case
     #include "setRootCase.H"
@@ -46,7 +52,7 @@ int main(int argc, char *argv[])
 
     Info<< "Start\n" << endl;
 
-    fileName dataPath (args.getOrDefault<word>("modesFileDir", mesh.time().path()/"SVD"));
+    fileName dataPath (args.getOrDefault<word>("modesFileDir", mesh.time().path()/"Modes"));
 
     // List<word> modesNumber ({"0", "1", "2", "3", "4"});
     // // List<word> modesNumber ({"0", "1", "2"});
@@ -138,11 +144,63 @@ int main(int argc, char *argv[])
                 // break;
             } 
             
-            // assign boundary value
-            forAll(fieldValueMode.boundaryField(), patchI)
+            if(!args.found("noBoundary"))
             {
-                fieldValueMode.boundaryFieldRef().set(patchI, 
-                    fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                // assign boundary value
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    fieldValueMode.boundaryFieldRef().set(patchI, 
+                        fvPatchField<scalar>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
+                }
+                
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    // asign boundaryValue value
+                    fileName dataFile (dataPath/scalarFieldName[nameNo]+"_"+name(patchI)); 
+                    label faceN (0);
+                    label modeNo = 0;
+
+                    Info<< "write the boundary of mode field: " 
+                        << scalarFieldName[nameNo] + name(modesNumber[No_]+1) +"_"+name(patchI) << endl;
+
+                    if(isFile(dataFile))
+                    {                
+                        IFstream dataStream(dataFile);
+                        word dataLine;
+                        token singleData;   
+
+                        while(dataStream.getLine(dataLine) && dataLine != word::null)
+                        {
+                            IStringStream dataString (dataLine);
+
+                            while(modeNo <= modesNumber[No_])
+                            {
+                                dataString.read(singleData);   
+                                ++modeNo;                                
+                            }
+                            
+                            fieldValueMode.boundaryFieldRef()[patchI][faceN] = singleData.scalarToken();
+
+                            ++faceN;
+                            modeNo=0;
+                        }
+                                    
+                    }  
+                    else
+                    {
+                        Info << "file: " << dataFile << " is not exist!" << endl;
+                        // break;
+                    } 
+                }
+            }
+            else
+            {
+                // assign boundary value
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    fieldValueMode.boundaryFieldRef().set(patchI, 
+                        fvPatchField<scalar>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                }
             }
 
             fieldValueMode.write();      
@@ -220,10 +278,73 @@ int main(int argc, char *argv[])
                                                         vectorMatrix(cellI + 2*mesh.C().size(), modesNumber[No_]));
             }
 
-            forAll(fieldValueMode.boundaryField(), patchI)
+            if(!args.found("noBoundary"))
             {
-                fieldValueMode.boundaryFieldRef().set(patchI, 
-                    fvPatchField<vector>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                // assign boundary value
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    fieldValueMode.boundaryFieldRef().set(patchI, 
+                        fvPatchField<vector>::New("fixedValue", mesh.boundary()[patchI], fieldValueMode));
+                }
+                
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    // asign boundaryValue value
+                    fileName dataFile (dataPath/scalarFieldName[nameNo]+"_"+name(patchI)); 
+                    label patchFacesNum = fieldValueMode.boundaryField()[patchI].size();
+                    List<scalar> faceVelocity(3*patchFacesNum);
+                    label faceN (0);
+                    label modeNo = 0;
+
+                    Info<< "write the boundary of mode field: " 
+                        << scalarFieldName[nameNo] + name(modesNumber[No_]+1) +"_"+name(patchI) << endl;
+
+                    if(isFile(dataFile))
+                    {                
+                        IFstream dataStream(dataFile);
+                        word dataLine;
+                        token singleData;   
+
+                        while(dataStream.getLine(dataLine) && dataLine != word::null)
+                        {
+                            IStringStream dataString (dataLine);
+
+                            while(modeNo <= modesNumber[No_])
+                            {
+                                dataString.read(singleData);   
+                                ++modeNo;                                
+                            }
+                            
+                            faceVelocity[faceN] = singleData.scalarToken();
+
+                            ++faceN;
+                            modeNo=0;
+                        }
+                                    
+                    }  
+                    else
+                    {
+                        Info << "file: " << dataFile << " is not exist!" << endl;
+                        // break;
+                    } 
+
+                    forAll(fieldValueMode.boundaryField()[patchI], faceI)
+                    {
+                        fieldValueMode.boundaryFieldRef()[patchI][faceI] = 
+                            Vector<scalar> (faceVelocity[faceI],
+                                            faceVelocity[faceI + patchFacesNum],
+                                            faceVelocity[faceI + patchFacesNum*2]);
+                    }
+                }
+            }
+            else
+            {
+                // assign boundary value
+                forAll(fieldValueMode.boundaryField(), patchI)
+                {
+                    fieldValueMode.boundaryFieldRef().set(patchI, 
+                        fvPatchField<vector>::New("zeroGradient", mesh.boundary()[patchI], fieldValueMode));
+                }
             }
 
             fieldValueMode.write();      
