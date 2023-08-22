@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     (
         "tolerance",
         "matchTolerance",
-        "specify a matching tolerance fraction of cell-to-face distance and y (default 0.001)"
+        "specify a matching tolerance fraction of cell-to-face distance and y (default 1.0e-6)"
     );
 
     argList::addBoolOption
@@ -79,7 +79,7 @@ int main(int argc, char *argv[])
         matchTol = matchTolerance;
         Info<< "Using cell distance to y match tolerance fraction of " << matchTol << nl << endl;
     }else{
-        matchTol = 0.001;
+        matchTol = 1.0e-6;
         Info<< "Using default cell-to-face distance to y match tolerance fraction of " << matchTol << nl << endl;
     }
 
@@ -125,17 +125,17 @@ int main(int argc, char *argv[])
 
 		        const scalarField& uTauTemp = uTau.boundaryField()[patchi];
 
-                Info<< "  y+ for Patch " << patchi
-                    << " named " << currPatch.name() << ":" 
-                    << " min: " << min(YpTemp) << " max: " << max(YpTemp)
-                    << " average: " << average(YpTemp) 
-		            << nl << endl;
+                // Info<< "  y+ for Patch " << patchi
+                //     << " named " << currPatch.name() << ":" 
+                //     << " min: " << min(YpTemp) << " max: " << max(YpTemp)
+                //     << " average: " << average(YpTemp) 
+		        //     << nl << endl;
 
-                Info<< "  uTau for Patch " << patchi
-                    << " named " << currPatch.name() << ":" 
-                    << " min: " << min(uTauTemp) << " max: " << max(uTauTemp)
-                    << " average: " << average(uTauTemp) 
-		            << nl << endl;
+                // Info<< "  uTau for Patch " << patchi
+                //     << " named " << currPatch.name() << ":" 
+                //     << " min: " << min(uTauTemp) << " max: " << max(uTauTemp)
+                //     << " average: " << average(uTauTemp) 
+		        //     << nl << endl;
             }
         }
 
@@ -163,16 +163,20 @@ int main(int argc, char *argv[])
                         //calculated distance from the current cell to a face on a wall patch
                         scalar cellFaceDist ;
 
-                        cellFaceDist = Foam::sqrt(sqr(centers[cellI].x()-faceCenters.boundaryField()[patchi][facei].x()) + sqr(centers[cellI].y()-faceCenters.boundaryField()[patchi][facei].y())+ sqr(centers[cellI].z()-faceCenters.boundaryField()[patchi][facei].z()));
+                        // cellFaceDist = Foam::sqrt(sqr(centers[cellI].x()-faceCenters.boundaryField()[patchi][facei].x()) + 
+                        //                 sqr(centers[cellI].y()-faceCenters.boundaryField()[patchi][facei].y())+ 
+                        //                 sqr(centers[cellI].z()-faceCenters.boundaryField()[patchi][facei].z()));
+
+                        cellFaceDist = mag(centers[cellI] - faceCenters.boundaryField()[patchi][facei]);
 
                         //convert the y value for comparison
                         scalar yTemp = y.y()[cellI];
 
-                        //fraction difference between our y (i.e. closest perpendicular distance to wall patch) and our seach for the closest wall face
-                        scalar diffDist = abs(cellFaceDist - yTemp)/max(abs(cellFaceDist),SMALL);
+                        // //fraction difference between our y (i.e. closest perpendicular distance to wall patch) and our seach for the closest wall face
+                        // scalar diffDist = abs(cellFaceDist - yTemp)/max(abs(cellFaceDist),SMALL);
 
                         //if the fraction difference is less than or equal to the match tolerance, search no further.
-                        if( diffDist <= matchTol)
+                        if( abs(cellFaceDist - yTemp) <= matchTol)
                         { 
                             uTau[cellI] = uTau.boundaryField()[patchi][facei];	
                             break;
