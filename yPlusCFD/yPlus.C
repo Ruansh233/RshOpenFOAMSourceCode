@@ -69,18 +69,18 @@ int main(int argc, char *argv[])
 
     #include "setRootCase.H"
 
-    scalar matchTolerance = 0;
-    scalar matchTol = 1;
+    scalar matchTol;
 
     bool noWrite = args.found("noWrite");
 
-    if (args.readIfPresent("tolerance", matchTolerance))
+    if (!args.readIfPresent("tolerance", matchTol))
     {
-        matchTol = matchTolerance;
-        Info<< "Using cell distance to y match tolerance fraction of " << matchTol << nl << endl;
-    }else{
         matchTol = 1.0e-6;
         Info<< "Using default cell-to-face distance to y match tolerance fraction of " << matchTol << nl << endl;
+    }
+    else
+    {
+        Info<< "Using cell distance to y match tolerance fraction of " << matchTol << nl << endl;    
     }
 
 
@@ -92,91 +92,38 @@ int main(int argc, char *argv[])
     {
         runTime.setTime(timeDirs[timeI], timeI);
         Info<< "Time = " << runTime.timeName() << endl;
-        fvMesh::readUpdateState state = mesh.readUpdate();
+        mesh.readUpdate();
 
         wallDist y(mesh);
 
-        if (timeI == 0 || state != fvMesh::UNCHANGED)
-        {
-            Info<< "Calculating wall distance\n" <<endl;
-            Info<< "Writing wall distance to field " << y.name() << nl << endl;
-            y.write();
-        }
-
 	    #include "createFields.H"
 
-        const fvPatchList& patches = mesh.boundary();
-                     
-	    Info<< "Summary: " << nl << endl;
-
-        forAll(patches, patchi)
+        forAll(mesh.boundary(), patchi)
         {
-            const fvPatch& currPatch = patches[patchi];
-
-            if (isA<wallFvPatch>(currPatch))
+            if (isA<wallFvPatch>(mesh.boundary()[patchi]))
             {
-                yPlusTemp.boundaryFieldRef()[patchi] =
-                    d[patchi] * sqrt(turbulence->nu()().boundaryField()[patchi] * mag(U.boundaryField()[patchi].snGrad())) / 
-                    turbulence->nu()().boundaryField()[patchi];
-                
-		        const scalarField& YpTemp = yPlusTemp.boundaryField()[patchi];
-
                 uTau.boundaryFieldRef()[patchi] = sqrt(turbulence->nu()() * mag(U.boundaryField()[patchi].snGrad()));
-
-		        const scalarField& uTauTemp = uTau.boundaryField()[patchi];
-
-                // Info<< "  y+ for Patch " << patchi
-                //     << " named " << currPatch.name() << ":" 
-                //     << " min: " << min(YpTemp) << " max: " << max(YpTemp)
-                //     << " average: " << average(YpTemp) 
-		        //     << nl << endl;
-
-                // Info<< "  uTau for Patch " << patchi
-                //     << " named " << currPatch.name() << ":" 
-                //     << " min: " << min(uTauTemp) << " max: " << max(uTauTemp)
-                //     << " average: " << average(uTauTemp) 
-		        //     << nl << endl;
             }
         }
-
-
-        const volVectorField& centers = mesh.C();
-        const surfaceVectorField& faceCenters = mesh.Cf();
 
         //go through all the cells in the mesh
         forAll(uTau, cellI)
         {
-
             //loop over all the patches
-            forAll(patches, patchi)
-            {
-                const fvPatch& currPatch = patches[patchi];
-                
-                //loop through all the faces on that patch
-                label nFaces = mesh.boundaryMesh()[patchi].size();
-            
+            forAll(mesh.boundary()[patchi], patchi)
+            {            
                 //if this patch is a wall...
-                if(isA<wallFvPatch>(currPatch))
+                if(isA<wallFvPatch>(mesh.boundary()[patchi]))
                 {
-                    for(int facei = 0; facei<nFaces; facei++)
+                    forAll(mesh.boundary()[patchi], facei)
                     {
                         //calculated distance from the current cell to a face on a wall patch
                         scalar cellFaceDist ;
 
-                        // cellFaceDist = Foam::sqrt(sqr(centers[cellI].x()-faceCenters.boundaryField()[patchi][facei].x()) + 
-                        //                 sqr(centers[cellI].y()-faceCenters.boundaryField()[patchi][facei].y())+ 
-                        //                 sqr(centers[cellI].z()-faceCenters.boundaryField()[patchi][facei].z()));
-
-                        cellFaceDist = mag(centers[cellI] - faceCenters.boundaryField()[patchi][facei]);
-
-                        //convert the y value for comparison
-                        scalar yTemp = y.y()[cellI];
-
-                        // //fraction difference between our y (i.e. closest perpendicular distance to wall patch) and our seach for the closest wall face
-                        // scalar diffDist = abs(cellFaceDist - yTemp)/max(abs(cellFaceDist),SMALL);
+                        cellFaceDist = mag(mesh.C()[cellI] - mesh.Cf().boundaryField()[patchi][facei]);
 
                         //if the fraction difference is less than or equal to the match tolerance, search no further.
-                        if( abs(cellFaceDist - yTemp) <= matchTol)
+                        if( abs(cellFaceDist - y.y()[cellI]) <= matchTol)
                         { 
                             uTau[cellI] = uTau.boundaryField()[patchi][facei];	
                             break;
