@@ -36,6 +36,14 @@ int main(int argc, char *argv[])
         "word",
         "Specify the folder of modes file"
     );
+
+    // Rsh, add dict select function
+    argList::addOption // string variable
+    (
+        "dict",
+        "name",
+        "alternative modePlotDict"
+    );
     
     // Initialise OF case
     #include "setRootCase.H"
@@ -52,19 +60,34 @@ int main(int argc, char *argv[])
     // // List<word> modesNumber ({"0", "1", "2"});
     // List<word> fieldName ({"Ux", "Uy", "Uz", "magU", "gradpx", "gradpy", "gradpz"});
 
-    const word dictName("modePlotDict");
+    // const word dictName("modePlotDict");
 
-    // Create and input-output object - this holds the path to the dict and its name
-    IOdictionary customDict
-    (
-        IOobject
-        (
-            dictName, // name of the file
-            mesh.time().system(), // path to where the file is
-            mesh, // reference to the mesh needed by the constructor
-            IOobject::MUST_READ // indicate that reading this dictionary is compulsory
-        )
-    );
+    // // add dict Selector option
+    // const word dictName("modePlotDict");
+    // #include "setSystemMeshDictionaryIO.H"
+    // Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
+
+    // // create dictionary object and read the dictionary
+    // IOdictionary customDict(dictIO);
+
+    // Rsh, the default dict name or input selector
+    //  - must plus the dict select option in the beginning of the code
+    const word dictName("modePlotDict");
+    #include "setSystemMeshDictionaryIO.H"
+    Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
+    IOdictionary customDict(dictIO);
+
+    // // Create and input-output object - this holds the path to the dict and its name
+    // IOdictionary customDict
+    // (
+    //     IOobject
+    //     (
+    //         dictName, // name of the file
+    //         mesh.time().system(), // path to where the file is
+    //         mesh, // reference to the mesh needed by the constructor
+    //         IOobject::MUST_READ // indicate that reading this dictionary is compulsory
+    //     )
+    // );
 
     // read data from dictionary
     // List<label> modesNumber (customDict.lookup("modesNumber"));
