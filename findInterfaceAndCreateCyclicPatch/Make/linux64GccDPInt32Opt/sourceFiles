@@ -1,4 +1,0 @@
-SOURCE = \
-findInterfaceAndCreateCyclicPatch.C \
-
-# sources

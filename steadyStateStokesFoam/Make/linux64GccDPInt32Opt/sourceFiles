@@ -1,4 +1,0 @@
-SOURCE = \
-steadyStateStokesFoam.C \
-
-# sources

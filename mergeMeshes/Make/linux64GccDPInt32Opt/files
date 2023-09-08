@@ -1,5 +1,0 @@
-SOURCE += mergePolyMesh.C
-SOURCE += mergeMeshes.C
-
-EXE = $(FOAM_APPBIN)/mergeMeshes
-
