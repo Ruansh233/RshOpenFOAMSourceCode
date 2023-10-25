@@ -30,6 +30,9 @@
     // scalar beta0 (DGdict.getScalar("beta0"));
     // scalar beta1 (DGdict.getScalar("beta1"));
 
+    // iteration weighting factor
+    const scalar weightW (DGdict.getScalar("weightW"));
+
     // phiscal parameter    
     const scalar heatConductivity (DGdict.getScalar("heatConductivity"));
     // scalar Tin (DGdict.getScalar("Tin"));

@@ -883,16 +883,10 @@ int main(int argc, char *argv[])
     // ---- output the calculated coefficient and snapshots ------
     // ===========================================================
 
-    // The S=CA^{-1}B matrix
-    RectangularMatrix<scalar> SMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
-    RectangularMatrix<scalar> invMomGlobalAMat (SVDinv(MomGlobalAMat));
-
     // SMat = ConGlobalCMat * invMomGlobalAMat * MomGlobalBMat;
     // SVD SVDSMat(SMat);
     // const scalar weightW (2.0 / (SVDSMat.S().first() + SVDSMat.S().last()));
     // Info << "weightW: " << weightW << endl;
-
-    const scalar weightW (0.5);
 
     RectangularMatrix<scalar> uCalCoefficientM(elementNum, modesNum);
     RectangularMatrix<scalar> pCalCoefficientM(elementNum, modesNum);
@@ -928,11 +922,28 @@ int main(int argc, char *argv[])
     writeMatrix(pCalCoefficientM, dataFile);
     // ---------------------------------------------------------------------------------- //
 
+    // // ===========================================================
+    // Uzawa method, which is not working
+    // The S=CA^{-1}B matrix
+    RectangularMatrix<scalar> SMat(modesNum * elementNum, modesNum * elementNum, Foam::Zero);
+    RectangularMatrix<scalar> invMomGlobalAMat (SVDinv(MomGlobalAMat));
+
+    RectangularMatrix<scalar> invMomGlobalBMat (SVDinv(MomGlobalBMat));
+    
     RectangularMatrix<scalar> tmpuCalCoefficientM(modesNum * elementNum, 1, Foam::Zero);
     RectangularMatrix<scalar> tmppCalCoefficientM(modesNum * elementNum, 1, Foam::Zero);
 
+    tmpuCalCoefficientM = SVDinv(ConGlobalCMat) * ConGlobalGMat;
+    tmppCalCoefficientM = SVDinv(MomGlobalBMat) * (MomGlobalFMat - MomGlobalAMat * tmpuCalCoefficientM);
+
     for (label iter_ = 0; iter_ < iterations; ++iter_)
     {
+        Info<< "iteration: " << iter_
+            << ", tmpuCalCoefficientM: " << tmpuCalCoefficientM(0,0)
+            << ", tmppCalCoefficientM: " << tmppCalCoefficientM(0,0)
+            << ", test: " << RectangularMatrix<scalar> (ConGlobalCMat * tmpuCalCoefficientM - ConGlobalGMat)(0,0)
+            << endl;
+        
         tmpuCalCoefficientM = invMomGlobalAMat * (MomGlobalFMat - MomGlobalBMat * tmppCalCoefficientM);
         tmppCalCoefficientM = tmppCalCoefficientM + weightW * (ConGlobalCMat * tmpuCalCoefficientM - ConGlobalGMat);
     }
