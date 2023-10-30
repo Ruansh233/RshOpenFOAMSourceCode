@@ -180,8 +180,9 @@ int main(int argc, char *argv[])
     
     fileName dataPath (runTime.globalPath()/"SVD");
     fileName dataFile;
-    fileName resultFolder (runTime.globalPath()/"result");
-    fileName tmpFolder (runTime.globalPath()/"result"/"tmp");
+    fileName resultFolder (runTime.globalPath()/"SVD");
+    fileName tmpFolder (runTime.globalPath()/"SVD"/"tmp");
+    fileName refModesFolder (runTime.globalPath()/"SVD"/"refModes");
 
     // create the result folder if it is not exist.
     if(!isDir(resultFolder))
@@ -529,7 +530,7 @@ int main(int argc, char *argv[])
 
     // MomGlobalAMat should contain heatConductivity
     // MomGlobalAMat = heatConductivity * MomGlobalAMat;
-    dataFile = mesh.time().path()/"SVD"/"MomGlobalAMat";
+    dataFile = tmpFolder/"MomGlobalAMat";
     writeMatrix(MomGlobalAMat, dataFile);
 
     // ===========================================================
@@ -585,7 +586,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    dataFile = mesh.time().path()/"SVD"/"MomGlobalBMat";
+    dataFile = tmpFolder/"MomGlobalBMat";
     writeMatrix(MomGlobalBMat, dataFile);
 
     // ===========================================================
@@ -596,7 +597,7 @@ int main(int argc, char *argv[])
         MomGlobalFMat(row, 0) = FtaoD(row, 0);
     }
 
-    dataFile = mesh.time().path()/"SVD"/"MomGlobalFMat";
+    dataFile = tmpFolder/"MomGlobalFMat";
     writeMatrix(MomGlobalFMat, dataFile);
     
 
@@ -974,7 +975,7 @@ int main(int argc, char *argv[])
     // =========================================================== 
     // read the matrix
     // read cell pressure modes matrix
-    dataFile = dataPath/"pModesM";
+    dataFile = refModesFolder/"pModesM";
     RectangularMatrix<scalar> pModesM(mesh.C().size(), modesNum);
 
     if(isFile(dataFile))
@@ -1005,7 +1006,7 @@ int main(int argc, char *argv[])
     // calculate pressure snapshots
     RectangularMatrix<scalar> pCalSnapshotsM;
     pCalSnapshotsM = pModesM * pCalCoefficientM.T();
-    dataFile = resultFolder/"pCalSnapshotsM";
+    dataFile = dataPath/"pCalSnapshotsM";
     writeMatrix(pCalSnapshotsM, dataFile);
 
     // The snapshots matrix of pressure
@@ -1045,7 +1046,7 @@ int main(int argc, char *argv[])
             pErrorM(row, column) =  (pCalSnapshotsM(row, column) - pSnapshotsM(row, column))/pSnapshotsM(row, column);
         }
     }
-    dataFile = resultFolder/"pErrorM";
+    dataFile = dataPath/"pErrorM";
     writeMatrix(pErrorM, dataFile);    
 
 
@@ -1053,7 +1054,7 @@ int main(int argc, char *argv[])
     // ------------ error of velocity field ----------------------
     // =========================================================== 
     // read cell velocity modes matrix
-    dataFile = dataPath/"uModesM";
+    dataFile = refModesFolder/"uModesM";
     RectangularMatrix<scalar> uModesM(mesh.C().size() * 3, modesNum);
 
     if(isFile(dataFile))
@@ -1084,7 +1085,7 @@ int main(int argc, char *argv[])
     // calculate velocity snapshots
     RectangularMatrix<scalar> uCalSnapshotsM;
     uCalSnapshotsM = uModesM * uCalCoefficientM.T();
-    dataFile = resultFolder/"uCalSnapshotsM";
+    dataFile = dataPath/"uCalSnapshotsM";
     writeMatrix(uCalSnapshotsM, dataFile);
 
     // The snapshots matrix of pressure
@@ -1124,7 +1125,7 @@ int main(int argc, char *argv[])
             uErrorM(row, column) =  (uCalSnapshotsM(row, column) - uSnapshotsM(row, column))/uSnapshotsM(row, column);
         }
     }
-    dataFile = resultFolder/"uErrorM";
+    dataFile = dataPath/"uErrorM";
     writeMatrix(uErrorM, dataFile);    
 
 
