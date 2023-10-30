@@ -1,6 +1,0 @@
-/* dynamicCode:
- * SHA1 = 1270e31d939fb5c5f582428782dce9c90bf3cbb1
- */
-codedFvOptionTemplate.C
-
-LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libconstSource_1270e31d939fb5c5f582428782dce9c90bf3cbb1
