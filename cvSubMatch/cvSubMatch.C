@@ -37,6 +37,7 @@ Description
 
 #include "fvCFD.H"
 #include "searchableSurface.H"
+#include "triSurfaceMesh.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,12 +56,27 @@ int main(int argc, char *argv[])
         "name",
         "alternative cvSubMatchDict"
     );
+
+    argList::addOption
+    (
+        "scale toleration",
+        "scalar",
+        "toleration for scale the triSurfaceMesh, default is 1.0e-6"
+    );
     
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
 
 
+    // -----------------------------------------------------------
+    // --------- input & output initialization -------------------
+    // -----------------------------------------------------------
+
+    autoPtr<OFstream> outputFilePtr;
+    fileName dataPath;
+    scalar scaleToleration = args.getOrDefault<scalar>("scale toleration", 1.0e-6);
+    
     // -----------------------------------------------------------
     // --------- read cvSubMatchDict -----------------------------
     // -----------------------------------------------------------
@@ -70,184 +86,148 @@ int main(int argc, char *argv[])
     Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
     IOdictionary cvSubMatchDict(dictIO);
 
+    List<word> triSurfaceNames
+    (
+        cvSubMatchDict.lookup("triSurfaceNames")
+    );
+
+    
     // -----------------------------------------------------------
-    // ------ find indices for control volume --------------------
+    // --------- list for triSurfaces ----------------------------
+    // -----------------------------------------------------------
+    PtrList<triSurfaceMesh> subTriSurfaces;
+    forAll(triSurfaceNames, triSurfaceI)
+    {
+        subTriSurfaces.append
+        (new triSurfaceMesh 
+        (
+            IOobject
+            (
+                triSurfaceNames[triSurfaceI],
+                mesh.time().constant(),     
+                "triSurface",              
+                mesh.objectRegistry::db(),
+                IOobject::MUST_READ,
+                IOobject::NO_WRITE
+            )
+        ));
+    }
+
+    // PtrList<triSurfaceMesh> subTriSurfaces(triSurfaceNames.size());
+    // forAll(triSurfaceNames, triSurfaceI)
+    // {
+    //     subTriSurfaces.set
+    //     (
+    //         triSurfaceI,
+    //         new triSurfaceMesh
+    //         (
+    //             IOobject
+    //             (
+    //                 triSurfaceNames[triSurfaceI],
+    //                 mesh.time().constant(),     
+    //                 "triSurface",              
+    //                 mesh.objectRegistry::db(),
+    //                 IOobject::MUST_READ,
+    //                 IOobject::NO_WRITE
+    //             )
+    //         )
+    //     );
+    // }
+
+    
+
+    // -----------------------------------------------------------
+    // ------ find indices for control volume cell ---------------
     // -----------------------------------------------------------
 
     wordRe cvNameRex (cvSubMatchDict.getOrDefault<word>("cvNameRex", "cv.*_Zone"));
     cvNameRex.compile();
     const List<label> cvCellZones(mesh.cellZones().indices(cvNameRex));
     Info<< "cvCellZones: " << cvCellZones << endl;
+    List<List<label>> cvCellZoneMatchID(cvCellZones.size());
 
-
-
-    // -----------------------------------------------------------
-    // --------- create new object for reference cases -----------
-    // -----------------------------------------------------------
-    // time object for reference cases
-    Foam::Time runTimeTest
-    (
-        Foam::Time::controlDictName,
-        args.rootPath(),
-        // refCaseName is ambigous if it type is word, so the fileName used
-        refCaseName,
-        "system",
-        "constant"
-    );
-
-    // create new mesh object for reference cases
-    fvMesh  refElementMesh
-    (
-        IOobject
-        (
-            polyMesh::defaultRegion,
-            args.rootPath()/refCaseName/"constant",
-            runTimeTest,
-            IOobject::MUST_READ
-        ),
-        false
-    );
-
-    wordRe cellZoneNameRex ("block.*_Zone");
-    cellZoneNameRex.compile();
-
-    const List<label> selectedCellZones(mesh.cellZones().indices(cellZoneNameRex));
-    Info<< "selectedCellZones: " << selectedCellZones << endl;
-
-    // -----------------------------------------------------------
-    // --------- assign cell value for scalar field --------------
-    // -----------------------------------------------------------
-
-    forAll(scalarFields, i)
+    forAll(cvCellZones, cvI)
     {
-        volScalarField scalarFieldRead
-        (
-            IOobject
-            (
-                scalarFields[i],
-                runTimeTest.timeName(),
-                refElementMesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            refElementMesh
-        );
-        
-        volScalarField scalarFieldWrite
-        (
-            IOobject
-            (
-                scalarFields[i],
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimless
-        );
+        const label cvCellZone = cvCellZones[cvI];
+        const labelList& cvCells = mesh.cellZones()[cvCellZone];
+        const label cvCellZoneSize = cvCells.size();
+        cvCellZoneMatchID[cvI].setSize(cvCellZoneSize);
+        cvCellZoneMatchID[cvI] = -1;
 
-        forAll(selectedCellZones, zoneI)
+        pointField cvCellCentres(cvCellZoneSize);
+        forAll(cvCells, cellI)
         {
-            forAll(mesh.cellZones()[selectedCellZones[zoneI]], cellI)
-            {
-                label cell = mesh.cellZones()[selectedCellZones[zoneI]][cellI];
-                scalarFieldWrite[cell] = scalarFieldRead[cellI];
-            }
+            cvCellCentres[cellI] = mesh.C()[cvCells[cellI]];
         }
 
-        scalarFieldWrite.write();
-    }
-
-    forAll(vectorFields, i)
-    {
-        volVectorField vectorFieldRead
-        (
-            IOobject
-            (
-                vectorFields[i],
-                runTimeTest.timeName(),
-                refElementMesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            refElementMesh
-        );
-        
-        volVectorField vectorFieldWrite
-        (
-            IOobject
-            (
-                vectorFields[i],
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimless
-        );
-
-        forAll(selectedCellZones, zoneI)
+        forAll(subTriSurfaces, surafaceI)
         {
-            forAll(mesh.cellZones()[selectedCellZones[zoneI]], cellI)
+            List<volumeType> volTypes;
+            subTriSurfaces[surafaceI].scalePoints(1+scaleToleration);
+            subTriSurfaces[surafaceI].getVolumeType(cvCellCentres, volTypes);
+
+            forAll(volTypes, elemi)
             {
-                label cell = mesh.cellZones()[selectedCellZones[zoneI]][cellI];
-                vectorFieldWrite[cell].x() = vectorFieldRead[cellI].x();
-                vectorFieldWrite[cell].y() = vectorFieldRead[cellI].y();
-                vectorFieldWrite[cell].z() = vectorFieldRead[cellI].z();
+                if (volTypes[elemi] == volumeType::INSIDE)
+                {
+                    cvCellZoneMatchID[cvI][elemi] = surafaceI;
+                }
             }
         }
-        vectorFieldWrite.write();
     }
 
-    forAll(tensorFields, i)
-    {
-        volTensorField tensorFieldRead
-        (
-            IOobject
-            (
-                tensorFields[i],
-                runTimeTest.timeName(),
-                refElementMesh,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            refElementMesh
-        );
-        
-        volTensorField tensorFieldWrite
-        (
-            IOobject
-            (
-                tensorFields[i],
-                runTime.timeName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh,
-            dimless
-        );
+    dataPath = args.getOrDefault<word>("listFolder", "constant");
+    outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"cvCellZoneMatchID"));
 
-        forAll(selectedCellZones, zoneI)
+    outputFilePtr() << cvCellZoneMatchID;
+
+
+    // -----------------------------------------------------------
+    // --------- find indices for control volume face ------------
+    // -----------------------------------------------------------
+
+    wordRe cvFaceNameRex (cvSubMatchDict.getOrDefault<word>("cvFaceNameRex", "cv.*_face"));
+    cvFaceNameRex.compile();
+    const List<label> cvFaceZones(mesh.faceZones().indices(cvFaceNameRex));
+    Info<< "cvFaceZones: " << cvFaceZones << endl;
+    List<List<label>> cvFaceZoneMatchID(cvFaceZones.size());
+
+    forAll(cvFaceZones, cvI)
+    {
+        const label cvFaceZone = cvFaceZones[cvI];
+        const labelList& cvFaces = mesh.faceZones()[cvFaceZone];
+        const label cvFaceZoneSize = cvFaces.size();
+        cvFaceZoneMatchID[cvI].setSize(cvFaceZoneSize);
+        cvFaceZoneMatchID[cvI] = -1;
+
+        pointField cvFaceCentres(cvFaceZoneSize);
+        forAll(cvFaces, faceI)
         {
-            forAll(mesh.cellZones()[selectedCellZones[zoneI]], cellI)
+            cvFaceCentres[faceI] = mesh.Cf()[cvFaces[faceI]];
+        }
+
+        forAll(subTriSurfaces, surafaceI)
+        {
+            List<volumeType> volTypes;
+            subTriSurfaces[surafaceI].scalePoints(1+scaleToleration);
+            subTriSurfaces[surafaceI].getVolumeType(cvFaceCentres, volTypes);
+
+            forAll(volTypes, elemi)
             {
-                label cell = mesh.cellZones()[selectedCellZones[zoneI]][cellI];
-                tensorFieldWrite[cell].xx() = tensorFieldRead[cellI].xx();
-                tensorFieldWrite[cell].xy() = tensorFieldRead[cellI].xy();
-                tensorFieldWrite[cell].xz() = tensorFieldRead[cellI].xz();
-                tensorFieldWrite[cell].yx() = tensorFieldRead[cellI].yx();
-                tensorFieldWrite[cell].yy() = tensorFieldRead[cellI].yy();
-                tensorFieldWrite[cell].yz() = tensorFieldRead[cellI].yz();
-                tensorFieldWrite[cell].zx() = tensorFieldRead[cellI].zx();
-                tensorFieldWrite[cell].zy() = tensorFieldRead[cellI].zy();
-                tensorFieldWrite[cell].zz() = tensorFieldRead[cellI].zz();
+                if (volTypes[elemi] == volumeType::INSIDE)
+                {
+                    cvFaceZoneMatchID[cvI][elemi] = surafaceI;
+                }
             }
         }
-        tensorFieldWrite.write();
     }
 
+    dataPath = args.getOrDefault<word>("listFolder", "constant");
+    outputFilePtr.reset(new OFstream(runTime.globalPath()/dataPath/"cvFaceZoneMatchID"));
+
+    outputFilePtr() << cvFaceZoneMatchID;
+
+
+    Info<< "End" << endl;   
 }
     
