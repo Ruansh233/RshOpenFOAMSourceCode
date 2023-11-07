@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
     (
         "dict",
         "name",
-        "alternative modePlotDict"
+        "alternative subToGlobalDict"
     );
     
     #include "setRootCaseLists.H"
