@@ -84,6 +84,11 @@ int main(int argc, char *argv[])
         vectorField (mesh.C().size(), Zero)
     );
 
+    List<label> wireCellList;
+    autoPtr<OFstream> outputFilePtr;
+
+    // // cellZone creation
+    // List<label> wireCellList;
 
     scalar xw;
     scalar yw;
@@ -103,6 +108,8 @@ int main(int argc, char *argv[])
 
             if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <=  wireD/2)
             {
+                wireCellList.append(cellI);
+                
                 nnV[cellI].x() = Foam::cos(phi)*Foam::cos(theta-constant::mathematical::pi/2);
                 nnV[cellI].y() = Foam::cos(phi)*Foam::sin(theta-constant::mathematical::pi/2);
                 nnV[cellI].z() = Foam::sin(phi);
@@ -138,6 +145,22 @@ int main(int argc, char *argv[])
     nnV.write();
     ntV.write();
     npnV.write();
+
+    outputFilePtr.reset(new OFstream(runTime.caseConstant()/"wireCellList"));
+    outputFilePtr() << wireCellList;
+
+    // mesh.cellZones().append
+    // (
+    //     new cellZone
+    //     (
+    //         "wireCellZone",
+    //         wireCellList,
+    //         mesh.cellZones().size(),
+    //         mesh.cellZones()
+    //     )
+    // );
+
+    mesh.write();
 
     Info<< "End\n" << endl;
 
