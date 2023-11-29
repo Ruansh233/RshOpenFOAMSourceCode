@@ -1,3 +1,0 @@
-ROM_DG_stokes_noPenalty.C
-
-EXE = $(FOAM_USER_APPBIN)/ROMDGstokesEquNoPenalty
