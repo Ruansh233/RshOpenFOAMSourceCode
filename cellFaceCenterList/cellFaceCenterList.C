@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "HashTable.H"
 #include "IFstream.H"
 
 int main(int argc, char *argv[])
