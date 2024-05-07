@@ -111,8 +111,7 @@ int main(int argc, char *argv[])
             fvOptions(U) // Include the fvOptions terms
         );
 
-        // relax the equation and constrain fvOptions
-        
+        // relax the equation and constrain fvOptions        
         UEqn.relax();
 
 	    fvOptions.constrain(UEqn);
