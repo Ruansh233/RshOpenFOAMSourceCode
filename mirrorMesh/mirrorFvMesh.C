@@ -1,9 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2021 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2017-2022 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -29,17 +32,39 @@ License
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
+Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io)
 :
-    fvMesh(io, false),
-    mirrorMeshDict_(dictIO)
-{
-
-    plane mirrorPlane(mirrorMeshDict_);
-
-    scalar planeTolerance
+    mirrorFvMesh
     (
-        mirrorMeshDict_.lookup<scalar>("planeTolerance")
+        io,
+        IOdictionary
+        (
+            IOobject
+            (
+                "mirrorMeshDict",
+                io.time().system(),
+                io.time(),
+                IOobject::MUST_READ_IF_MODIFIED,
+                IOobject::NO_WRITE
+            )
+        )
+    )
+{}
+
+
+Foam::mirrorFvMesh::mirrorFvMesh
+(
+    const IOobject& io,
+    const IOdictionary& mirrorDict
+)
+:
+    fvMesh(io)
+{
+    plane mirrorPlane(mirrorDict);
+
+    const scalar planeTolerance
+    (
+        mirrorDict.get<scalar>("planeTolerance")
     );
 
     const pointField& oldPoints = points();
@@ -48,7 +73,8 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     const label nOldInternalFaces = nInternalFaces();
     const polyPatchList& oldPatches = boundaryMesh();
 
-    Info<< "Old points: " << cells() << endl;
+    Info<< "Mirroring mesh at origin:" << mirrorPlane.origin()
+        << " normal:" << mirrorPlane.normal() << nl;
 
     // Mirror the points
     Info<< "Mirroring points. Old points: " << oldPoints.size();
@@ -58,28 +84,24 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
 
     labelList mirrorPointLookup(oldPoints.size(), -1);
 
-    // Grab the old points
-    forAll(oldPoints, pointi)
+    if (!removeOriginal)
     {
-        newPoints[nNewPoints] = oldPoints[pointi];
-        
-        // Info<< endl << "new points: " << nNewPoints << newPoints[nNewPoints];
-        // Info<< endl << "old points: " << pointi << oldPoints[pointi];
-
-        nNewPoints++;
+        // Grab the old points
+        for (const point& pt : oldPoints)
+        {
+            newPoints[nNewPoints] = pt;
+            ++nNewPoints;
+        }
     }
 
     forAll(oldPoints, pointi)
     {
-        // the distance of the mirror plane and points 
-        scalar alpha =
+        const scalar alpha =
             mirrorPlane.normalIntersect
             (
                 oldPoints[pointi],
                 mirrorPlane.normal()
             );
-
-        // Info<< "alpha of " << oldPoints[pointi] << " is " << alpha << endl;
 
         // Check plane on tolerance
         if (mag(alpha) > planeTolerance)
@@ -94,12 +116,24 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
         }
         else
         {
-            // The point is on the plane and does not get mirrored
-            // Adjust plane location
-            newPoints[nNewPoints] =
-                oldPoints[pointi] + alpha*mirrorPlane.normal();
+            if (!removeOriginal)
+            {
+                // The point is on the plane and does not get mirrored
+                // Adjust plane location
+                newPoints[nNewPoints] =
+                    oldPoints[pointi] + alpha*mirrorPlane.normal();
 
-            mirrorPointLookup[pointi] = pointi;
+                mirrorPointLookup[pointi] = pointi;
+            }
+            else
+            {
+                // As the old points are not grapped, 
+                // the point is on the plane is drectly assigned to the new points
+                newPoints[nNewPoints] = oldPoints[pointi];
+
+                mirrorPointLookup[pointi] = nNewPoints;
+                nNewPoints++;
+            }
         }
     }
 
@@ -110,24 +144,26 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     // Construct new to old map
     pointMapPtr_.reset(new labelList(newPoints.size()));
     labelList& pointMap = pointMapPtr_();
-    // Insert old points
-    forAll(oldPoints, oldPointi)
-    {
-        pointMap[oldPointi] = oldPointi;
-    }
-    forAll(mirrorPointLookup, newPointi)
-    {
-        pointMap[mirrorPointLookup[newPointi]] = newPointi;
-        // Info<< "newpointi is " << newPointi << endl;
-    }
 
+    if (!removeOriginal)
+    {
+        // Insert old points
+        forAll(oldPoints, oldPointi)
+        {
+            pointMap[oldPointi] = oldPointi;
+        }
+    }
+    forAll(mirrorPointLookup, oldPointi)
+    {
+        pointMap[mirrorPointLookup[oldPointi]] = oldPointi;
+    }
 
 
     Info<< "Mirroring faces. Old faces: " << oldFaces.size();
 
     // Algorithm:
     // During mirroring, the faces that were previously boundary faces
-    // in the mirror plane may become ineternal faces. In order to
+    // in the mirror plane may become internal faces. In order to
     // deal with the ordering of the faces, the algorithm is split
     // into two parts.  For original faces, the internal faces are
     // distributed to their owner cells.  Once all internal faces are
@@ -143,28 +179,23 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     // Distribute internal faces
     labelListList newCellFaces(oldCells.size());
 
-    // what is oldOwnerStart ?????
     const labelUList& oldOwnerStart = lduAddr().ownerStartAddr();
 
-    // Info<< endl << "oldownerstart " << oldOwnerStart << endl;
-    Info<< endl;
-
-    forAll(newCellFaces, celli)
+    if (!removeOriginal)
     {
-        labelList& curFaces = newCellFaces[celli];
-        // Info<< "newCellFaces[celli] " << newCellFaces[celli] <<endl;
-
-        const label s = oldOwnerStart[celli];
-        const label e = oldOwnerStart[celli + 1];
-        
-        curFaces.setSize(e - s);
-
-        // Info<< "s is " << s << " e is " << e << endl;
-
-        forAll(curFaces, i)
+        forAll(newCellFaces, celli)
         {
-            curFaces[i] = s + i;
-            // Info<< "cellFaces " << curFaces[i] << endl;
+            labelList& curFaces = newCellFaces[celli];
+
+            const label s = oldOwnerStart[celli];
+            const label e = oldOwnerStart[celli + 1];
+
+            curFaces.setSize(e - s);
+
+            forAll(curFaces, i)
+            {
+                curFaces[i] = s + i;
+            }
         }
     }
 
@@ -207,16 +238,21 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
                 mirrorFace[pointi] = mirrorPointLookup[origFace[pointi]];
             }
 
-            if (origFace == mirrorFace)
+            // No internal faces are added if the original cells are
+            // removed
+            if (!removeOriginal)
             {
-                // The mirror is identical to current face.  This will
-                // become an internal face
-                const label oldSize = newCellFaces[curFaceCells[facei]].size();
+                if (origFace == mirrorFace)
+                {
+                    // The mirror is identical to current face.  This will
+                    // become an internal face
+                    const label oldSize = newCellFaces[curFaceCells[facei]].size();
 
-                newCellFaces[curFaceCells[facei]].setSize(oldSize + 1);
-                newCellFaces[curFaceCells[facei]][oldSize] = curStart + facei;
+                    newCellFaces[curFaceCells[facei]].setSize(oldSize + 1);
+                    newCellFaces[curFaceCells[facei]][oldSize] = curStart + facei;
 
-                curInsBouFace[facei] = true;
+                    curInsBouFace[facei] = true;
+                }
             }
         }
     }
@@ -232,21 +268,23 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     faceList newFaces(2*oldFaces.size());
     label nNewFaces = 0;
 
-    // Insert original (internal) faces
-    forAll(newCellFaces, celli)
+    if (!removeOriginal)
     {
-        const labelList& curCellFaces = newCellFaces[celli];
-        // Info<< endl << "newCellFaces[celli] " << newCellFaces[celli] << endl;
-
-        forAll(curCellFaces, cfI)
+        // Insert original (internal) faces
+        forAll(newCellFaces, celli)
         {
-            newFaces[nNewFaces] = oldFaces[curCellFaces[cfI]];
-            masterFaceLookup[curCellFaces[cfI]] = nNewFaces;
+            const labelList& curCellFaces = newCellFaces[celli];
 
-            nNewFaces++;
+            forAll(curCellFaces, cfI)
+            {
+                newFaces[nNewFaces] = oldFaces[curCellFaces[cfI]];
+                masterFaceLookup[curCellFaces[cfI]] = nNewFaces;
+
+                nNewFaces++;
+            }
         }
     }
-
+    
     // Mirror internal faces
     for (label facei = 0; facei < nOldInternalFaces; facei++)
     {
@@ -266,12 +304,8 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     }
 
     // Mirror boundary faces patch by patch
-
-
-    labelList newToOldPatch(boundary().size(), -1);
-    labelList newPatchSizes(boundary().size(), -1);
+    labelList newPatchSizes(boundary().size(), Zero);
     labelList newPatchStarts(boundary().size(), -1);
-    label nNewPatches = 0;
 
     forAll(boundaryMesh(), patchi)
     {
@@ -279,19 +313,22 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
         const label curPatchStart = boundaryMesh()[patchi].start();
         const boolList& curInserted = insertedBouFace[patchi];
 
-        newPatchStarts[nNewPatches] = nNewFaces;
+        newPatchStarts[patchi] = nNewFaces;
 
-        // Master side
-        for (label facei = 0; facei < curPatchSize; facei++)
+        if (!removeOriginal)
         {
-            // Check if the face has already been added.  If not, add it and
-            // insert the numbering details.
-            if (!curInserted[facei])
+            // Master side
+            for (label facei = 0; facei < curPatchSize; facei++)
             {
-                newFaces[nNewFaces] = oldFaces[curPatchStart + facei];
+                // Check if the face has already been added.  If not, add it and
+                // insert the numbering details.
+                if (!curInserted[facei])
+                {
+                    newFaces[nNewFaces] = oldFaces[curPatchStart + facei];
 
-                masterFaceLookup[curPatchStart + facei] = nNewFaces;
-                nNewFaces++;
+                    masterFaceLookup[curPatchStart + facei] = nNewFaces;
+                    nNewFaces++;
+                }
             }
         }
 
@@ -318,21 +355,20 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
             }
             else
             {
-                // Grab the index of the master face for the mirror side
-                mirrorFaceLookup[curPatchStart + facei] =
-                    masterFaceLookup[curPatchStart + facei];
+                if (!removeOriginal)
+                {
+                    // Grab the index of the master face for the mirror side
+                    mirrorFaceLookup[curPatchStart + facei] =
+                        masterFaceLookup[curPatchStart + facei];
+                }
             }
         }
 
         // If patch exists, grab the name and type of the original patch
-        if (nNewFaces > newPatchStarts[nNewPatches])
+        if (nNewFaces > newPatchStarts[patchi])
         {
-            newToOldPatch[nNewPatches] = patchi;
-
-            newPatchSizes[nNewPatches] =
-                nNewFaces - newPatchStarts[nNewPatches];
-
-            nNewPatches++;
+            newPatchSizes[patchi] =
+                nNewFaces - newPatchStarts[patchi];
         }
     }
 
@@ -340,15 +376,19 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     newFaces.setSize(nNewFaces);
     Info<< " New faces: " << nNewFaces << endl;
 
-    newToOldPatch.setSize(nNewPatches);
-    newPatchSizes.setSize(nNewPatches);
-    newPatchStarts.setSize(nNewPatches);
-
     Info<< "Mirroring patches. Old patches: " << boundary().size()
-        << " New patches: " << nNewPatches << endl;
+        << " New patches: " << boundary().size() << endl;
 
-    Info<< "Mirroring cells.  Old cells: " << oldCells.size()
-        << " New cells: " << 2*oldCells.size() << endl;
+    if (!removeOriginal)
+    {
+        Info<< "Mirroring cells. Old cells: " << oldCells.size()
+            << " New cells: " << 2*oldCells.size() << endl;
+    }
+    else
+    {
+        Info<< "Mirroring cells. Old cells: " << oldCells.size()
+            << " New cells: " << oldCells.size() << endl;
+    }
 
     cellList newCells(2*oldCells.size());
     label nNewCells = 0;
@@ -357,22 +397,25 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
     cellMapPtr_.reset(new labelList(newCells.size()));
     labelList& cellMap = cellMapPtr_();
 
-    // Grab the original cells.  Take care of face renumbering.
-    forAll(oldCells, celli)
+    if (!removeOriginal)
     {
-        const cell& oc = oldCells[celli];
-
-        cell& nc = newCells[nNewCells];
-        nc.setSize(oc.size());
-
-        forAll(oc, i)
+        // Grab the original cells.  Take care of face renumbering.
+        forAll(oldCells, celli)
         {
-            nc[i] = masterFaceLookup[oc[i]];
+            const cell& oc = oldCells[celli];
+
+            cell& nc = newCells[nNewCells];
+            nc.setSize(oc.size());
+
+            forAll(oc, i)
+            {
+                nc[i] = masterFaceLookup[oc[i]];
+            }
+
+            cellMap[nNewCells] = celli;
+
+            nNewCells++;
         }
-
-        cellMap[nNewCells] = celli;
-
-        nNewCells++;
     }
 
     // Mirror the cells
@@ -393,45 +436,46 @@ Foam::mirrorFvMesh::mirrorFvMesh(const IOobject& io, const IOobject& dictIO)
         nNewCells++;
     }
 
+    if (removeOriginal)
+    {
+        // Reset the size of the cell list
+        newCells.setSize(nNewCells);
+    }
+
     // Mirror the cell shapes
     Info<< "Mirroring cell shapes." << endl;
 
     Info<< nl << "Creating new mesh" << endl;
-    mirrorMeshPtr_.reset
+    mirrorMeshPtr_ = autoPtr<fvMesh>::New
     (
-        new fvMesh
-        (
-            io,
-            move(newPoints),
-            move(newFaces),
-            move(newCells)
-        )
+        io,
+        std::move(newPoints),
+        std::move(newFaces),
+        std::move(newCells)
     );
 
     fvMesh& pMesh = mirrorMeshPtr_();
 
     // Add the boundary patches
-    List<polyPatch*> p(newPatchSizes.size());
+    polyPatchList newPatches(newPatchSizes.size());
 
-    forAll(p, patchi)
+    forAll(newPatches, patchi)
     {
-        p[patchi] = boundaryMesh()[newToOldPatch[patchi]].clone
+        newPatches.set
         (
-            pMesh.boundaryMesh(),
             patchi,
-            newPatchSizes[patchi],
-            newPatchStarts[patchi]
-        ).ptr();
+            boundaryMesh()[patchi].clone
+            (
+                pMesh.boundaryMesh(),
+                patchi,
+                newPatchSizes[patchi],
+                newPatchStarts[patchi]
+            )
+        );
     }
 
-    pMesh.addPatches(p);
+    pMesh.addPatches(newPatches);
 }
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::mirrorFvMesh::~mirrorFvMesh()
-{}
 
 
 // ************************************************************************* //

@@ -1,9 +1,11 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2021 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -42,17 +44,14 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class mirrorFvMesh Declaration
+                       Class mirrorFvMesh Declaration
 \*---------------------------------------------------------------------------*/
 
 class mirrorFvMesh
 :
     public fvMesh
 {
-    // Private Data
-
-        //- Mirror dictionary
-        IOdictionary mirrorMeshDict_;
+    // Private data
 
         //- Mirrored mesh
         autoPtr<fvMesh> mirrorMeshPtr_;
@@ -64,20 +63,28 @@ class mirrorFvMesh
         autoPtr<labelList> pointMapPtr_;
 
 
-public:
+    // Private Member Functions
 
+        //- No copy construct
+        mirrorFvMesh(const mirrorFvMesh&) = delete;
+
+        //- No copy assignment
+        void operator=(const mirrorFvMesh&) = delete;
+
+
+public:
 
     // Constructors
 
-        //- Construct from IOobject
-        mirrorFvMesh(const IOobject& io, const IOobject& dictIO);
+        //- Construct from IOobject, using system mirrorMeshDict
+        explicit mirrorFvMesh(const IOobject& io);
 
-        //- Disallow default bitwise copy construction
-        mirrorFvMesh(const mirrorFvMesh&) = delete;
+        //- Construct from IOobject and specified mirrorMeshDict
+        mirrorFvMesh(const IOobject& io, const IOdictionary& mirrorDict);
 
 
     //- Destructor
-    ~mirrorFvMesh();
+    ~mirrorFvMesh() = default;
 
 
     // Member Functions
@@ -88,23 +95,17 @@ public:
             return mirrorMeshPtr_();
         }
 
-        //- Mirrored to original cell
+        //- Mirrorred to original cell
         const labelList& cellMap() const
         {
             return cellMapPtr_();
         }
 
-        //- Mirrored to original point
+        //- Mirrorred to original point
         const labelList& pointMap() const
         {
             return pointMapPtr_();
         }
-
-
-    // Member Operators
-
-        //- Disallow default bitwise assignment
-        void operator=(const mirrorFvMesh&) = delete;
 };
 
 

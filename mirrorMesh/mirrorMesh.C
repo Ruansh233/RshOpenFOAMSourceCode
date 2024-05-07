@@ -1,9 +1,12 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Copyright (C) 2011-2021 OpenFOAM Foundation
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2018-2020 OpenCFD Ltd.
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,6 +27,9 @@ License
 Application
     mirrorMesh
 
+Group
+    grpMeshManipulationUtilities
+
 Description
     Mirrors a mesh around a given plane.
 
@@ -34,7 +40,6 @@ Description
 #include "mirrorFvMesh.H"
 #include "mapPolyMesh.H"
 #include "hexRef8Data.H"
-#include "systemDict.H"
 
 using namespace Foam;
 
@@ -42,28 +47,45 @@ using namespace Foam;
 
 int main(int argc, char *argv[])
 {
-    #include "addOverwriteOption.H"
-    #include "addDictOption.H"
+    argList::addNote
+    (
+        "Mirrors a mesh around a given plane."
+    );
 
+    argList::addBoolOption
+    (
+        "removeOriginal",
+        "remove original mesh and keep mirrored mesh after mirroring"
+    );
+
+    argList::addOption("dict", "file", "Alternative mirrorMeshDict");
+    argList::setAdvanced("decomposeParDict");
+
+    #include "addOverwriteOption.H"
     #include "setRootCase.H"
     #include "createTime.H"
 
-    const bool overwrite = args.optionFound("overwrite");
+    const bool overwrite = args.found("overwrite");
+    const bool removeOriginal = args.found("removeOriginal");
 
-    // Info<< "mesh size: " << testmesh << endl;
+    const word dictName("mirrorMeshDict");
+
+    #include "setSystemRunTimeDictionaryIO.H"
+
+    Info<< "Reading " << dictIO.name() << nl << endl;
+
+    const IOdictionary mirrorDict(dictIO);
 
     mirrorFvMesh mesh
     (
         IOobject
         (
-            mirrorFvMesh::defaultRegion,
+            polyMesh::defaultRegion,
             runTime.constant(),
             runTime
         ),
-        systemDictIO("mirrorMeshDict", args, runTime)
+        mirrorDict
     );
-
-    Info<< "mesh: " << mesh.nPoints() << endl; 
 
     hexRef8Data refData
     (
@@ -75,13 +97,13 @@ int main(int argc, char *argv[])
             mesh,
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE,
-            false
+            IOobject::NO_REGISTER
         )
     );
 
     if (!overwrite)
     {
-        runTime++;
+        ++runTime;
         mesh.setInstance(runTime.timeName());
     }
 
@@ -89,7 +111,7 @@ int main(int argc, char *argv[])
     // Set the precision of the points data to 10
     IOstream::defaultPrecision(max(10u, IOstream::defaultPrecision()));
 
-    // Generate the mirrored mesh
+    // Generate the mirrorred mesh
     const fvMesh& mMesh = mesh.mirrorMesh();
 
     const_cast<fvMesh&>(mMesh).setInstance(mesh.facesInstance());
@@ -100,38 +122,38 @@ int main(int argc, char *argv[])
     mapPolyMesh map
     (
         mesh,
-        mesh.nPoints(),         // nOldPoints,
-        mesh.nFaces(),          // nOldFaces,
-        mesh.nCells(),          // nOldCells,
-        mesh.pointMap(),        // pointMap,
+        mesh.nPoints(),         //nOldPoints,
+        mesh.nFaces(),          //nOldFaces,
+        mesh.nCells(),          //nOldCells,
+        mesh.pointMap(),        //pointMap,
         List<objectMap>(0),     // pointsFromPoints,
-        labelList(0),           // faceMap,
-        List<objectMap>(0),     // facesFromPoints,
-        List<objectMap>(0),     // facesFromEdges,
-        List<objectMap>(0),     // facesFromFaces,
-        mesh.cellMap(),         // cellMap,
-        List<objectMap>(0),     // cellsFromPoints,
-        List<objectMap>(0),     // cellsFromEdges,
-        List<objectMap>(0),     // cellsFromFaces,
-        List<objectMap>(0),     // cellsFromCells,
-        labelList(0),           // reversePointMap,
-        labelList(0),           // reverseFaceMap,
-        labelList(0),           // reverseCellMap,
-        labelHashSet(0),        // flipFaceFlux,
-        labelListList(0),       // patchPointMap,
-        labelListList(0),       // pointZoneMap,
-        labelListList(0),       // faceZonePointMap,
-        labelListList(0),       // faceZoneFaceMap,
-        labelListList(0),       // cellZoneMap,
-        pointField(0),          // preMotionPoints,
-        labelList(0),           // oldPatchStarts,
-        labelList(0),           // oldPatchNMeshPoints,
-        autoPtr<scalarField>()  // oldCellVolumesPtr
+        labelList(0),           //faceMap,
+        List<objectMap>(0),     //facesFromPoints,
+        List<objectMap>(0),     //facesFromEdges,
+        List<objectMap>(0),     //facesFromFaces,
+        mesh.cellMap(),         //cellMap,
+        List<objectMap>(0),     //cellsFromPoints,
+        List<objectMap>(0),     //cellsFromEdges,
+        List<objectMap>(0),     //cellsFromFaces,
+        List<objectMap>(0),     //cellsFromCells,
+        labelList(0),           //reversePointMap,
+        labelList(0),           //reverseFaceMap,
+        labelList(0),           //reverseCellMap,
+        labelHashSet(0),        //flipFaceFlux,
+        labelListList(0),       //patchPointMap,
+        labelListList(0),       //pointZoneMap,
+        labelListList(0),       //faceZonePointMap,
+        labelListList(0),       //faceZoneFaceMap,
+        labelListList(0),       //cellZoneMap,
+        pointField(0),          //preMotionPoints,
+        labelList(0),           //oldPatchStarts,
+        labelList(0),           //oldPatchNMeshPoints,
+        autoPtr<scalarField>()  //oldCellVolumesPtr
     );
     refData.updateMesh(map);
     refData.write();
 
-    Info<< "End" << endl;
+    Info<< "End\n" << endl;
 
     return 0;
 }
