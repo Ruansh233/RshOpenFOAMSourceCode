@@ -113,7 +113,6 @@ int main(int argc, char *argv[])
 
         // relax the equation and constrain fvOptions        
         UEqn.relax();
-
 	    fvOptions.constrain(UEqn);
 
         if (piso.momentumPredictor())
@@ -165,6 +164,7 @@ int main(int argc, char *argv[])
             U = HbyA - rAU*fvc::grad(p);
             U.correctBoundaryConditions();
             
+            // correct the fvOptions
             fvOptions.correct(U);
         }
 
