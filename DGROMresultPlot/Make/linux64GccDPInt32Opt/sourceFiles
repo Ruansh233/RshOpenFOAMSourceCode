@@ -1,4 +1,4 @@
 SOURCE = \
-ROM_DG_ico_231211.C \
+DGROMresultPlot.C \
 
 # sources
