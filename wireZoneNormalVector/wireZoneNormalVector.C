@@ -87,57 +87,27 @@ int main(int argc, char *argv[])
     const scalar rodWireR(0.5*(rodD+wireD));
     const scalar inclAng(Foam::atan((2*constant::mathematical::pi*rodWireR)/wireH));
 
-    // Rsh, 2024-01-22, create cellzone for wire
-    List<label> wireCellList;
-
-    scalar xw;
-    scalar yw;
     scalar theta;
 
-    forAll(mesh.C(), cellI)
+    const label wireZoneID (mesh.cellZones().findZoneID(cellZoneName));
+
+    forAll(mesh.cellZones()[wireZoneID], i)
     {
-        // theta = 2*constant::mathematical::pi*mesh.C()[cellI].z()/wireH;
+        const label cellI (mesh.cellZones()[wireZoneID][i]);
 
-        // // Rsh, 2024-01-25, cellz below 0 have theta = 0
-        // if(mesh.C()[cellI].z() <= 0)
-        // {
-        //     theta = 0;
-        // }
-        // else
-        // {
-        //     theta = 2*constant::mathematical::pi*mesh.C()[cellI].z()/wireH;
-        // }
-
-        // Rsh, 2024-07-16, add refHight and refAngle
         theta = (2*constant::mathematical::pi*mesh.C()[cellI].z()-refHight)/wireH+refAngle;
+            
+        nnV[cellI].x() = Foam::cos(inclAng)*Foam::cos(theta-constant::mathematical::pi/2);
+        nnV[cellI].y() = Foam::cos(inclAng)*Foam::sin(theta-constant::mathematical::pi/2);
+        nnV[cellI].z() = Foam::sin(inclAng);
 
-        scalar cellx = mesh.C()[cellI].x();
-        scalar celly = mesh.C()[cellI].y();
+        ntV[cellI].x() = Foam::sin(inclAng)*Foam::cos(theta+constant::mathematical::pi/2);
+        ntV[cellI].y() = Foam::sin(inclAng)*Foam::sin(theta+constant::mathematical::pi/2);
+        ntV[cellI].z() = Foam::cos(inclAng);
 
-        forAll(rodCentroids, rodI)
-        {            
-            xw = rodCentroids[rodI].x() + rodWireR*Foam::cos(theta);
-            yw = rodCentroids[rodI].y() + rodWireR*Foam::sin(theta);
-
-            if(Foam::sqrt(Foam::sqr(cellx-xw) + Foam::sqr(celly-yw)) <=  wireD/2)
-            {
-                wireCellList.append(cellI);
-                
-                nnV[cellI].x() = Foam::cos(inclAng)*Foam::cos(theta-constant::mathematical::pi/2);
-                nnV[cellI].y() = Foam::cos(inclAng)*Foam::sin(theta-constant::mathematical::pi/2);
-                nnV[cellI].z() = Foam::sin(inclAng);
-
-                ntV[cellI].x() = Foam::sin(inclAng)*Foam::cos(theta+constant::mathematical::pi/2);
-                ntV[cellI].y() = Foam::sin(inclAng)*Foam::sin(theta+constant::mathematical::pi/2);
-                ntV[cellI].z() = Foam::cos(inclAng);
-
-                npnV[cellI].x() = -Foam::cos(theta);
-                npnV[cellI].y() = -Foam::sin(theta);
-                npnV[cellI].z() = 0.0;
-
-                break;
-            }
-        }   
+        npnV[cellI].x() = -Foam::cos(theta);
+        npnV[cellI].y() = -Foam::sin(theta);
+        npnV[cellI].z() = 0.0; 
     }
 
     forAll(nnV.boundaryField(), patchI)
@@ -159,26 +129,6 @@ int main(int argc, char *argv[])
     nnV.write();
     ntV.write();
     npnV.write();
-
-    // mesh.time().write();
-
-    // // Rsh, 2024-01-20, which is not needed for this case
-    // outputFilePtr.reset(new OFstream(runTime.caseConstant()/"wireCellList"));
-    // outputFilePtr() << wireCellList;
-
-    if()
-    mesh.cellZones().append
-    (
-        new cellZone
-        (
-            "wireCellZone",
-            wireCellList,
-            mesh.cellZones().size(),
-            mesh.cellZones()
-        )
-    );
-
-    mesh.cellZones().write();
 
     Info<< "End\n" << endl;
 
