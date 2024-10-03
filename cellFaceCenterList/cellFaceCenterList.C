@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
             if (!patchMatch.match(patchType))
             {
-                Info<< "patchType_" << patchI << ": " << patchType << endl;
+                Info<< "patch No_" << patchI << ": " << mesh.boundary()[patchI].name() << endl;
 
                 forAll(mesh.boundary()[patchI].Cf(), faceI)
                 {
