@@ -1,4 +1,0 @@
-SOURCE = \
-eigenLaplaceFoam.C \
-
-# sources
