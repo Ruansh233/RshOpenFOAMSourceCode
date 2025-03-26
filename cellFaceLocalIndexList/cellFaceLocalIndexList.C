@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
                 {
                     if (mag(distanceToCenter - cellCenterList[localI]) < 1.0e-8)
                     {
-                        globalcellIndexList[zoneI][localI] = cellID;
+                        globalcellIndexList[zoneI][localI] = cellI;
                         break;
                     }        
                 }
@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
 
 
         autoPtr<OFstream> outputFilePtr;
-        outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalcellIndexList"));
+        outputFilePtr.reset(new OFstream(runTime.caseConstant()/"localcellIndexList"));
 
         outputFilePtr() << globalcellIndexList;
     }
@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
                     {
                         if (mag(distanceToCenter - faceCenterList[patchI][localI]) < 1.0e-8)
                         {
-                            globalfaceIndexList[zoneI][localI] = faceID;
+                            globalfaceIndexList[zoneI][localI] = faceI;
                             break;
                         }        
                     }
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
 
 
             autoPtr<OFstream> outputFilePtr;
-            outputFilePtr.reset(new OFstream(runTime.caseConstant()/"globalfaceIndexList_"+name(patchI)));
+            outputFilePtr.reset(new OFstream(runTime.caseConstant()/"localfaceIndexList_"+name(patchI)));
 
             outputFilePtr() << globalfaceIndexList;
         }

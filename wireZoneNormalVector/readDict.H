@@ -15,10 +15,9 @@
     const scalar rodD(customDict.getScalar("rodD"));
     const scalar wireD(customDict.getScalar("wireD"));
     const scalar wireH(customDict.getScalar("wireH"));
-    const List<vector> rodCentroids (customDict.lookup("rodCentroids"));
 
     const scalar refHight(customDict.getOrDefault<scalar>("refHight", 0.0));
     const scalar refAngle(customDict.getOrDefault<scalar>("refAngle", 0.0));
-    const word cellZoneName;
+    word cellZoneName;
     customDict.readIfPresent("cellZoneName", cellZoneName);
     

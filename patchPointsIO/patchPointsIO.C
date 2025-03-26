@@ -41,6 +41,12 @@ int main(int argc, char *argv[])
         "write all mesh points to file"
     );
 
+    argList::addBoolOption
+    (
+        "allPatches",
+        "write all patch points to file"
+    );
+
     // Initialise OF case
     #include "setRootCase.H"
 
@@ -52,6 +58,10 @@ int main(int argc, char *argv[])
 
     List<fileName> patchNames;    
     const bool patchBool (args.readListIfPresent <fileName> ("patchNames", patchNames));
+    const bool allPatchBool (args.found("allPatches"));
+
+    Info<< "patchBool = " << patchBool << endl;
+    Info<< "allPatchBool = " << allPatchBool << endl;
 
     // output the pointField of patches
     if(patchBool)
@@ -77,7 +87,7 @@ int main(int argc, char *argv[])
             }
         }
     }
-    else
+    else if(allPatchBool)
     {
         Info<< "PatchNames is not specified, output all patches" << endl;
         forAll(mesh.boundaryMesh(), patchI)
@@ -117,6 +127,13 @@ int main(int argc, char *argv[])
         allPointIO.write();
     }
     
+    if (!patchBool && !allPatchBool && !args.found("allPoints"))
+    {
+        FatalErrorIn("patchPointsIO")     
+        << "No points and patches are specified, please specify the points or patches."
+        << Foam::abort(FatalError);
+
+    }
 
     Info<< "End\n" << endl;
 
