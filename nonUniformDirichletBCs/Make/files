@@ -1,3 +1,0 @@
-nonUniformDirichletBCs.C
-
-EXE = $(FOAM_USER_APPBIN)/nonUniformDirichletBCs
