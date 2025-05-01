@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
             "U",
             mesh.time().path()/"0",
             mesh,
-            IOobject::NO_READ,
+            IOobject::MUST_READ,
             IOobject::NO_WRITE
         ),
         mesh
