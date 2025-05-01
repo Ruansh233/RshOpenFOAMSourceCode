@@ -92,8 +92,6 @@ int main(int argc, char *argv[])
         mesh
     );
 
-    labelList DirIndex (args.getList<label>("DirIndex"));
-
     // read the uniform ratio
     scalar a1(args.get<scalar>("a1"));
     scalar a2(args.get<scalar>("a2"));
