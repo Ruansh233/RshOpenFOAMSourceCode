@@ -92,11 +92,29 @@ int main(int argc, char *argv[])
         mesh
     );
 
+    labelList DirIndex (args.getList<label>("DirIndex"));
+
     // read the uniform ratio
     scalar a1(args.get<scalar>("a1"));
     scalar a2(args.get<scalar>("a2"));
 
+    // Assign cell values
     U = a1*U_1 + a2*U_2;
+
+    // Assign Dirichlet BCs
+    forAll(DirIndex, indexI)
+    {
+        label patchI_ (DirIndex[indexI]);
+        fvPatchField<vector>& inletUorig = U.boundaryFieldRef()[patchI_];
+        const vectorField& U1_patch = U_1.boundaryField()[patchI_];
+        const vectorField& U2_patch = U_2.boundaryField()[patchI_];
+
+        // loop over all hub faces
+        forAll(mesh.boundary()[patchI_].Cf(), faceI)
+        {
+            inletUorig[faceI] = a1*U1_patch[faceI] + a2*U2_patch[faceI];
+        }
+    }
     
     U.write();
 
