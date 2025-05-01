@@ -45,6 +45,13 @@ int main(int argc, char *argv[])
         "the ratio for non-uniform distribution."
     );
 
+    argList::addOption //
+    (
+        "DirIndex",
+        "labelList",
+        "index of Dirichlet boundary patches, e.g., '(0)' or '(0 1)'."
+    );
+
     
     #include "setRootCase.H"
 
