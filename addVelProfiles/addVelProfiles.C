@@ -105,6 +105,11 @@ int main(int argc, char *argv[])
     scalar a1(args.get<scalar>("a1"));
     scalar a2(args.get<scalar>("a2"));
 
+    // print the two ratios
+    Info<< "The ratios are: "
+        << "a1 = " << a1 << ", "
+        << "a2 = " << a2 << endl;
+
     // Assign cell values
     U = a1*U_1 + a2*U_2;
 
@@ -112,6 +117,11 @@ int main(int argc, char *argv[])
     forAll(DirIndex, indexI)
     {
         label patchI_ (DirIndex[indexI]);
+
+        // print the Dirichlet BCs
+        Info<< "Dirichlet BC No." << patchI_ << " is: " 
+            << mesh.boundary()[patchI_].name() << endl;
+
         fvPatchField<vector>& inletUorig = U.boundaryFieldRef()[patchI_];
         const vectorField& U1_patch = U_1.boundaryField()[patchI_];
         const vectorField& U2_patch = U_2.boundaryField()[patchI_];
