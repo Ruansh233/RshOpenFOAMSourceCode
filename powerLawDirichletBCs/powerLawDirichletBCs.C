@@ -67,13 +67,14 @@ int main(int argc, char *argv[])
 	// runTime and mesh are instances of objects (or classes).
 
     volScalarField wallDistance_ = wallDist(mesh, "wall").y();
+    scalar maxWallDistance = max(wallDistance_).value();
 
     volVectorField U_orig // note that velocity is a vector field
     (
         IOobject
         (
             "U",
-            mesh.time().path()/"0.orig",
+            mesh.time().path()/"0",
             mesh,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
@@ -127,33 +128,34 @@ int main(int argc, char *argv[])
         fvPatchField<vector>& inletUorig = U_orig.boundaryFieldRef()[patchI_];
         vector averageValue (0, 0, 0);
 
+        Info<< "\t Patch "<< patchI_ << " is called: " << mesh.boundary()[patchI_].name() << endl
+            << "\t The order of the distribution is: " << order << endl
+            << "\t The maximum value of the distribution is: " << maxValueVector 
+            << ". The minimum value of the distribution is: " << minRatio << endl;
+
         // loop over all hub faces
         forAll(mesh.boundary()[patchI_].Cf(), faceI)
         {
             label adjcellID = mesh.boundary()[patchI_].patch().faceCells()[faceI];
             scalar wallDistanceValue = wallDistance_[adjcellID];
-            scalar ratioFace = Foam::pow(wallDistanceValue/max(wallDistance_).value(), order);
+            scalar ratioFace = Foam::pow(wallDistanceValue/maxWallDistance, order);
 
             if (ratioFace < minRatio)
             {
                 inletUorig[faceI] = minRatio * maxValueVector;
-                averageValue += inletUorig[faceI] * mesh.boundary()[patchI_].magSf()[faceI];
             }
             else
             {
                 inletUorig[faceI] = ratioFace * maxValueVector;
-                averageValue += inletUorig[faceI] * mesh.boundary()[patchI_].magSf()[faceI];
             }
         }
 
+        averageValue = gSum(inletUorig * mesh.boundary()[patchI_].magSf());
         averageValue = averageValue / gSum(mesh.boundary()[patchI_].magSf());
-        Info<< "\t Patch "<< patchI_ << " is called: " << mesh.boundary()[patchI_].name() << endl
-            << "\t The order of the distribution is: " << order << endl
-            << "\t The maximum value of the distribution is: " << maxValueVector 
-            << ". The minimum value of the distribution is: " << minRatio << endl
-            << "\t The averageValue: " << averageValue << endl;    
+        Info<< "\t The averageValue: " << averageValue << endl;    
     }
     
+    U_orig.rename("U_orig");
     U_orig.write();
 
     Info<< "End\n" << endl;
