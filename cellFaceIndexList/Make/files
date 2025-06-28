@@ -1,3 +1,0 @@
-cellFaceIndexList.C
-
-EXE = $(FOAM_USER_APPBIN)/cellFaceIndexList

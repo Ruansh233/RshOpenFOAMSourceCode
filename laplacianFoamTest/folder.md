@@ -1,1 +1,0 @@
-This folder contain code of svd in which snapshots contain boundary values

@@ -1,3 +1,0 @@
-steadyStateLaplacianFoam.C
-
-EXE = $(FOAM_APPBIN)/steadyStateLaplacianFoam

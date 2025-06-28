@@ -1,3 +1,0 @@
-ROM_DG_readModesField.C
-
-EXE = $(FOAM_APPBIN)/ROMDiscGalk

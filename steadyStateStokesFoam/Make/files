@@ -1,3 +1,0 @@
-steadyStateStokesFoam.C
-
-EXE = $(FOAM_USER_APPBIN)/steadyStateStokesFoam

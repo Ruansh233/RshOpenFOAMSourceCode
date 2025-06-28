@@ -35,27 +35,21 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"   
 
-    // Create a list of List<scalar>
-    List<vector> testList;
-    for(label i=0; i<20; i++)
-    {
-        testList.append(mesh.C()[i]);
-    }
-
-    IOList<vector> testListIO
+    IOList<scalar> testListIO
     (
         IOobject
         (
-            "testList",
-            runTime.caseConstant(),
+            "test",
+            runTime.path(),
             mesh,
-            IOobject::NO_READ,
+            IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
-        ),
-        testList
+        )
     );
-    testListIO.write();
-}
+    testListIO.read();
 
+    Info<< "testListIO.size() = " << testListIO.size() << endl;
+    Info<< "testListIO= " << testListIO << endl;
+}
 
 // ************************************************************************* //

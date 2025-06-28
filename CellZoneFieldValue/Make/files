@@ -1,3 +1,0 @@
-cellZoneFieldValue.C
-
-EXE = $(FOAM_USER_APPBIN)/cellZoneFieldValue

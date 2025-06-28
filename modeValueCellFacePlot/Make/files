@@ -1,3 +1,0 @@
-modeValueCellFacePlot.C
-
-EXE = $(FOAM_USER_APPBIN)/modeValueCellFacePlot

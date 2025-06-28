@@ -1,1 +1,0 @@
-this folder contains pod-galerkin projection rom code with lifting function to fix Dirichlet boundary conditions

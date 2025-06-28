@@ -1,3 +1,0 @@
-ROM_DG_TransE.C
-
-EXE = $(FOAM_USER_APPBIN)/ROM_DG_TransE
