@@ -1,3 +1,0 @@
-nonUniformForchheimerCoeffCal.C
-
-EXE = $(FOAM_USER_APPBIN)/nonUniformForchheimerCoeffCal
