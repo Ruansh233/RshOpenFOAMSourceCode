@@ -78,6 +78,9 @@ int readNumProcs
 
 void mapConsistentMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
@@ -86,27 +89,74 @@ void mapConsistentMesh
 {
     if (subtract)
     {
-        MapConsistentMesh<minusEqOp>
-        (
-            meshSource,
-            meshTarget,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapConsistentMesh<minusEqOp>
+            (
+                meshSource,
+                meshTarget,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }      
     }
     else
     {
-        MapConsistentMesh<eqOp>
-        (
-            meshSource,
-            meshTarget,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapConsistentMesh<eqOp>
+            (
+                meshSource,
+                meshTarget,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }
     }
 }
 
 
 void mapSubMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const HashTable<word>& patchMap,
@@ -117,31 +167,78 @@ void mapSubMesh
 {
     if (subtract)
     {
-        MapSubMesh<minusEqOp>
-        (
-            meshSource,
-            meshTarget,
-            patchMap,
-            cuttingPatches,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapSubMesh<minusEqOp>
+            (
+                meshSource,
+                meshTarget,
+                patchMap,
+                cuttingPatches,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }
     }
     else
     {
-        MapSubMesh<eqOp>
-        (
-            meshSource,
-            meshTarget,
-            patchMap,
-            cuttingPatches,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapSubMesh<eqOp>
+            (
+                meshSource,
+                meshTarget,
+                patchMap,
+                cuttingPatches,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }
     }
 }
 
 
 void mapConsistentSubMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
@@ -150,21 +247,65 @@ void mapConsistentSubMesh
 {
     if (subtract)
     {
-        MapConsistentSubMesh<minusEqOp>
-        (
-            meshSource,
-            meshTarget,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapConsistentSubMesh<minusEqOp>
+            (
+                meshSource,
+                meshTarget,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }
     }
     else
     {
-        MapConsistentSubMesh<eqOp>
-        (
-            meshSource,
-            meshTarget,
-            mapOrder
-        );
+        forAll(timeSourceDirs, timeI)
+        {
+            const word& sourceTimeName = timeSourceDirs[timeI].name();
+
+            if (sourceTimeName == "0" || sourceTimeName == "constant")
+            {
+                continue;
+            }
+
+            // Set source time
+            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+
+            // Advance target time
+            ++runTimeTarget;
+
+            Info << "Mapping from source time " << runTimeSource.timeName()
+                << " to target time " << runTimeTarget.timeName() << endl;
+
+            // Do the mapping
+            MapConsistentSubMesh<eqOp>
+            (
+                meshSource,
+                meshTarget,
+                mapOrder
+            );
+
+            Info<< endl << endl;
+        }
     }
 }
 
@@ -211,6 +352,8 @@ wordList addProcessorPatches
 
 int main(int argc, char *argv[])
 {
+    timeSelector::addOptions();
+    
     argList::addNote
     (
         "Map volume fields from one mesh to another"
@@ -345,6 +488,7 @@ int main(int argc, char *argv[])
 
 
     #include "createTimes.H"
+    instantList timeSourceDirs = timeSelector::select0(runTimeSource, args);
 
     HashTable<word> patchMap;
     wordList cuttingPatches;
@@ -402,7 +546,7 @@ int main(int argc, char *argv[])
                 caseDirSource/("processor" + Foam::name(proci))
             );
 
-            #include "setTimeIndex.H"
+            // #include "setTimeIndex.H"
 
             fvMesh meshSource
             (
@@ -420,6 +564,9 @@ int main(int argc, char *argv[])
             {
                 mapConsistentSubMesh
                 (
+                    runTimeSource,
+                    runTimeTarget,
+                    timeSourceDirs,
                     meshSource,
                     meshTarget,
                     mapOrder,
@@ -430,6 +577,9 @@ int main(int argc, char *argv[])
             {
                 mapSubMesh
                 (
+                    runTimeSource,
+                    runTimeTarget,
+                    timeSourceDirs,
                     meshSource,
                     meshTarget,
                     patchMap,
@@ -452,7 +602,7 @@ int main(int argc, char *argv[])
 
         Info<< "Create source mesh\n" << endl;
 
-        #include "setTimeIndex.H"
+        // #include "setTimeIndex.H"
 
         fvMesh meshSource
         (
@@ -493,6 +643,9 @@ int main(int argc, char *argv[])
             {
                 mapConsistentSubMesh
                 (
+                    runTimeSource,
+                    runTimeTarget,
+                    timeSourceDirs,
                     meshSource,
                     meshTarget,
                     mapOrder,
@@ -503,6 +656,9 @@ int main(int argc, char *argv[])
             {
                 mapSubMesh
                 (
+                    runTimeSource,
+                    runTimeTarget,
+                    timeSourceDirs,
                     meshSource,
                     meshTarget,
                     patchMap,
@@ -542,7 +698,7 @@ int main(int argc, char *argv[])
                 caseDirSource/("processor" + Foam::name(procISource))
             );
 
-            #include "setTimeIndex.H"
+            // #include "setTimeIndex.H"
 
             fvMesh meshSource
             (
@@ -599,6 +755,9 @@ int main(int argc, char *argv[])
                         {
                             mapConsistentSubMesh
                             (
+                                runTimeSource,
+                                runTimeTarget,
+                                timeSourceDirs,
                                 meshSource,
                                 meshTarget,
                                 mapOrder,
@@ -609,6 +768,9 @@ int main(int argc, char *argv[])
                         {
                             mapSubMesh
                             (
+                                runTimeSource,
+                                runTimeTarget,
+                                timeSourceDirs,
                                 meshSource,
                                 meshTarget,
                                 patchMap,
@@ -624,7 +786,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        #include "setTimeIndex.H"
+        // #include "setTimeIndex.H"
 
         Info<< "Create meshes\n" << endl;
 
@@ -653,12 +815,24 @@ int main(int argc, char *argv[])
 
         if (consistent)
         {
-            mapConsistentMesh(meshSource, meshTarget, mapOrder, subtract);
+            mapConsistentMesh
+            (
+                runTimeSource,
+                runTimeTarget,
+                timeSourceDirs,
+                meshSource,
+                meshTarget,
+                mapOrder,
+                subtract
+            );
         }
         else
         {
             mapSubMesh
             (
+                runTimeSource,
+                runTimeTarget,
+                timeSourceDirs,
                 meshSource,
                 meshTarget,
                 patchMap,

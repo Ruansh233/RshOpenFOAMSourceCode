@@ -90,6 +90,47 @@ void MapVolFields
             // Write field
             fieldTarget.write();
         }
+        else
+        {
+            Info<< "    interpolating " << io.name() << endl;
+
+            IOobject newFieldTargetIOobject
+            (
+                io.name(),
+                meshTarget.time().timeName(),
+                meshTarget,
+                IOobjectOption::NO_READ,
+                IOobjectOption::AUTO_WRITE
+            );
+
+            // Read field fieldSource. Do not auto-load old-time fields
+            fieldType fieldSource(io, meshSource, false);
+
+            // Read fieldTarget. Do not auto-load old-time fields
+            fieldType fieldTarget
+            (
+                newFieldTargetIOobject,
+                meshTarget,
+                dimensioned<Type>
+                (
+                    "zero",
+                    fieldSource.dimensions(),  // use same dimension as source
+                    pTraits<Type>::zero
+                )
+            );
+
+            // Interpolate field
+            meshToMesh0Interp.interpolate
+            (
+                fieldTarget,
+                fieldSource,
+                mapOrder,
+                cop
+            );
+
+            // Write field
+            fieldTarget.write();
+        }
     }
 }
 
