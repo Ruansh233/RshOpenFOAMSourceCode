@@ -58,6 +58,13 @@ int main(int argc, char *argv[])
         "scalar",
         "the minimum value of the distribution, e.g. '0.02'. The default is 0.02."
     );
+
+    argList::addOption
+    (
+        "fieldName",
+        "word",
+        "name of the output field, e.g., 'U'."
+    );
     
     #include "setRootCase.H"
 
@@ -74,7 +81,7 @@ int main(int argc, char *argv[])
         IOobject
         (
             "U",
-            mesh.time().path()/"0",
+            mesh.time().path()/"0.orig",
             mesh,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
@@ -155,7 +162,13 @@ int main(int argc, char *argv[])
         Info<< "\t The averageValue: " << averageValue << endl;    
     }
     
-    U_orig.rename("U_orig");
+    if (args.found("fieldName"))
+    {
+        word fieldName = args.get<word>("fieldName");
+        U_orig.rename(fieldName);
+        Info<< "The field has been renamed to " << fieldName << endl;
+    }
+
     U_orig.write();
 
     Info<< "End\n" << endl;
