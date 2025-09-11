@@ -43,7 +43,8 @@ void MapConsistentMesh
 (
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
-    const meshToMesh0::order& mapOrder
+    const meshToMesh0::order& mapOrder,
+    const wordRes& selectedFields
 )
 {
     // Create the interpolation scheme
@@ -64,35 +65,40 @@ void MapConsistentMesh
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<scalar>()
+            CombineOp<scalar>(),
+            selectedFields
         );
         MapConsistentVolFields<vector>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<vector>()
+            CombineOp<vector>(),
+            selectedFields
         );
         MapConsistentVolFields<sphericalTensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<sphericalTensor>()
+            CombineOp<sphericalTensor>(),
+            selectedFields
         );
         MapConsistentVolFields<symmTensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<symmTensor>()
+            CombineOp<symmTensor>(),
+            selectedFields
         );
         MapConsistentVolFields<tensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<tensor>()
+            CombineOp<tensor>(),
+            selectedFields
         );
     }
 
@@ -128,7 +134,8 @@ void MapSubMesh
     const fvMesh& meshTarget,
     const HashTable<word>& patchMap,
     const wordList& cuttingPatches,
-    const meshToMesh0::order& mapOrder
+    const meshToMesh0::order& mapOrder,
+    const wordRes& selectedFields
 )
 {
     // Create the interpolation scheme
@@ -155,35 +162,40 @@ void MapSubMesh
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<scalar>()
+            CombineOp<scalar>(),
+            selectedFields
         );
         MapVolFields<vector>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<vector>()
+            CombineOp<vector>(),
+            selectedFields
         );
         MapVolFields<sphericalTensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<sphericalTensor>()
+            CombineOp<sphericalTensor>(),
+            selectedFields
         );
         MapVolFields<symmTensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<symmTensor>()
+            CombineOp<symmTensor>(),
+            selectedFields
         );
         MapVolFields<tensor>
         (
             objects,
             meshToMesh0Interp,
             mapOrder,
-            CombineOp<tensor>()
+            CombineOp<tensor>(),
+            selectedFields
         );
     }
 
@@ -217,7 +229,8 @@ void MapConsistentSubMesh
 (
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
-    const meshToMesh0::order& mapOrder
+    const meshToMesh0::order& mapOrder,
+    const wordRes& selectedFields
 )
 {
     HashTable<word> patchMap;
@@ -249,7 +262,8 @@ void MapConsistentSubMesh
         meshTarget,
         patchMap,
         cuttingPatchTable.toc(),
-        mapOrder
+        mapOrder,
+        selectedFields
     );
 }
 

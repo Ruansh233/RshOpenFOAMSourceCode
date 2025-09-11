@@ -84,7 +84,8 @@ void mapConsistentMesh
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
-    const bool subtract
+    const bool subtract,
+    const wordRes& selectedFields
 )
 {
     if (subtract)
@@ -98,11 +99,9 @@ void mapConsistentMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -112,7 +111,8 @@ void mapConsistentMesh
             (
                 meshSource,
                 meshTarget,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -129,11 +129,9 @@ void mapConsistentMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -143,7 +141,8 @@ void mapConsistentMesh
             (
                 meshSource,
                 meshTarget,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -162,7 +161,8 @@ void mapSubMesh
     const HashTable<word>& patchMap,
     const wordList& cuttingPatches,
     const meshToMesh0::order& mapOrder,
-    const bool subtract
+    const bool subtract,
+    const wordRes& selectedFields
 )
 {
     if (subtract)
@@ -176,11 +176,9 @@ void mapSubMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -192,7 +190,8 @@ void mapSubMesh
                 meshTarget,
                 patchMap,
                 cuttingPatches,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -209,11 +208,9 @@ void mapSubMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -225,7 +222,8 @@ void mapSubMesh
                 meshTarget,
                 patchMap,
                 cuttingPatches,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -242,7 +240,8 @@ void mapConsistentSubMesh
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
-    const bool subtract
+    const bool subtract,
+    const wordRes& selectedFields
 )
 {
     if (subtract)
@@ -256,11 +255,9 @@ void mapConsistentSubMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -270,7 +267,8 @@ void mapConsistentSubMesh
             (
                 meshSource,
                 meshTarget,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -287,11 +285,9 @@ void mapConsistentSubMesh
                 continue;
             }
 
-            // Set source time
+            // Set source and target time
             runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-
-            // Advance target time
-            ++runTimeTarget;
+            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
 
             Info << "Mapping from source time " << runTimeSource.timeName()
                 << " to target time " << runTimeTarget.timeName() << endl;
@@ -301,7 +297,8 @@ void mapConsistentSubMesh
             (
                 meshSource,
                 meshTarget,
-                mapOrder
+                mapOrder,
+                selectedFields
             );
 
             Info<< endl << endl;
@@ -417,7 +414,13 @@ int main(int argc, char *argv[])
         "file",
         "Read decomposePar dictionary from specified location"
     );
-
+    argList::addOption
+    (
+        "fields",
+        "wordRes",
+        "Specify single or multiple fields to reconstruct (all by default)."
+        " Eg, 'T' or '(p T U \"alpha.*\")'"
+    );
 
     argList args(argc, argv);
     if (!args.check())
@@ -492,25 +495,38 @@ int main(int argc, char *argv[])
 
     HashTable<word> patchMap;
     wordList cuttingPatches;
+    wordRes fields_tmp;
 
-    if (!consistent)
-    {
-        IOdictionary mapFieldsDict
+    IOdictionary mapFieldsDict
+    (
+        IOobject
         (
-            IOobject
-            (
-                "mapFieldsDict",
-                runTimeTarget.system(),
-                runTimeTarget,
-                IOobject::MUST_READ_IF_MODIFIED,
-                IOobject::NO_WRITE,
-                IOobject::NO_REGISTER
-            )
-        );
+            "mapFieldsDict",
+            runTimeTarget.system(),
+            runTimeTarget,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE,
+            IOobject::NO_REGISTER
+        )
+    );
 
-        mapFieldsDict.readEntry("patchMap", patchMap);
-        mapFieldsDict.readEntry("cuttingPatches", cuttingPatches);
+    mapFieldsDict.readEntry("patchMap", patchMap);
+    mapFieldsDict.readEntry("cuttingPatches", cuttingPatches);
+
+    if (mapFieldsDict.found("fields") && args.found("fields"))
+    {
+        WarningInFunction
+            << "Both mapFieldsDict and command line specify fields to map. "
+            << "Using fields from mapFieldsDict." << endl;
+
+        fields_tmp = mapFieldsDict.get<wordRes>("fields");
     }
+    else
+    {
+        args.readIfPresent("fields", fields_tmp);
+    }
+
+    const wordRes selectedFields(fields_tmp);
 
     if (parallelSource && !parallelTarget)
     {
@@ -570,7 +586,8 @@ int main(int argc, char *argv[])
                     meshSource,
                     meshTarget,
                     mapOrder,
-                    subtract
+                    subtract,
+                    selectedFields
                 );
             }
             else
@@ -585,7 +602,8 @@ int main(int argc, char *argv[])
                     patchMap,
                     cuttingPatches,
                     mapOrder,
-                    subtract
+                    subtract,
+                    selectedFields
                 );
             }
         }
@@ -649,7 +667,8 @@ int main(int argc, char *argv[])
                     meshSource,
                     meshTarget,
                     mapOrder,
-                    subtract
+                    subtract,
+                    selectedFields
                 );
             }
             else
@@ -664,7 +683,8 @@ int main(int argc, char *argv[])
                     patchMap,
                     addProcessorPatches(meshTarget, cuttingPatches),
                     mapOrder,
-                    subtract
+                    subtract,
+                    selectedFields
                 );
             }
         }
@@ -761,7 +781,8 @@ int main(int argc, char *argv[])
                                 meshSource,
                                 meshTarget,
                                 mapOrder,
-                                subtract
+                                subtract,
+                                selectedFields
                             );
                         }
                         else
@@ -776,7 +797,8 @@ int main(int argc, char *argv[])
                                 patchMap,
                                 addProcessorPatches(meshTarget, cuttingPatches),
                                 mapOrder,
-                                subtract
+                                subtract,
+                                selectedFields
                             );
                         }
                     }
@@ -823,7 +845,8 @@ int main(int argc, char *argv[])
                 meshSource,
                 meshTarget,
                 mapOrder,
-                subtract
+                subtract,
+                selectedFields
             );
         }
         else
@@ -838,7 +861,8 @@ int main(int argc, char *argv[])
                 patchMap,
                 cuttingPatches,
                 mapOrder,
-                subtract
+                subtract,
+                selectedFields
             );
         }
     }

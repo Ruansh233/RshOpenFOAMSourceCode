@@ -44,7 +44,8 @@ void MapVolFields
     const IOobjectList& objects,
     const meshToMesh0& meshToMesh0Interp,
     const meshToMesh0::order& mapOrder,
-    const CombineOp& cop
+    const CombineOp& cop,
+    const wordRes& selectedFields
 )
 {
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
@@ -52,7 +53,15 @@ void MapVolFields
     const fvMesh& meshSource = meshToMesh0Interp.fromMesh();
     const fvMesh& meshTarget = meshToMesh0Interp.toMesh();
 
-    for (const IOobject& io : objects.csorted<fieldType>())
+    for
+    (
+        const IOobject& io :
+        (
+            selectedFields.empty()
+          ? objects.csorted<fieldType>()
+          : objects.csorted<fieldType>(selectedFields)
+        )
+    )
     {
         IOobject fieldTargetIOobject
         (
@@ -91,8 +100,38 @@ void MapVolFields
             fieldTarget.write();
         }
         else
-        {
+        {            
             Info<< "    interpolating " << io.name() << endl;
+
+            // read a zero field to get patch types
+            IOobject zeroFieldTargetIOobject
+            (
+                io.name(),
+                meshTarget.time().path()+"/0",
+                meshTarget,
+                IOobjectOption::MUST_READ,
+                IOobjectOption::AUTO_WRITE
+            );
+
+            fieldType zeroFieldTarget
+            (
+                zeroFieldTargetIOobject,
+                meshTarget,
+                false
+            );
+
+            wordList patchTypeList
+            (
+                zeroFieldTarget.boundaryField().types()
+            );
+
+            forAll(patchTypeList, i)
+            {
+                if (patchTypeList[i] == "generic")
+                {
+                    patchTypeList[i] = "calculated";
+                }
+            }
 
             IOobject newFieldTargetIOobject
             (
@@ -116,7 +155,8 @@ void MapVolFields
                     "zero",
                     fieldSource.dimensions(),  // use same dimension as source
                     pTraits<Type>::zero
-                )
+                ),
+                patchTypeList
             );
 
             // Interpolate field

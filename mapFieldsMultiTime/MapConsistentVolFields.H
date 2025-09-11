@@ -44,7 +44,8 @@ void MapConsistentVolFields
     const IOobjectList& objects,
     const meshToMesh0& meshToMesh0Interp,
     const meshToMesh0::order& mapOrder,
-    const CombineOp& cop
+    const CombineOp& cop,
+    const wordRes& selectedFields
 )
 {
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
@@ -52,7 +53,15 @@ void MapConsistentVolFields
     const fvMesh& meshSource = meshToMesh0Interp.fromMesh();
     const fvMesh& meshTarget = meshToMesh0Interp.toMesh();
 
-    for (const IOobject& io : objects.csorted<fieldType>())
+    for
+    (
+        const IOobject& io :
+        (
+            selectedFields.empty()
+          ? objects.csorted<fieldType>()
+          : objects.csorted<fieldType>(selectedFields)
+        )
+    )
     {
         Info<< "    interpolating " << io.name() << endl;
 
