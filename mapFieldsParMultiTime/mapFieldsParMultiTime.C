@@ -215,7 +215,7 @@ void mapSubMesh
 
 int main(int argc, char *argv[])
 {
-    timeSelector::addOptions();
+    timeSelector::addOptions(true, true);
     
     argList::addNote
     (
