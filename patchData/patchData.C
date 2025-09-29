@@ -27,122 +27,116 @@ License
 #include "IFstream.H"
 #include "IOobjectList.H"
 
-template<class Type>
+template <class Type>
 void printList(
-    const List<List<Type>>& local_tmp, 
-    fvMesh& mesh, 
-    word listName)
+    const List<List<Type>> &local_tmp,
+    fvMesh &mesh,
+    word listName,
+    fileName dirName)
 {
     if (Pstream::master())
     {
+        // make mesh.time().globalPath() + "/" + dirName if it does not exist
+        fileName dir(mesh.time().globalPath() + "/" + dirName);
+        if (!isDir(dir))
+            mkDir(dir);
+
         List<Type> tmpList;
         forAll(local_tmp, procI)
         {
             tmpList.append(local_tmp[procI]);
         }
 
-        IOList<Type> tmpListIO
-        (
-            IOobject
-            (
+        IOList<Type> tmpListIO(
+            IOobject(
                 listName,
-                mesh.time().globalPath() + "/interface_data",
+                dir,
                 mesh,
                 IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-            ),
-            tmpList
-        );
-        
-        OFstream os
-        (
-            mesh.time().globalPath() + "/interface_data/" + listName
-        );
+                IOobject::AUTO_WRITE),
+            tmpList);
+
+        OFstream os(dir + "/" + listName);
         os << tmpList << endl;
     }
 }
 
-template<class Type>
+template <class Type>
 void interfaceDataIO(
-    IOobjectList& objects,
-    fvMesh& mesh,
+    IOobjectList &objects,
+    fvMesh &mesh,
     label interfaceID,
-    wordRes& selectedFields
-)
+    wordRes &selectedFields,
+    word interfaceName)
 {
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
 
-    for
-    (
-        const IOobject& io :
+    for (
+        const IOobject &io :
         (
             selectedFields.empty()
-            ? objects.csorted<fieldType>()
-            : objects.csorted<fieldType>(selectedFields)
-        )
-    )
+                ? objects.csorted<fieldType>()
+                : objects.csorted<fieldType>(selectedFields)))
     {
-        // Read field fieldSource. Do not auto-load old-time fields
         fieldType data(io, mesh, false);
-
-        List<List<Type>> tmp_data (Pstream::nProcs());
+        List<List<Type>> tmp_data(Pstream::nProcs());
         tmp_data[Pstream::myProcNo()] = data.boundaryField()[interfaceID];
         Pstream::gatherList(tmp_data);
-        printList(tmp_data, mesh, io.name() + "_" + mesh.time().timeName());
+        printList(tmp_data, mesh, io.name() + "_" + mesh.time().timeName(), interfaceName);
+    }
+}
 
-        tmp_data[Pstream::myProcNo()] = data.boundaryField()[interfaceID].snGrad();
+template <>
+void interfaceDataIO<tensor>(
+    IOobjectList &objects,
+    fvMesh &mesh,
+    label interfaceID,
+    wordRes &selectedFields,
+    word interfaceName)
+{
+    typedef GeometricField<tensor, fvPatchField, volMesh> fieldType;
+
+    for (
+        const IOobject &io :
+        (
+            selectedFields.empty()
+                ? objects.csorted<fieldType>()
+                : objects.csorted<fieldType>(selectedFields)))
+    {
+        fieldType data(io, mesh, false);
+        List<List<vector>> tmp_data(Pstream::nProcs());
+        tmp_data[Pstream::myProcNo()] = data.boundaryField()[interfaceID] & mesh.boundary()[interfaceID].nf();
         Pstream::gatherList(tmp_data);
-        printList(tmp_data, mesh, io.name() + "_" + mesh.time().timeName() + "_snGrad");
-
-        if (isA<volScalarField>(data))
-        {
-            volVectorField gradData
-            (
-                IOobject
-                (
-                    "grad(" + io.name() + ")",
-                    mesh.time().timeName(),
-                    mesh,
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                fvc::grad(data)
-            );
-        }
-
+        printList(tmp_data, mesh, io.name() + "_" + mesh.time().timeName(), interfaceName);
     }
 }
 
 int main(int argc, char *argv[])
-{   
+{
     timeSelector::addOptions();
-    
-    argList::addOption
-    (
+
+    argList::addOption(
         "interfaceName",
         "word",
-        "name of the interface, e.g., interface_Dir."
-    );
+        "name of the interface, e.g., interface_Dir.");
 
-    argList::addOption
-    (
+    argList::addOption(
         "fields",
         "wordRes",
-        "fields to be processed, default is all fields."
-    );
-    
+        "fields to be processed, default is all fields.");
+
     // Initialise OF case
     #include "setRootCase.H"
 
     // These two create the time system (instance called runTime) and fvMesh (instance called mesh).
     #include "createTime.H"
-    #include "createMesh.H"   
+    #include "createMesh.H"
 
-    label interfaceID (-1);
-
+    label interfaceID(-1);
+    word interfaceName;
     if (args.found("interfaceName"))
     {
-        word interfaceName = args.get<word>("interfaceName");
+        interfaceName = args.get<word>("interfaceName");
 
         interfaceID = mesh.boundary().findPatchID(interfaceName);
 
@@ -152,7 +146,7 @@ int main(int argc, char *argv[])
                 << "Cannot find the patch " << interfaceName << exit(FatalError);
         }
 
-        Info<< "interfaceName: " << mesh.boundary()[interfaceID].name() << endl;
+        Info << "interfaceName: " << mesh.boundary()[interfaceID].name() << endl;
     }
     else
     {
@@ -160,10 +154,10 @@ int main(int argc, char *argv[])
             << "Please specify the interfaceName." << exit(FatalError);
     }
 
-    List<List<vector>> local_tmp (Pstream::nProcs());
+    List<List<vector>> local_tmp(Pstream::nProcs());
     local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID].Cf();
     Pstream::gatherList(local_tmp);
-    printList(local_tmp, mesh, "Cf");
+    printList(local_tmp, mesh, "Cf", interfaceName);
 
     instantList timeDirs = timeSelector::select0(runTime, args);
 
@@ -175,11 +169,13 @@ int main(int argc, char *argv[])
 
         IOobjectList objects(mesh, runTime.timeName());
 
-        interfaceDataIO<scalar>(objects, mesh, interfaceID, selectedFields);
-        interfaceDataIO<vector>(objects, mesh, interfaceID, selectedFields);       
+        interfaceDataIO<scalar>(objects, mesh, interfaceID, selectedFields, interfaceName);
+        interfaceDataIO<vector>(objects, mesh, interfaceID, selectedFields, interfaceName);
+        interfaceDataIO<tensor>(objects, mesh, interfaceID, selectedFields, interfaceName);
     }
 
-    Info<< "End\n" << endl;
+    Info << "End\n"
+         << endl;
     return 0;
 }
 
