@@ -1,21 +1,3 @@
-    // Get access to a custom dictionary
-    // dictionary customDict;
-    // const word dictName("mergeMultipleMeshesDict");
-
-    // // Create and input-output object - this holds the path to the dict and its name
-    // IOdictionary customDict
-    // (
-    //     IOobject
-    //     (
-    //         dictName, // name of the file
-    //         mesh.time().system(), // path to where the file is
-    //         mesh, // reference to the mesh needed by the constructor
-    //         IOobject::MUST_READ // indicate that reading this dictionary is compulsory
-    //     )
-    // );
-
-    // Rsh, 22.11.22
-    // --- add dict option
     const word dictName("mergeMultipleMeshesDict");
     #include "setSystemMeshDictionaryIO.H"
     Info<< "Reading " << dictIO.instance()/dictIO.name() << nl << endl;
@@ -27,7 +9,6 @@
     List<fileName> foldersList(readDir(mesh.time().rootPath(), fileName::DIRECTORY));
     wordRe fileNameRex;
 
-    // Rsh, 2022-12-17
     // --- add sort of the folder name list
     // --- since sortableList in openfoam doesn't work, sort of std::list is employed
     std::list<std::string> testsortList;

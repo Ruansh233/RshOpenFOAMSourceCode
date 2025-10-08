@@ -1,4 +1,0 @@
-mergePolyMesh.C
-mergeMeshes.C
-
-EXE = $(FOAM_USER_APPBIN)/mergeMultipleMeshesRegex

@@ -47,14 +47,8 @@ using namespace Foam;
 
 void getRootCase(fileName& casePath)
 {
-    // Rsh
-    // Info  << "casePath: " << casePath << endl;  
-
     casePath.clean();  // Remove unneeded ".."
-    // Rsh
-    // Info  << "casePath.clean(): " << casePath << endl; 
 
-    // 
     if (casePath.empty() || casePath == ".")
     {
         // handle degenerate form and '.'
@@ -66,9 +60,6 @@ void getRootCase(fileName& casePath)
         casePath = cwd()/casePath;
         casePath.clean();  // Remove unneeded ".."
     }
-
-    // Rsh
-    // Info  << "casePath.clean() two times: " << casePath << endl; 
 }
 
 
@@ -78,35 +69,11 @@ int main(int argc, char *argv[])
 {
     argList::addNote
     (
-        "Merge two meshes"
+        "Merge multiple meshes"
     );
 
     #include "addOverwriteOption.H"
     argList::addOption("dict", "file", "Alternative mergeMultipleMeshesDict");
-
-    // argList::addArgument("masterCase");
-    // argList::addOption
-    // (
-    //     "masterRegion",
-    //     "name",
-    //     "Specify alternative mesh region for the master mesh"
-    // );
-
-    // argList::addArgument("addCase");
-    // argList::addOption
-    // (
-    //     "addRegion",
-    //     "name",
-    //     "Specify alternative mesh region for the additional mesh"
-    // );
-
-    // argList::addArgument("addCase2");
-    // argList::addOption
-    // (
-    //     "addRegion",
-    //     "name",
-    //     "Specify alternative mesh region for the additional mesh"
-    // );
 
     argList::addOption
     (
@@ -121,68 +88,12 @@ int main(int argc, char *argv[])
 
     #include "dictRead.H"
 
-    // argList args(argc, argv);
-    // if (!args.check())
-    // {
-    //      FatalError.exit();
-    // }
-
     const bool overwrite = args.found("overwrite");
-
-    // auto masterCase = args.get<fileName>(1);
-    // auto addCase = args.get<fileName>(2);
-
-    // auto addCase2 = args.get<fileName>(3);
-
-    // Rsh, masterCase: ".", addCase: "../testCase_2"
-    // Info << "masterCase: " << masterCase << endl
-    //      << "addCase: " << addCase << endl; 
 
     const word masterRegion =
         args.getOrDefault<word>("masterRegion", polyMesh::defaultRegion);
 
-    // const word addRegion =
-    //     args.getOrDefault<word>("addRegion", polyMesh::defaultRegion);
-
-    // const word addRegion2 =
-    //     args.getOrDefault<word>("addRegion2", polyMesh::defaultRegion);
-
-    // Since we don't use argList processor directory detection, add it to
-    // the casename ourselves so it triggers the logic inside TimePath.
-    // Rsh, caseName Return case name (parallel run) or global case (serial run)
-    // const fileName& cName = args.caseName();
-    
-    // Rsh, output, caseName: "testCase"
-    // Info << "caseName: " << cName << endl;
-
-    // const auto pos = cName.find("processor");
-
-    // // Rsh
-    // // Info << "pos: " << pos << endl;
-    
-    // if (pos != string::npos && pos != 0)
-    // {
-    //     fileName processorName = cName.substr(pos);
-    //     masterCase += '/' + processorName;
-    //     // addCase += '/' + processorName;
-    //     // addCase2 += '/' + processorName;
-    // }
-
-    // Rsh, find is a function of c++ string 
-    // const word testword_("hello Ruan Shenhui");
-    // const auto testpos1 = testword_.find("hello");
-    // const auto testpos2 = testword_.find("Ruan");
-
-    // Info << "testpos1: " << testpos1 << endl
-    //      << "testpos2: " << testpos2 << endl;
-
     getRootCase(masterCase);
-    // getRootCase(addCase);
-    // getRootCase(addCase2);
-
-    // Info<< "Master:      " << masterCase << "  region " << masterRegion << nl
-    //     << "mesh to add: " << addCase    << "  region " << addRegion << endl;
-        // << "mesh2 to add: " << addCase2    << "  region " << addRegion2 << endl;
     Info<< "Master:      " << masterCase  << nl
         << "mesh to add: " << addCaseList << endl;
 
@@ -201,35 +112,7 @@ int main(int argc, char *argv[])
         )
     );
 
-    // Info<< "Reading mesh to add for time = " << runTimeToAdd.timeName() << nl;
-    // Info<< "Create mesh\n" << endl;
-    // polyMesh meshToAdd
-    // (
-    //     IOobject
-    //     (
-    //         addRegion,
-    //         runTimeToAdd.timeName(),
-    //         runTimeToAdd
-    //     )
-    // );
-
-    // Info<< "Reading mesh to add for time = " << runTimeToAdd2.timeName() << nl;
-    // Info<< "Create mesh\n" << endl;
-    // polyMesh meshToAdd2
-    // (
-    //     IOobject
-    //     (
-    //         addRegion2,
-    //         runTimeToAdd2.timeName(),
-    //         runTimeToAdd2
-    //     )
-    // );
-
-    // Rsh, pointsInstance() Return the current instance directory for points(mesh).
     word meshInstance = masterMesh.pointsInstance();
-
-    // Rsh, meshInstance: constant
-    // Info << "meshInstance: " << meshInstance << endl;
 
     const bool specifiedInstance =
     (
@@ -247,10 +130,6 @@ int main(int argc, char *argv[])
     }
 
     Info<< "Writing combined mesh to " << runTimeMaster.timeName() << endl;
-
-    // masterMesh.addMesh(meshToAdd);
-    // masterMesh.addMesh(meshToAdd2);
-    // masterMesh.merge();
 
     forAll(addCaseList, caseID)
     {

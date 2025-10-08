@@ -127,11 +127,6 @@ void Foam::mergePolyMesh::sortProcessorPatches()
 {
     Info<< "Reordering processor patches last" << endl;
 
-    // Updates boundaryMesh() and meshMod_ to guarantee processor patches
-    // are last. This could be done inside the merge() but it is far easier
-    // to do separately.
-
-
     // 1. Shuffle the patches in the boundaryMesh
 
     const polyBoundaryMesh& oldPatches = boundaryMesh();

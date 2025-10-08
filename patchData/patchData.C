@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
     List<List<vector>> local_tmp(Pstream::nProcs());
     local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID].Cf();
     Pstream::gatherList(local_tmp);
-    printList(local_tmp, mesh, "Cf", interfaceName);
+    printList(local_tmp, mesh, "Cf", "interface");
 
     instantList timeDirs = timeSelector::select0(runTime, args);
 
@@ -169,9 +169,9 @@ int main(int argc, char *argv[])
 
         IOobjectList objects(mesh, runTime.timeName());
 
-        interfaceDataIO<scalar>(objects, mesh, interfaceID, selectedFields, interfaceName);
-        interfaceDataIO<vector>(objects, mesh, interfaceID, selectedFields, interfaceName);
-        interfaceDataIO<tensor>(objects, mesh, interfaceID, selectedFields, interfaceName);
+        interfaceDataIO<scalar>(objects, mesh, interfaceID, selectedFields, "interface");
+        interfaceDataIO<vector>(objects, mesh, interfaceID, selectedFields, "interface");
+        interfaceDataIO<tensor>(objects, mesh, interfaceID, selectedFields, "interface");
     }
 
     Info << "End\n"
