@@ -41,6 +41,9 @@ namespace Foam
 template<template<class> class CombineOp>
 void MapConsistentMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
@@ -50,86 +53,103 @@ void MapConsistentMesh
     // Create the interpolation scheme
     meshToMesh0 meshToMesh0Interp(meshSource, meshTarget);
 
-    Info<< nl
-        << "Consistently creating and mapping fields for time "
-        << meshSource.time().timeName() << nl << endl;
-
+    forAll(timeSourceDirs, timeI)
     {
-        // Search for list of objects for this time
-        IOobjectList objects(meshSource, meshSource.time().timeName());
+        const word& sourceTimeName = timeSourceDirs[timeI].name();
 
-        // Map volFields
-        // ~~~~~~~~~~~~~
-        MapConsistentVolFields<scalar>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<scalar>(),
-            selectedFields
-        );
-        MapConsistentVolFields<vector>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<vector>(),
-            selectedFields
-        );
-        MapConsistentVolFields<sphericalTensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<sphericalTensor>(),
-            selectedFields
-        );
-        MapConsistentVolFields<symmTensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<symmTensor>(),
-            selectedFields
-        );
-        MapConsistentVolFields<tensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<tensor>(),
-            selectedFields
-        );
+        if (sourceTimeName == "0" || sourceTimeName == "constant")
+        {
+            continue;
+        }
+
+        // Set source and target time
+        runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+        runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
+
+        Info<< nl
+            << "Consistently creating and mapping fields for time "
+            << meshSource.time().timeName() << nl << endl;
+
+        {
+            // Search for list of objects for this time
+            IOobjectList objects(meshSource, meshSource.time().timeName());
+
+            // Map volFields
+            // ~~~~~~~~~~~~~
+            MapConsistentVolFields<scalar>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<scalar>(),
+                selectedFields
+            );
+            MapConsistentVolFields<vector>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<vector>(),
+                selectedFields
+            );
+            MapConsistentVolFields<sphericalTensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<sphericalTensor>(),
+                selectedFields
+            );
+            MapConsistentVolFields<symmTensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<symmTensor>(),
+                selectedFields
+            );
+            MapConsistentVolFields<tensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<tensor>(),
+                selectedFields
+            );
+        }
+
+        {
+            // Search for list of target objects for this time
+            IOobjectList objects(meshTarget, meshTarget.time().timeName());
+
+            // Mark surfaceFields as unmapped
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            UnMapped<surfaceScalarField>(objects);
+            UnMapped<surfaceVectorField>(objects);
+            UnMapped<surfaceSphericalTensorField>(objects);
+            UnMapped<surfaceSymmTensorField>(objects);
+            UnMapped<surfaceTensorField>(objects);
+
+            // Mark pointFields as unmapped
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            UnMapped<pointScalarField>(objects);
+            UnMapped<pointVectorField>(objects);
+            UnMapped<pointSphericalTensorField>(objects);
+            UnMapped<pointSymmTensorField>(objects);
+            UnMapped<pointTensorField>(objects);
+        }
+
+        mapLagrangian(meshToMesh0Interp);
     }
-
-    {
-        // Search for list of target objects for this time
-        IOobjectList objects(meshTarget, meshTarget.time().timeName());
-
-        // Mark surfaceFields as unmapped
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        UnMapped<surfaceScalarField>(objects);
-        UnMapped<surfaceVectorField>(objects);
-        UnMapped<surfaceSphericalTensorField>(objects);
-        UnMapped<surfaceSymmTensorField>(objects);
-        UnMapped<surfaceTensorField>(objects);
-
-        // Mark pointFields as unmapped
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        UnMapped<pointScalarField>(objects);
-        UnMapped<pointVectorField>(objects);
-        UnMapped<pointSphericalTensorField>(objects);
-        UnMapped<pointSymmTensorField>(objects);
-        UnMapped<pointTensorField>(objects);
-    }
-
-    mapLagrangian(meshToMesh0Interp);
 }
 
 
 template<template<class> class CombineOp>
 void MapSubMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const HashTable<word>& patchMap,
@@ -147,86 +167,103 @@ void MapSubMesh
         cuttingPatches
     );
 
-    Info<< nl
-        << "Mapping fields for time " << meshSource.time().timeName()
-        << nl << endl;
-
+    forAll(timeSourceDirs, timeI)
     {
-        // Search for list of source objects for this time
-        IOobjectList objects(meshSource, meshSource.time().timeName());
+        const word& sourceTimeName = timeSourceDirs[timeI].name();
 
-        // Map volFields
-        // ~~~~~~~~~~~~~
-        MapVolFields<scalar>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<scalar>(),
-            selectedFields
-        );
-        MapVolFields<vector>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<vector>(),
-            selectedFields
-        );
-        MapVolFields<sphericalTensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<sphericalTensor>(),
-            selectedFields
-        );
-        MapVolFields<symmTensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<symmTensor>(),
-            selectedFields
-        );
-        MapVolFields<tensor>
-        (
-            objects,
-            meshToMesh0Interp,
-            mapOrder,
-            CombineOp<tensor>(),
-            selectedFields
-        );
+        if (sourceTimeName == "0" || sourceTimeName == "constant")
+        {
+            continue;
+        }
+
+        // Set source and target time
+        runTimeSource.setTime(timeSourceDirs[timeI], timeI);
+        runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
+
+        Info<< nl
+            << "Mapping fields for time " << meshSource.time().timeName()
+            << nl << endl;
+
+        {
+            // Search for list of source objects for this time
+            IOobjectList objects(meshSource, meshSource.time().timeName());
+
+            // Map volFields
+            // ~~~~~~~~~~~~~
+            MapVolFields<scalar>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<scalar>(),
+                selectedFields
+            );
+            MapVolFields<vector>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<vector>(),
+                selectedFields
+            );
+            MapVolFields<sphericalTensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<sphericalTensor>(),
+                selectedFields
+            );
+            MapVolFields<symmTensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<symmTensor>(),
+                selectedFields
+            );
+            MapVolFields<tensor>
+            (
+                objects,
+                meshToMesh0Interp,
+                mapOrder,
+                CombineOp<tensor>(),
+                selectedFields
+            );
+        }
+
+        {
+            // Search for list of target objects for this time
+            IOobjectList objects(meshTarget, meshTarget.time().timeName());
+
+            // Mark surfaceFields as unmapped
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            UnMapped<surfaceScalarField>(objects);
+            UnMapped<surfaceVectorField>(objects);
+            UnMapped<surfaceSphericalTensorField>(objects);
+            UnMapped<surfaceSymmTensorField>(objects);
+            UnMapped<surfaceTensorField>(objects);
+
+            // Mark pointFields as unmapped
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            UnMapped<pointScalarField>(objects);
+            UnMapped<pointVectorField>(objects);
+            UnMapped<pointSphericalTensorField>(objects);
+            UnMapped<pointSymmTensorField>(objects);
+            UnMapped<pointTensorField>(objects);
+        }
+
+        mapLagrangian(meshToMesh0Interp);
     }
-
-    {
-        // Search for list of target objects for this time
-        IOobjectList objects(meshTarget, meshTarget.time().timeName());
-
-        // Mark surfaceFields as unmapped
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        UnMapped<surfaceScalarField>(objects);
-        UnMapped<surfaceVectorField>(objects);
-        UnMapped<surfaceSphericalTensorField>(objects);
-        UnMapped<surfaceSymmTensorField>(objects);
-        UnMapped<surfaceTensorField>(objects);
-
-        // Mark pointFields as unmapped
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        UnMapped<pointScalarField>(objects);
-        UnMapped<pointVectorField>(objects);
-        UnMapped<pointSphericalTensorField>(objects);
-        UnMapped<pointSymmTensorField>(objects);
-        UnMapped<pointTensorField>(objects);
-    }
-
-    mapLagrangian(meshToMesh0Interp);
 }
 
 
 template<template<class> class CombineOp>
 void MapConsistentSubMesh
 (
+    Time& runTimeSource,
+    Time& runTimeTarget,
+    const instantList& timeSourceDirs,
     const fvMesh& meshSource,
     const fvMesh& meshTarget,
     const meshToMesh0::order& mapOrder,
@@ -258,6 +295,9 @@ void MapConsistentSubMesh
 
     MapSubMesh<CombineOp>
     (
+        runTimeSource,
+        runTimeTarget,
+        timeSourceDirs,
         meshSource,
         meshTarget,
         patchMap,

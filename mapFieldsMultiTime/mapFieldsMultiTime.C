@@ -90,63 +90,35 @@ void mapConsistentMesh
 {
     if (subtract)
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
+        // Do the mapping
+        MapConsistentMesh<minusEqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            mapOrder,
+            selectedFields
+        );
 
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapConsistentMesh<minusEqOp>
-            (
-                meshSource,
-                meshTarget,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }      
+        Info<< endl << endl;     
     }
     else
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
+        // Do the mapping
+        MapConsistentMesh<eqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            mapOrder,
+            selectedFields
+        );
 
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapConsistentMesh<eqOp>
-            (
-                meshSource,
-                meshTarget,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }
+        Info<< endl << endl;
     }
 }
 
@@ -167,67 +139,39 @@ void mapSubMesh
 {
     if (subtract)
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
-
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapSubMesh<minusEqOp>
-            (
-                meshSource,
-                meshTarget,
-                patchMap,
-                cuttingPatches,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }
+        // Do the mapping
+        MapSubMesh<minusEqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            patchMap,
+            cuttingPatches,
+            mapOrder,
+            selectedFields
+        );
+        
+        Info<< endl << endl;
     }
     else
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
+        // Do the mapping
+        MapSubMesh<eqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            patchMap,
+            cuttingPatches,
+            mapOrder,
+            selectedFields
+        );
 
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapSubMesh<eqOp>
-            (
-                meshSource,
-                meshTarget,
-                patchMap,
-                cuttingPatches,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }
+        Info<< endl << endl;
     }
 }
 
@@ -246,63 +190,33 @@ void mapConsistentSubMesh
 {
     if (subtract)
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
+        MapConsistentSubMesh<minusEqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            mapOrder,
+            selectedFields
+        );
 
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapConsistentSubMesh<minusEqOp>
-            (
-                meshSource,
-                meshTarget,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }
+        Info<< endl << endl;
     }
     else
     {
-        forAll(timeSourceDirs, timeI)
-        {
-            const word& sourceTimeName = timeSourceDirs[timeI].name();
+        MapConsistentSubMesh<eqOp>
+        (
+            runTimeSource,
+            runTimeTarget,
+            timeSourceDirs,
+            meshSource,
+            meshTarget,
+            mapOrder,
+            selectedFields
+        );
 
-            if (sourceTimeName == "0" || sourceTimeName == "constant")
-            {
-                continue;
-            }
-
-            // Set source and target time
-            runTimeSource.setTime(timeSourceDirs[timeI], timeI);
-            runTimeTarget.setTime(timeSourceDirs[timeI], timeI);
-
-            Info << "Mapping from source time " << runTimeSource.timeName()
-                << " to target time " << runTimeTarget.timeName() << endl;
-
-            // Do the mapping
-            MapConsistentSubMesh<eqOp>
-            (
-                meshSource,
-                meshTarget,
-                mapOrder,
-                selectedFields
-            );
-
-            Info<< endl << endl;
-        }
+        Info<< endl << endl;
     }
 }
 
