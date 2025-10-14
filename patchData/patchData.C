@@ -117,13 +117,18 @@ int main(int argc, char *argv[])
 
     argList::addOption(
         "interfaceName",
-        "word",
-        "name of the interface, e.g., interface_Dir.");
+        "wordList",
+        "name of the interface, e.g., '(interface_Dir)' or '(interface_Dir interface_Neu)'.");
 
     argList::addOption(
         "fields",
         "wordRes",
         "fields to be processed, default is all fields.");
+
+    argList::addOption(
+        "centre",
+        "bool",
+        "if true, output the field of patch centres.");
 
     // Initialise OF case
     #include "setRootCase.H"
@@ -132,32 +137,39 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    label interfaceID(-1);
-    word interfaceName;
-    if (args.found("interfaceName"))
-    {
-        interfaceName = args.get<word>("interfaceName");
+    labelList interfaceID;
 
-        interfaceID = mesh.boundary().findPatchID(interfaceName);
-
-        if (interfaceID == -1)
-        {
-            FatalErrorIn("main")
-                << "Cannot find the patch " << interfaceName << exit(FatalError);
-        }
-
-        Info << "interfaceName: " << mesh.boundary()[interfaceID].name() << endl;
-    }
-    else
+    if (!args.found("interfaceName"))
     {
         FatalErrorIn("main")
             << "Please specify the interfaceName." << exit(FatalError);
     }
+    wordList interfaceName(args.get<wordList>("interfaceName"));
+    forAll(interfaceName, i)
+    {
+        interfaceID.append(mesh.boundary().findPatchID(interfaceName[i]));
+    }
+    forAll(interfaceID, i)
+    {
+        if (interfaceID[i] == -1)
+        {
+            FatalErrorIn("main")
+                << "Cannot find patch " << interfaceName[i] << exit(FatalError);
+        }
 
-    List<List<vector>> local_tmp(Pstream::nProcs());
-    local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID].Cf();
-    Pstream::gatherList(local_tmp);
-    printList(local_tmp, mesh, "Cf", "interface");
+        Info<< "Found patch " << interfaceName[i] << endl;
+    }
+
+    if (args.getOrDefault<bool>("centre", true))
+    {
+        forAll(interfaceID, i)
+        {
+            List<List<vector>> local_tmp(Pstream::nProcs());
+            local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID[i]].Cf();
+            Pstream::gatherList(local_tmp);
+            printList(local_tmp, mesh, "Cf", interfaceName[i]);
+        }
+    }
 
     instantList timeDirs = timeSelector::select0(runTime, args);
 
@@ -169,9 +181,12 @@ int main(int argc, char *argv[])
 
         IOobjectList objects(mesh, runTime.timeName());
 
-        interfaceDataIO<scalar>(objects, mesh, interfaceID, selectedFields, "interface");
-        interfaceDataIO<vector>(objects, mesh, interfaceID, selectedFields, "interface");
-        interfaceDataIO<tensor>(objects, mesh, interfaceID, selectedFields, "interface");
+        forAll(interfaceName, i)
+        {
+            interfaceDataIO<scalar>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+            interfaceDataIO<vector>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+            interfaceDataIO<tensor>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+        }
     }
 
     Info << "End\n"
