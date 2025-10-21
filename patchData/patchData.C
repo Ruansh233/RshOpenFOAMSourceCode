@@ -105,7 +105,7 @@ void interfaceDataIO<tensor>(
     {
         fieldType data(io, mesh, false);
         List<List<vector>> tmp_data(Pstream::nProcs());
-        tmp_data[Pstream::myProcNo()] = data.boundaryField()[interfaceID] & mesh.boundary()[interfaceID].nf();
+        tmp_data[Pstream::myProcNo()] = mesh.boundary()[interfaceID].nf() & data.boundaryField()[interfaceID];
         Pstream::gatherList(tmp_data);
         printList(tmp_data, mesh, io.name() + "_" + mesh.time().timeName(), interfaceName);
     }
