@@ -125,10 +125,17 @@ int main(int argc, char *argv[])
         "wordRes",
         "fields to be processed, default is all fields.");
 
-    argList::addOption(
+    argList::addBoolOption(
+        "noFields",
+        "if found, no field data is processed.");
+
+    argList::addBoolOption(
+        "patchInfo",
+        "if found, patch information is processed.");
+
+    argList::addBoolOption(
         "centre",
-        "bool",
-        "if true, output the field of patch centres.");
+        "if found, output the field of patch centres.");
 
     // Initialise OF case
     #include "setRootCase.H"
@@ -138,6 +145,12 @@ int main(int argc, char *argv[])
     #include "createMesh.H"
 
     labelList interfaceID;
+
+    if (args.found("noFields") && args.found("fields"))
+    {
+        FatalErrorIn("main")
+            << "Cannot specify both noFields and fields options." << exit(FatalError);
+    }
 
     if (!args.found("interfaceName"))
     {
@@ -160,7 +173,7 @@ int main(int argc, char *argv[])
         Info<< "Found patch " << interfaceName[i] << endl;
     }
 
-    if (args.getOrDefault<bool>("centre", true))
+    if (args.found("centre"))
     {
         forAll(interfaceID, i)
         {
@@ -171,21 +184,42 @@ int main(int argc, char *argv[])
         }
     }
 
-    instantList timeDirs = timeSelector::select0(runTime, args);
-
-    wordRes selectedFields(args.get<wordRes>("fields"));
-
-    forAll(timeDirs, timei)
+    if (args.found("patchInfo"))
     {
-        runTime.setTime(timeDirs[timei], timei);
+        forAll(interfaceID, i)
+        {   
+            List<scalar> local_tmp(Pstream::nProcs());
+            local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID[i]].size();
+            Pstream::gatherList(local_tmp);
+            forAll(local_tmp, proc)
+            {
+                if (local_tmp[proc] >= 1)
+                {
+                    Info << "Patch " << interfaceName[i] << " on processor " << proc
+                     << " has " << local_tmp[proc] << " faces." << endl;
+                }
+            }
+        }
+    }
 
-        IOobjectList objects(mesh, runTime.timeName());
+    if (!args.found("noFields"))
+    {
+        instantList timeDirs = timeSelector::select0(runTime, args);
 
-        forAll(interfaceName, i)
+        wordRes selectedFields(args.get<wordRes>("fields"));
+
+        forAll(timeDirs, timei)
         {
-            interfaceDataIO<scalar>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
-            interfaceDataIO<vector>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
-            interfaceDataIO<tensor>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+            runTime.setTime(timeDirs[timei], timei);
+
+            IOobjectList objects(mesh, runTime.timeName());
+
+            forAll(interfaceName, i)
+            {
+                interfaceDataIO<scalar>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+                interfaceDataIO<vector>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+                interfaceDataIO<tensor>(objects, mesh, interfaceID[i], selectedFields, interfaceName[i]);
+            }
         }
     }
 
