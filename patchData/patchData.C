@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
                 << "Cannot find patch " << interfaceName[i] << exit(FatalError);
         }
 
-        Info<< "Found patch " << interfaceName[i] << endl;
+        Info<< "Found patch " << interfaceName[i];
     }
 
     if (args.found("centre"))
@@ -191,18 +191,24 @@ int main(int argc, char *argv[])
             List<scalar> local_tmp(Pstream::nProcs());
             local_tmp[Pstream::myProcNo()] = mesh.boundary()[interfaceID[i]].size();
             Pstream::gatherList(local_tmp);
+            Info<< ", Patch info:" << endl
+                << "\t ------------------------" << endl
+                << "\t Patch type: " << mesh.boundary()[interfaceID[i]].type() << endl
+                << "\t Total number of faces: " << gSum(local_tmp) << endl;
+
             forAll(local_tmp, proc)
             {
                 if (local_tmp[proc] >= 1)
                 {
-                    Info << "Patch " << interfaceName[i] << " on processor " << proc
-                     << " has " << local_tmp[proc] << " faces." << endl;
+                    Info<< "\t Patch " << interfaceName[i] << " on processor " << proc
+                        << " has " << local_tmp[proc] << " faces." << endl;
                 }
             }
+            Info<< "\t ------------------------" << endl;
         }
     }
 
-    if (!args.found("noFields"))
+    if (args.found("fields"))
     {
         instantList timeDirs = timeSelector::select0(runTime, args);
 
@@ -223,8 +229,8 @@ int main(int argc, char *argv[])
         }
     }
 
-    Info << "End\n"
-         << endl;
+    Info<< "End\n"
+        << endl;
     return 0;
 }
 
